@@ -1,25 +1,25 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import Image from "next/image";
+import { motion } from 'framer-motion';
+import Image from 'next/image';
 import {
   ArrowRight,
   BadgeCheck,
   BriefcaseBusiness,
   CalendarClock,
   DollarSign,
-} from "lucide-react";
+} from 'lucide-react';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const benefits = [
-  "Receive verified customer bookings",
-  "Choose your own working schedule",
-  "Earn competitive income",
-  "Secure online payments",
-  "Grow your professional reputation",
+  'Receive verified customer bookings',
+  'Choose your own working schedule',
+  'Earn competitive income',
+  'Secure online payments',
+  'Grow your professional reputation',
 ];
 
 export default function BecomeTechnician() {
@@ -44,7 +44,7 @@ export default function BecomeTechnician() {
               variant="secondary"
               className="rounded-full border border-primary/20 bg-primary/10 px-4 py-1 text-primary"
             >
-             Become a Technician
+              Become a Technician
             </Badge>
 
             <h2 className="mt-6 text-4xl font-bold leading-tight md:text-5xl">
@@ -61,35 +61,34 @@ export default function BecomeTechnician() {
             {/* Benefits */}
             <div className="mt-8 space-y-4">
               {benefits.map((benefit) => (
-                <div
-                  key={benefit}
-                  className="flex items-center gap-3"
-                >
+                <div key={benefit} className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
                     <BadgeCheck className="h-5 w-5 text-primary" />
                   </div>
 
-                  <span className="font-medium">
-                    {benefit}
-                  </span>
+                  <span className="font-medium">{benefit}</span>
                 </div>
               ))}
             </div>
 
-            {/* Buttons */}
             <div className="mt-10 flex flex-wrap gap-4">
-              <Button size="lg" className="rounded-full">
-                <Link href="/register">Become a Technician</Link>
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-
               <Button
+                asChild
+                size="lg"
+                className="rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/25"
+              >
+                <Link href="/register">
+                  Become a Technician
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button
+                asChild
                 size="lg"
                 variant="outline"
-                className="rounded-full"
+                className="rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:border-primary hover:bg-primary/5"
               >
-                <Link href="/learn-more-technician">Learn More</Link>
-                
+                <Link href="/how-it-works">Learn More</Link>
               </Button>
             </div>
           </motion.div>
@@ -152,16 +151,12 @@ export default function BecomeTechnician() {
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <CalendarClock className="h-6 w-6 text-primary" />
-                  <span className="font-semibold">
-                    Flexible Schedule
-                  </span>
+                  <span className="font-semibold">Flexible Schedule</span>
                 </div>
 
                 <div className="flex items-center gap-3">
                   <BriefcaseBusiness className="h-6 w-6 text-primary" />
-                  <span className="font-semibold">
-                    500+ Jobs Available
-                  </span>
+                  <span className="font-semibold">500+ Jobs Available</span>
                 </div>
               </div>
             </motion.div>
