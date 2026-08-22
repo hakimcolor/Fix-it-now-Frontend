@@ -1,11 +1,20 @@
-
-
 'use client';
 
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Menu, User, Settings, LogOut, Home, Search, Users, PlayCircle, LayoutDashboard, Contact } from 'lucide-react';
+import {
+  Menu,
+  User,
+  Settings,
+  LogOut,
+  Home,
+  Search,
+  Users,
+  PlayCircle,
+  LayoutDashboard,
+  Contact,
+} from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -17,11 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import ThemeSwitcher from './ThemeSwitcher';
 import { logout } from '@/services/logout';
@@ -34,90 +39,78 @@ const navItems = [
   { href: '/services', label: 'Services', icon: Search },
   { href: '/find-technicians', label: 'Find Technicians', icon: Users },
   { href: '/how-it-works', label: 'How It Works', icon: PlayCircle },
-  { href: '/contact', label: 'Contact', icon: Contact},
+  { href: '/contact', label: 'Contact', icon: Contact },
 ];
 
 type IUser = {
-  success: boolean,
-  message: string,
+  success: boolean;
+  message: string;
   data?: {
     profile?: {
-      id: string,
-      name: string,
-      email: string,
-      phone: string,
-      activeStatus: string,
-      role: string,
-      isVerified: boolean,
+      id: string;
+      name: string;
+      email: string;
+      phone: string;
+      activeStatus: string;
+      role: string;
+      isVerified: boolean;
       lastLoginAt: string | null;
       userStatus: string | null;
       createdAt: string;
       updatedAt: string;
       technicianProfile?: null;
-    }
-  }
-}
-
-
-type NavbarProps = {
-  user: IUser
-}
-
-
-
-
-export default function Navbar({ user }: NavbarProps) {
-
-  const pathname = usePathname();
-
-      const router = useRouter();
-
-  // login state from props
-const profile = user?.data?.profile;
-const isLoggedIn = !!user?.success && !!profile;
-
-const dashboardLink =
-  profile?.role === "ADMIN"
-    ? "/admin-dashboard"
-    : profile?.role === "TECHNICIAN"
-    ? "/technician-dashboard"
-    : "/dashboard";
-
-  const handleLogout = async () => {
-  try {
-    toast.loading("Logging out...", { id: "logout" });
-
-    await logout(); // logout function
-
-    toast.success("Logged out successfully!", { 
-      id: "logout",
-      description: "See you soon 👋"
-    });
-
-    router.replace("/login");   
-
-  } catch (error) {
-    console.error("Logout error:", error);
-    
-    toast.error("Failed to logout", {
-      id: "logout",
-      description: "Please try again",
-    });
-  }
+    };
+  };
 };
 
+type NavbarProps = {
+  user: IUser;
+};
+
+export default function Navbar({ user }: NavbarProps) {
+  const pathname = usePathname();
+
+  const router = useRouter();
+
+  // login state from props
+  const profile = user?.data?.profile;
+  const isLoggedIn = !!user?.success && !!profile;
+
+  const dashboardLink =
+    profile?.role === 'ADMIN'
+      ? '/admin-dashboard'
+      : profile?.role === 'TECHNICIAN'
+        ? '/technician-dashboard'
+        : '/dashboard';
+
+  const handleLogout = async () => {
+    try {
+      toast.loading('Logging out...', { id: 'logout' });
+
+      await logout(); // logout function
+
+      toast.success('Logged out successfully!', {
+        id: 'logout',
+        description: 'See you soon 👋',
+      });
+
+      router.replace('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+
+      toast.error('Failed to logout', {
+        id: 'logout',
+        description: 'Please try again',
+      });
+    }
+  };
+
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <SiteLogo/>
-          {/* <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <span className="text-lg font-bold text-primary-foreground">F</span>
-            </div>
-            <span className="font-semibold text-xl tracking-tight">FixItNow</span>
-          </Link> */}
+          <SiteLogo />
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
@@ -128,12 +121,18 @@ const dashboardLink =
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-2 text-sm font-medium transition-colors hover:text-foreground",
-                    isActive ? "text-primary" : "text-muted-foreground"
+                    'flex items-center gap-1.5 text-sm font-medium transition-all duration-200 hover:text-foreground relative group',
+                    isActive ? 'text-primary' : 'text-muted-foreground'
                   )}
                 >
                   <item.icon className="h-4 w-4" />
                   {item.label}
+                  <span
+                    className={cn(
+                      'absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300',
+                      isActive ? 'w-full' : 'w-0 group-hover:w-full'
+                    )}
+                  />
                 </Link>
               );
             })}
@@ -141,7 +140,6 @@ const dashboardLink =
 
           {/* Right Side - Auth Section */}
           <div className="flex items-center gap-3">
-
             {/* === Theme Switcher (Dropdown) === */}
             <ThemeSwitcher />
 
@@ -149,9 +147,15 @@ const dashboardLink =
               /* === Logged In: User Dropdown === */
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                  <Button
+                    variant="ghost"
+                    className="relative h-9 w-9 rounded-full"
+                  >
                     <Avatar className="h-9 w-9">
-                      <AvatarImage src="https://github.com/shadcn.png" alt="User" />
+                      <AvatarImage
+                        src="https://github.com/shadcn.png"
+                        alt="User"
+                      />
                       <AvatarFallback>User</AvatarFallback>
                     </Avatar>
                   </Button>
@@ -159,9 +163,11 @@ const dashboardLink =
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user.data?.profile?.name || "Name"}</p>
+                      <p className="text-sm font-medium leading-none">
+                        {user.data?.profile?.name || 'Name'}
+                      </p>
                       <p className="text-xs leading-none text-muted-foreground">
-                       {user.data?.profile?.email || "Email"}
+                        {user.data?.profile?.email || 'Email'}
                       </p>
                     </div>
                   </DropdownMenuLabel>
@@ -217,7 +223,9 @@ const dashboardLink =
                 <div className="flex flex-col gap-6 pt-8">
                   <div className="flex items-center gap-3 px-2">
                     <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-                      <span className="text-lg font-bold text-primary-foreground">F</span>
+                      <span className="text-lg font-bold text-primary-foreground">
+                        F
+                      </span>
                     </div>
                     <span className="font-semibold text-2xl">FixItNow</span>
                   </div>
@@ -229,10 +237,10 @@ const dashboardLink =
                         key={item.href}
                         href={item.href}
                         className={cn(
-                          "flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium transition-colors",
+                          'flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium transition-colors',
                           pathname === item.href
-                            ? "bg-primary text-primary-foreground"
-                            : "hover:bg-muted"
+                            ? 'bg-primary text-primary-foreground'
+                            : 'hover:bg-muted'
                         )}
                       >
                         <item.icon className="h-5 w-5" />
@@ -243,14 +251,22 @@ const dashboardLink =
 
                   {/* Auth Section in Mobile */}
                   <div className="border-t pt-6 mt-auto">
-                    {isLoggedIn && profile ?(
+                    {isLoggedIn && profile ? (
                       <>
-                        <div className="px-4 text-sm text-muted-foreground mb-4">Account</div>
+                        <div className="px-4 text-sm text-muted-foreground mb-4">
+                          Account
+                        </div>
                         <div className="space-y-1">
-                          <Link href="/profile" className="flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-muted">
+                          <Link
+                            href="/profile"
+                            className="flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-muted"
+                          >
                             <User className="h-5 w-5" /> Profile
                           </Link>
-                          <Link href="/settings" className="flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-muted">
+                          <Link
+                            href="/settings"
+                            className="flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-muted"
+                          >
                             <Settings className="h-5 w-5" /> Settings
                           </Link>
                           <button
@@ -281,11 +297,3 @@ const dashboardLink =
     </nav>
   );
 }
-
-
-
-
-
-
-
-
