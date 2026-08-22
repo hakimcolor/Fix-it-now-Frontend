@@ -1,10 +1,8 @@
+import { getBookingById } from '@/app/(dashboard)/_actions/getBookingById';
+import { getTechnicianById } from '@/app/(dashboard)/_actions/getTechnicianById';
 
-
-import { getBookingById } from "@/app/(dashboard)/_actions/getBookingById";
-import { getTechnicianById } from "@/app/(dashboard)/_actions/getTechnicianById";
-
-import Link from "next/link";
-import Image from "next/image";
+import Link from 'next/link';
+import Image from 'next/image';
 
 import {
   ArrowLeft,
@@ -14,23 +12,19 @@ import {
   User,
   Wrench,
   CreditCard,
-} from "lucide-react";
+} from 'lucide-react';
+import CancelBookingButton from '@/app/(dashboard)/_components/CancelBookingButton';
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 import {
   bookingStatusConfig,
   paymentStatusConfig,
-} from "../config/bookingStatusConfig";
+} from '../config/bookingStatusConfig';
 
-import { BookingSlot } from "@/app/(dashboard)/types/bookingSlotProps";
+import { BookingSlot } from '@/app/(dashboard)/types/bookingSlotProps';
 
 export default async function SingleBookingPage({
   params,
@@ -51,34 +45,26 @@ export default async function SingleBookingPage({
     );
   }
 
-  const technicianProfile = await getTechnicianById(
-    booking.technicianId
-  );
+  const technicianProfile = await getTechnicianById(booking.technicianId);
 
-  const technician =
-    technicianProfile.data?.technician?.user;
+  const technician = technicianProfile.data?.technician?.user;
 
   const bookingStatus =
-    bookingStatusConfig[
-    booking.status as keyof typeof bookingStatusConfig
-    ];
+    bookingStatusConfig[booking.status as keyof typeof bookingStatusConfig];
 
   const paymentStatus =
     paymentStatusConfig[
-    booking.paymentStatus as keyof typeof paymentStatusConfig
+      booking.paymentStatus as keyof typeof paymentStatusConfig
     ];
 
   // Show cancel button only before work starts
-  const canCancel = ![
-    "IN_PROGRESS",
-    "COMPLETED",
-    "CANCELLED",
-  ].includes(booking.status);
+  const canCancel = !['IN_PROGRESS', 'COMPLETED', 'CANCELLED'].includes(
+    booking.status
+  );
 
   // Show Pay Now button only if payment is pending
   const canPay =
-    booking.paymentStatus === "PENDING" &&
-    booking.status !== "CANCELLED";
+    booking.paymentStatus === 'PENDING' && booking.status !== 'CANCELLED';
 
   return (
     <div className="container mx-auto max-w-6xl space-y-6 py-8">
@@ -92,23 +78,16 @@ export default async function SingleBookingPage({
         </Link>
 
         <div className="flex flex-wrap items-center gap-2">
-
           {canPay && (
             <Button asChild>
-              <Link
-                href={`/dashboard/my-bookings/${booking.id}/payment`}
-              >
+              <Link href={`/dashboard/my-bookings/${booking.id}/payment`}>
                 <CreditCard className="mr-2 h-4 w-4" />
                 Pay Now
               </Link>
             </Button>
           )}
 
-          {canCancel && (
-            <Button variant="destructive">
-              Cancel Booking
-            </Button>
-          )}
+          {canCancel && <CancelBookingButton bookingId={booking.id} />}
         </div>
       </div>
 
@@ -133,9 +112,7 @@ export default async function SingleBookingPage({
             </div>
           )}
           <div>
-            <Badge className={bookingStatus.className}>
-              {booking.status}
-            </Badge>
+            <Badge className={bookingStatus.className}>{booking.status}</Badge>
 
             <Badge className={paymentStatus.className}>
               {booking.paymentStatus}
@@ -143,9 +120,7 @@ export default async function SingleBookingPage({
           </div>
 
           <div>
-            <h2 className="text-2xl font-bold">
-              {booking.service.title}
-            </h2>
+            <h2 className="text-2xl font-bold">{booking.service.title}</h2>
 
             <p className="mt-2 text-muted-foreground">
               {booking.service.description}
@@ -171,14 +146,10 @@ export default async function SingleBookingPage({
               <Calendar className="h-5 w-5 text-primary" />
 
               <div>
-                <p className="text-sm text-muted-foreground">
-                  Booking Date
-                </p>
+                <p className="text-sm text-muted-foreground">Booking Date</p>
 
                 <p className="font-medium">
-                  {new Date(
-                    booking.bookingDate
-                  ).toLocaleDateString()}
+                  {new Date(booking.bookingDate).toLocaleDateString()}
                 </p>
               </div>
             </div>
@@ -187,9 +158,7 @@ export default async function SingleBookingPage({
               <CreditCard className="h-5 w-5 text-primary" />
 
               <div>
-                <p className="text-sm text-muted-foreground">
-                  Payment Status
-                </p>
+                <p className="text-sm text-muted-foreground">Payment Status</p>
 
                 <p>{booking.paymentStatus}</p>
               </div>
@@ -203,30 +172,17 @@ export default async function SingleBookingPage({
 
               <div className="space-y-2">
                 {booking.bookingSlots.length > 0 ? (
-                  booking.bookingSlots.map(
-                    (slot: BookingSlot) => (
-                      <Badge
-                        key={slot.id}
-                        variant="secondary"
-                        className="mr-2"
-                      >
-                        {new Date(
-                          slot.startsAt
-                        ).toLocaleString()}{" "}
-                        -{" "}
-                        {new Date(
-                          slot.endsAt
-                        ).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </Badge>
-                    )
-                  )
+                  booking.bookingSlots.map((slot: BookingSlot) => (
+                    <Badge key={slot.id} variant="secondary" className="mr-2">
+                      {new Date(slot.startsAt).toLocaleString()} -{' '}
+                      {new Date(slot.endsAt).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </Badge>
+                  ))
                 ) : (
-                  <p className="text-muted-foreground">
-                    No slot information
-                  </p>
+                  <p className="text-muted-foreground">No slot information</p>
                 )}
               </div>
             </div>
@@ -252,13 +208,10 @@ export default async function SingleBookingPage({
 
             <div>
               <h3 className="text-lg font-semibold">
-                {technician?.name ??
-                  "Assigned Technician"}
+                {technician?.name ?? 'Assigned Technician'}
               </h3>
 
-              <p className="text-muted-foreground">
-                {booking.technician.bio}
-              </p>
+              <p className="text-muted-foreground">{booking.technician.bio}</p>
 
               <p className="text-muted-foreground">
                 Mobile: {technician?.phone}
@@ -270,9 +223,7 @@ export default async function SingleBookingPage({
             </div>
 
             <div>
-              <p className="font-medium">
-                Description
-              </p>
+              <p className="font-medium">Description</p>
 
               <p className="text-muted-foreground">
                 {booking.technician.description}
@@ -313,34 +264,24 @@ export default async function SingleBookingPage({
 
         <CardContent className="grid gap-4 md:grid-cols-2">
           <div>
-            <p className="text-sm text-muted-foreground">
-              Name
-            </p>
+            <p className="text-sm text-muted-foreground">Name</p>
             <p>{booking.customer.name}</p>
           </div>
 
           <div>
-            <p className="text-sm text-muted-foreground">
-              Email
-            </p>
+            <p className="text-sm text-muted-foreground">Email</p>
             <p>{booking.customer.email}</p>
           </div>
 
           <div>
-            <p className="text-sm text-muted-foreground">
-              Phone
-            </p>
+            <p className="text-sm text-muted-foreground">Phone</p>
             <p>{booking.customer.phone}</p>
           </div>
 
           <div>
-            <p className="text-sm text-muted-foreground">
-              Booking ID
-            </p>
+            <p className="text-sm text-muted-foreground">Booking ID</p>
 
-            <p className="break-all text-xs">
-              {booking.id}
-            </p>
+            <p className="break-all text-xs">{booking.id}</p>
           </div>
         </CardContent>
       </Card>
