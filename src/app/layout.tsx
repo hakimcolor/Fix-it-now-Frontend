@@ -1,51 +1,26 @@
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { cn } from '@/lib/utils';
+import { Toaster } from '@/components/ui/sonner';
+import { ThemeProvider } from 'next-themes';
 
-import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
-import "./globals.css";
-import { cn } from "@/lib/utils";
-import { Toaster } from "@/components/ui/sonner";
-import { ThemeProvider } from "next-themes";
-
-
-const inter = Inter({ 
-  subsets: ['latin'], 
-  variable: '--font-sans' 
-});
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
-  title: "FixItNow",
-  description: "Your service booking platform",
+  title: 'FixItNow – Your Trusted Home Service Platform',
+  description:
+    'Book qualified home service professionals for repairs, cleaning, plumbing, electrical work, and more.',
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={cn(
-        "h-full antialiased",
-        geistSans.variable,
-        geistMono.variable,
-        inter.variable
-      )}
-    >
-      <body className="min-h-full flex flex-col">
+    <html lang="en" suppressHydrationWarning className={cn(inter.variable)}>
+      <body className="min-h-full flex flex-col bg-background text-foreground antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -53,13 +28,8 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           {children}
-          <Toaster
-            richColors
-            closeButton
-            expand
-          />
+          <Toaster richColors closeButton expand />
         </ThemeProvider>
-        
       </body>
     </html>
   );
