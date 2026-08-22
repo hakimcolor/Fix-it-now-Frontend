@@ -1,6 +1,6 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -48,8 +48,6 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-
-
 :root {
   /* Base */
   --background: oklch(0.99 0.002 240);
@@ -67,7 +65,7 @@
   --primary-foreground: oklch(1 0 0);
 
   /* Secondary 1 - Teal (#0d9488 family) — fresh & modern */
-  --secondary: oklch(0.60 0.14 180);
+  --secondary: oklch(0.6 0.14 180);
   --secondary-foreground: oklch(1 0 0);
 
   /* Secondary 2 / Accent - Warm Amber (#f59e0b family) — energy & action */
@@ -76,14 +74,14 @@
 
   /* Muted */
   --muted: oklch(0.96 0.005 240);
-  --muted-foreground: oklch(0.50 0.02 240);
+  --muted-foreground: oklch(0.5 0.02 240);
 
   /* Status */
   --destructive: oklch(0.63 0.23 28);
 
   /* Borders & Inputs */
-  --border: oklch(0.90 0.01 240);
-  --input: oklch(0.90 0.01 240);
+  --border: oklch(0.9 0.01 240);
+  --input: oklch(0.9 0.01 240);
   --ring: oklch(0.55 0.22 262);
 
   /* Radius */
@@ -91,10 +89,10 @@
 
   /* Charts */
   --chart-1: oklch(0.55 0.22 262);
-  --chart-2: oklch(0.60 0.14 180);
+  --chart-2: oklch(0.6 0.14 180);
   --chart-3: oklch(0.78 0.17 70);
   --chart-4: oklch(0.65 0.18 262);
-  --chart-5: oklch(0.70 0.13 180);
+  --chart-5: oklch(0.7 0.13 180);
 
   /* Sidebar */
   --sidebar: oklch(0.98 0.004 240);
@@ -106,7 +104,7 @@
   --sidebar-accent: oklch(0.94 0.01 240);
   --sidebar-accent-foreground: oklch(0.16 0.025 255);
 
-  --sidebar-border: oklch(0.90 0.01 240);
+  --sidebar-border: oklch(0.9 0.01 240);
   --sidebar-ring: oklch(0.55 0.22 262);
 }
 
@@ -167,8 +165,6 @@
   --sidebar-ring: oklch(0.65 0.22 262);
 }
 
-
-
 /* ==========================
    Sonner Theme
 ========================== */
@@ -193,10 +189,6 @@
   --info-text: var(--secondary-foreground);
 }
 
-
-
-
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -207,15 +199,37 @@
   html {
     @apply font-sans;
   }
+
+  /* Global cursor pointer for all interactive elements */
+  button,
+  [role='button'],
+  a,
+  label,
+  select,
+  [type='checkbox'],
+  [type='radio'],
+  [type='submit'],
+  [type='reset'],
+  [type='button'],
+  summary {
+    cursor: pointer;
+  }
+
+  /* Smooth scroll */
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
-
-
-
-
-
-
-
-
-
-
+/* Global hover lift for cards */
+@layer utilities {
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-xl;
+  }
+  .hover-glow {
+    @apply transition-all duration-300 hover:shadow-lg hover:shadow-primary/20;
+  }
+  .gradient-text {
+    @apply bg-linear-to-r from-primary via-blue-400 to-teal-400 bg-clip-text text-transparent;
+  }
+}
