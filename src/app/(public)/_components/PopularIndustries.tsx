@@ -1,63 +1,97 @@
+'use client';
 
-
-
-
-"use client";
-
+import Link from 'next/link';
+import { motion } from 'framer-motion';
 import {
-  Search,
-  MapPin,
-  Wrench,
-  UserPlus,
-  Bolt,
   Hammer,
   Home,
   Paintbrush,
   Sofa,
   Fan,
   Droplet,
+  Wrench,
   Zap,
-} from "lucide-react";
+  Sparkles,
+  Scissors,
+  Truck,
+  Shield,
+} from 'lucide-react';
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+// Fallback icon map by category name keywords
+const iconMap: Record<string, React.ElementType> = {
+  plumb: Droplet,
+  electr: Zap,
+  paint: Paintbrush,
+  clean: Sparkles,
+  ac: Fan,
+  air: Fan,
+  carpet: Sofa,
+  floor: Hammer,
+  roof: Home,
+  handyman: Wrench,
+  carpent: Scissors,
+  moving: Truck,
+  secur: Shield,
+};
 
-export default function PopularIndustries() {
+function getCategoryIcon(name: string): React.ElementType {
+  const lower = name.toLowerCase();
+  for (const [key, Icon] of Object.entries(iconMap)) {
+    if (lower.includes(key)) return Icon;
+  }
+  return Wrench;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  isActive: boolean;
+}
+
+export default function PopularIndustries({
+  categories,
+}: {
+  categories: Category[];
+}) {
+  const active = categories.filter((c) => c.isActive).slice(0, 8);
+
+  if (!active.length) return null;
+
   return (
-<>
-      {/* Popular Industries */}
-      <div className="z-10 w-full mt-auto pb-12 pt-8 lg:pt-16">
-        <div className="container max-w-7xl mx-auto px-6 lg:px-8">
-          <p className="uppercase text-xs tracking-[2px] text-muted-foreground mb-6 font-medium text-center lg:text-left">
-            POPULAR INDUSTRIES
-          </p>
+    <section className="relative py-16 bg-muted/30">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <p className="mb-8 text-center text-xs font-semibold uppercase tracking-[3px] text-muted-foreground">
+          Popular Service Categories
+        </p>
 
-          <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-8 gap-6 md:gap-8">
-            {[
-              { icon: Hammer, label: "Flooring" },
-              { icon: Home, label: "Roofing" },
-              { icon: Paintbrush, label: "Windows" },
-              { icon: Sofa, label: "Carpet" },
-              { icon: Fan, label: "AC Repair" },
-              { icon: Droplet, label: "Cleaning" },
-              { icon: Wrench, label: "Handyman" },
-              { icon: Droplet, label: "Plumbing" },
-            ].map((item, i) => (
-              <div
-                key={i}
-                className="flex flex-col items-center gap-3 group cursor-pointer"
+        <div className="grid grid-cols-4 gap-4 md:grid-cols-8">
+          {active.map((item, i) => {
+            const Icon = getCategoryIcon(item.name);
+            return (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.35, delay: i * 0.05 }}
               >
-                <div className="w-16 h-16 rounded-2xl bg-card border border-border flex items-center justify-center transition-all duration-300 group-hover:border-primary group-hover:bg-primary/10 group-hover:scale-110">
-                  <item.icon className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
-                </div>
-                <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center">
-                  {item.label}
-                </span>
-              </div>
-            ))}
-          </div>
+                <Link
+                  href={`/services?categoryId=${item.id}`}
+                  className="group flex cursor-pointer flex-col items-center gap-3 rounded-2xl p-3 transition-all duration-300 hover:bg-background hover:shadow-lg"
+                >
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-background shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:border-primary/50 group-hover:bg-primary/10 group-hover:shadow-md">
+                    <Icon className="h-8 w-8 text-muted-foreground transition-colors duration-300 group-hover:text-primary" />
+                  </div>
+                  <span className="text-center text-sm font-medium text-muted-foreground transition-colors duration-300 group-hover:text-foreground">
+                    {item.name}
+                  </span>
+                </Link>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
-      </>
+    </section>
   );
 }
