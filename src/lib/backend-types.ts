@@ -1,4 +1,3 @@
-
 export type BackendUser = {
   id: string;
   name: string;
@@ -13,15 +12,3 @@ export type BackendUser = {
   createdAt: string;
   updatedAt: string;
 };
-
-export type GoogleLoginSuccess = {
-  message: string;
-  user: BackendUser;
-  accessToken: string;
-  refreshToken: string;
-};
-
-export type GoogleAuthActionState =
-  | { status: "idle" }
-  | { status: "error"; message: string }
-  | { status: "success"; data: GoogleLoginSuccess };

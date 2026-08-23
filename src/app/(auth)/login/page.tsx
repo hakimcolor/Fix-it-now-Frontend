@@ -1,203 +1,28 @@
-// "use client";
-
-// import {  useState } from "react";
-// import Link from "next/link";
-// import { Eye, EyeOff } from "lucide-react";
-// import { useForm } from "react-hook-form";
-// import { zodResolver } from "@hookform/resolvers/zod";
-// import { toast } from "sonner";
-// import Container from "@/components/common/Container";
-// import { Button } from "@/components/ui/button";
-// import {
-//   Card,
-//   CardContent,
-//   CardDescription,
-//   CardFooter,
-//   CardHeader,
-//   CardTitle,
-// } from "@/components/ui/card";
-// import { Input } from "@/components/ui/input";
-// import { Label } from "@/components/ui/label";
-// import { loginUser } from "../_actions/loginUser";
-// import { loginSchema, LoginFormData } from "@/schemas/login.schema";
-
-// export default function Login() {
-//   const [showPassword, setShowPassword] = useState(false);
-//   const {
-//     register,
-//     handleSubmit,
-//     formState: { errors, isSubmitting },
-//   } = useForm<LoginFormData>({
-//     resolver: zodResolver(loginSchema),
-//     defaultValues: {
-//       email: "",
-//       password: "",
-//     },
-//   });
-//   const onSubmit = async (data: LoginFormData) => {
-//     try {
-//       const result = await loginUser(data);
-//       toast.success("Login successful", {
-//         description: result.message || "Welcome back!",
-//       });
-//     } catch (error) {
-//       const message =
-//         error instanceof Error
-//           ? error.message
-//           : "Invalid email or password";
-
-//       toast.error("Login failed", {
-//         description: message,
-//       });
-//     }
-//   };
-
-//   return (
-//     <Container>
-//       <div className="flex min-h-screen items-center justify-center">
-//         <Card className="w-full max-w-sm shadow-lg">
-//           <CardHeader className="space-y-2 text-center">
-//             <CardTitle className="text-primary text-2xl font-bold">
-//               Welcome Back
-//             </CardTitle>
-//             <CardDescription>
-//               Login to your account to continue.
-//             </CardDescription>
-//           </CardHeader>
-//           <CardContent>
-//             <form
-//               onSubmit={handleSubmit(onSubmit)}
-//               className="space-y-5"
-//             >
-//               {/* Email */}
-//               <div className="space-y-2">
-//                 <Label htmlFor="email">
-//                   Email
-//                 </Label>
-//                 <Input
-//                   id="email"
-//                   type="email"
-//                   placeholder="john@example.com"
-//                   autoComplete="email"
-//                   {...register("email")}
-//                 />
-//                 {errors.email && (
-//                   <p className="text-sm text-red-500">
-//                     {errors.email.message}
-//                   </p>
-//                 )}
-//               </div>
-//               {/* Password */}
-//               <div className="space-y-2">
-//                 <div className="flex items-center justify-between">
-//                   <Label htmlFor="password">
-//                     Password
-//                   </Label>
-//                   <Link
-//                     href="/reset-password"
-//                     className="text-primary text-sm hover:underline"
-//                   >
-//                     Forgot password?
-//                   </Link>
-//                 </div>
-//                 <div className="relative">
-//                   <Input
-//                     id="password"
-//                     type={
-//                       showPassword
-//                         ? "text"
-//                         : "password"
-//                     }
-//                     placeholder="••••••••"
-//                     autoComplete="current-password"
-//                     {...register("password")}
-//                     className="pr-11"
-//                   />
-//                   <Button
-//                     type="button"
-//                     variant="ghost"
-//                     size="icon"
-//                     aria-label="Toggle password visibility"
-//                     onClick={() =>
-//                       setShowPassword(
-//                         (prev) => !prev
-//                       )
-//                     }
-//                     className="absolute top-1/2 right-1 h-8 w-8 -translate-y-1/2 hover:bg-transparent"
-//                   >
-//                     {showPassword ? (
-//                       <EyeOff className="text-muted-foreground h-4 w-4" />
-//                     ) : (
-//                       <Eye className="text-muted-foreground h-4 w-4" />
-//                     )}
-//                   </Button>
-//                 </div>
-//                 {errors.password && (
-//                   <p className="text-sm text-red-500">
-//                     {errors.password.message}
-//                   </p>
-//                 )}
-//               </div>
-//               {/* Submit Button */}
-//               <Button
-//                 type="submit"
-//                 className="w-full"
-//                 disabled={isSubmitting}
-//               >
-
-//                 {isSubmitting
-//                   ? "Logging in..."
-//                   : "Login"}
-//               </Button>
-//             </form>
-//           </CardContent>
-//           <CardFooter className="justify-center">
-//             <p className="text-muted-foreground text-sm">
-//               Don&apos;t have an account?{" "}
-//               <Link
-//                 href="/register"
-//                 className="text-primary font-medium hover:underline"
-//               >
-//                 Sign Up
-//               </Link>
-//             </p>
-//           </CardFooter>
-//         </Card>
-//       </div>
-//     </Container>
-//   );
-// }
-
 'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Wrench } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import Container from '@/components/common/Container';
+
 import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+
 import { loginUser } from '../_actions/loginUser';
 import { loginSchema, LoginFormData } from '@/schemas/login.schema';
 import DemoCredentials from '../_components/DemoCredentials';
-import { GoogleLoginButton } from '../_components/GoogleLoginButton';
-// import GoogleLoginButton from "../_components/GoogleLoginButton";
 
-export default function Login() {
+export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
-
-  // const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
 
   const {
     register,
@@ -206,20 +31,14 @@ export default function Login() {
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+    defaultValues: { email: '', password: '' },
   });
+
   const onSubmit = async (data: LoginFormData) => {
     try {
       await loginUser(data);
     } catch (error) {
-      // Next.js redirect() throws internally — let it propagate
-      if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
-        throw error;
-      }
-      // Check for Next.js redirect digest
+      // Let Next.js redirect() propagate
       if (
         error &&
         typeof error === 'object' &&
@@ -228,55 +47,60 @@ export default function Login() {
       ) {
         throw error;
       }
-
-      const message =
-        error instanceof Error ? error.message : 'Invalid email or password';
-
       toast.error('Login failed', {
-        description: message,
+        description:
+          error instanceof Error ? error.message : 'Invalid email or password',
       });
     }
   };
 
   return (
-    <Container>
-      <div className="flex min-h-screen items-center justify-center">
-        <Card className="w-full max-w-sm shadow-lg">
-          <CardHeader className="space-y-2 text-center">
-            <CardTitle className="text-primary text-2xl font-bold">
-              Welcome Back
-            </CardTitle>
-            <CardDescription>
-              Login to your account to continue.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4 py-12">
+      <div className="w-full max-w-md space-y-6">
+        {/* Brand */}
+        <div className="text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/30">
+            <Wrench className="h-7 w-7 text-primary-foreground" />
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight">Welcome back</h1>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            Sign in to your FixItNow account
+          </p>
+        </div>
+
+        <Card className="shadow-xl">
+          <CardHeader className="pb-0" />
+          <CardContent className="pt-6">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-5"
+              noValidate
+            >
               {/* Email */}
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="email">Email address</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="john@example.com"
+                  placeholder="you@example.com"
                   autoComplete="email"
                   {...register('email')}
+                  className={
+                    errors.email
+                      ? 'border-destructive focus-visible:ring-destructive'
+                      : ''
+                  }
                 />
                 {errors.email && (
-                  <p className="text-sm text-red-500">{errors.email.message}</p>
+                  <p className="text-xs text-destructive">
+                    {errors.email.message}
+                  </p>
                 )}
               </div>
+
               {/* Password */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <Link
-                    href="/reset-password"
-                    className="text-primary text-sm hover:underline"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -284,70 +108,56 @@ export default function Login() {
                     placeholder="••••••••"
                     autoComplete="current-password"
                     {...register('password')}
-                    className="pr-11"
+                    className={`pr-11 ${errors.password ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                   />
-                  <Button
+                  <button
                     type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Toggle password visibility"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute top-1/2 right-1 h-8 w-8 -translate-y-1/2 hover:bg-transparent"
+                    onClick={() => setShowPassword((p) => !p)}
+                    aria-label={
+                      showPassword ? 'Hide password' : 'Show password'
+                    }
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {showPassword ? (
-                      <EyeOff className="text-muted-foreground h-4 w-4" />
+                      <EyeOff className="h-4 w-4" />
                     ) : (
-                      <Eye className="text-muted-foreground h-4 w-4" />
+                      <Eye className="h-4 w-4" />
                     )}
-                  </Button>
+                  </button>
                 </div>
                 {errors.password && (
-                  <p className="text-sm text-red-500">
+                  <p className="text-xs text-destructive">
                     {errors.password.message}
                   </p>
                 )}
               </div>
 
-              {/* Submit Button */}
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? 'Logging in...' : 'Login'}
+              <Button
+                type="submit"
+                className="w-full"
+                size="lg"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Signing in…' : 'Sign in'}
               </Button>
 
-              {/* Google Login component */}
-              <div>
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                      Or continue with
-                    </span>
-                  </div>
-                </div>
-
-                {/* Google Login */}
-                <div className="w-full">
-                  <GoogleLoginButton />
-                </div>
-              </div>
               <DemoCredentials setValue={setValue} />
             </form>
           </CardContent>
-          <CardFooter className="justify-center">
-            <p className="text-muted-foreground text-sm">
+
+          <CardFooter className="justify-center border-t pt-5">
+            <p className="text-sm text-muted-foreground">
               Don&apos;t have an account?{' '}
               <Link
                 href="/register"
-                className="text-primary font-medium hover:underline"
+                className="font-semibold text-primary hover:underline"
               >
-                Sign Up
+                Create one free
               </Link>
             </p>
           </CardFooter>
         </Card>
       </div>
-    </Container>
+    </div>
   );
 }
