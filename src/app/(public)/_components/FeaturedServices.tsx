@@ -73,7 +73,7 @@ export default function FeaturedServices({
                 <div className="relative h-60 overflow-hidden bg-muted">
                   {service.thumbnail ? (
                     <Image
-                      src={service.thumbnail}
+                      src={service.thumbnail || '/placeholder-service.png'}
                       alt={service.title}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-110"

@@ -102,7 +102,7 @@ export default function TopRatedTechnicians({
                       <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl transition-all duration-300 group-hover:scale-125 group-hover:opacity-80" />
                       <Avatar className="relative h-20 w-20 ring-2 ring-primary/10 transition-all duration-300 group-hover:scale-105 group-hover:ring-primary/40">
                         <AvatarImage
-                          src={profile?.profilePhoto ?? ''}
+                          src={profile?.profilePhoto || undefined}
                           alt={tech.name}
                         />
                         <AvatarFallback className="bg-primary/10 text-lg font-bold text-primary">

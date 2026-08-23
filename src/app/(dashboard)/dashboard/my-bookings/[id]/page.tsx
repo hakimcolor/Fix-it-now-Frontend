@@ -202,7 +202,9 @@ export default async function SingleBookingPage({
           <CardContent className="space-y-4">
             {booking.technician.profilePhoto && (
               <Image
-                src={booking.technician.profilePhoto}
+                src={
+                  booking.technician.profilePhoto || '/placeholder-service.png'
+                }
                 alt="Technician"
                 width={90}
                 height={90}

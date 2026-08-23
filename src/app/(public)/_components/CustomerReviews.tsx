@@ -84,7 +84,7 @@ export default async function CustomerReviews() {
                       <div className="flex items-center gap-4">
                         <Avatar className="h-12 w-12 ring-2 ring-primary/10">
                           <AvatarImage
-                            src={review.technician?.profilePhoto ?? ''}
+                            src={review.technician?.profilePhoto || undefined}
                             alt={techName}
                           />
                           <AvatarFallback className="bg-primary/10 font-semibold text-primary">

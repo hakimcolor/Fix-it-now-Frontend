@@ -6,6 +6,7 @@ import { Eye, EyeOff, Wrench } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -20,10 +21,10 @@ import { Label } from '@/components/ui/label';
 import { loginUser } from '../_actions/loginUser';
 import { loginSchema, LoginFormData } from '@/schemas/login.schema';
 import DemoCredentials from '../_components/DemoCredentials';
-import { unstable_rethrow } from 'next/navigation';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -36,14 +37,12 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (data: LoginFormData) => {
-    try {
-      await loginUser(data);
-    } catch (error) {
-      unstable_rethrow(error);
-      toast.error('Login failed', {
-        description:
-          error instanceof Error ? error.message : 'Invalid email or password',
-      });
+    const result = await loginUser(data);
+    if (result.success) {
+      toast.success('Login successful!');
+      router.push(result.redirectTo);
+    } else {
+      toast.error('Login failed', { description: result.message });
     }
   };
 
@@ -78,11 +77,7 @@ export default function LoginPage() {
                   placeholder="you@example.com"
                   autoComplete="email"
                   {...register('email')}
-                  className={
-                    errors.email
-                      ? 'border-destructive focus-visible:ring-destructive'
-                      : ''
-                  }
+                  className={errors.email ? 'border-destructive' : ''}
                 />
                 {errors.email && (
                   <p className="text-xs text-destructive">
@@ -101,7 +96,7 @@ export default function LoginPage() {
                     placeholder="••••••••"
                     autoComplete="current-password"
                     {...register('password')}
-                    className={`pr-11 ${errors.password ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+                    className={`pr-11 ${errors.password ? 'border-destructive' : ''}`}
                   />
                   <button
                     type="button"

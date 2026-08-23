@@ -3,19 +3,17 @@
 import { LoginFormData } from '@/schemas/login.schema';
 import { cookies } from 'next/headers';
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import { redirect } from 'next/navigation';
 
-export async function loginUser(data: LoginFormData) {
-  // console.log("Login Request:", data);
+type LoginResult =
+  | { success: true; redirectTo: string }
+  | { success: false; message: string };
 
-  //  Call backend API
+export async function loginUser(data: LoginFormData): Promise<LoginResult> {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
     {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
       cache: 'no-store',
     }
@@ -24,7 +22,7 @@ export async function loginUser(data: LoginFormData) {
   const result = await response.json();
 
   if (!response.ok) {
-    throw new Error(result.message || 'Login failed');
+    return { success: false, message: result.message || 'Login failed' };
   }
 
   if (result.success) {
@@ -42,23 +40,16 @@ export async function loginUser(data: LoginFormData) {
       sameSite: 'lax',
     });
 
-    const decodedToken = jwt.decode(
-      result.data.accessToken
-    ) as JwtPayload | null;
+    const decoded = jwt.decode(result.data.accessToken) as JwtPayload | null;
+    const role = decoded?.role ?? result.data?.user?.role ?? result.data?.role;
 
-    const role =
-      decodedToken?.role ?? result.data?.user?.role ?? result.data?.role;
+    let redirectTo = '/';
+    if (role === 'CUSTOMER') redirectTo = '/dashboard';
+    else if (role === 'ADMIN') redirectTo = '/admin-dashboard';
+    else if (role === 'TECHNICIAN') redirectTo = '/technician-dashboard';
 
-    if (role === 'CUSTOMER') {
-      redirect('/dashboard');
-    } else if (role === 'ADMIN') {
-      redirect('/admin-dashboard');
-    } else if (role === 'TECHNICIAN') {
-      redirect('/technician-dashboard');
-    } else {
-      redirect('/');
-    }
+    return { success: true, redirectTo };
   }
 
-  return result;
+  return { success: false, message: 'Login failed. Please try again.' };
 }

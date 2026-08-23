@@ -231,7 +231,7 @@ export default function HeroCarousel() {
               {/* Image frame */}
               <div className="relative aspect-4/3 w-full max-w-xl overflow-hidden rounded-3xl border border-border/50 shadow-2xl shadow-black/20">
                 <Image
-                  src={slide.image}
+                  src={slide.image || '/placeholder-service.png'}
                   alt={slide.title}
                   fill
                   priority

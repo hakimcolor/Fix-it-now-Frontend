@@ -85,7 +85,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
       {/* Thumbnail */}
       <div className="relative h-56 w-full overflow-hidden">
         <Image
-          src={service.thumbnail}
+          src={service.thumbnail || '/placeholder-service.png'}
           alt={service.title}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
