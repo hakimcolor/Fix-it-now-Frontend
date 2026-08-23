@@ -7,14 +7,13 @@ export async function cancelBooking(bookingId: string) {
   const token = (await cookies()).get('accessToken')?.value;
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/${bookingId}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/${bookingId}/cancel`,
     {
       method: 'PATCH',
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ status: 'CANCELLED' }),
       cache: 'no-store',
     }
   );

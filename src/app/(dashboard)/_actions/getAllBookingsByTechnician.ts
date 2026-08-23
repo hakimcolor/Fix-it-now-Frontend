@@ -37,42 +37,35 @@
 //   }
 // };
 
+'use server';
 
+import { cookies } from 'next/headers';
 
-
-
-
-"use server";
-
-import { cookies } from "next/headers";
-
-export const getBookingsByTechnician = async (
-  technicianId: string
-) => {
+export const getBookingsByTechnician = async (technicianId: string) => {
   try {
-    const token = (await cookies()).get("accessToken")?.value;
+    const token = (await cookies()).get('accessToken')?.value;
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/technician/${technicianId}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/technician/bookings`,
       {
-        method: "GET",
+        method: 'GET',
         headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json',
         },
-        cache: "no-store",
+        cache: 'no-store',
       }
     );
 
     const result = await res.json();
 
     if (!res.ok) {
-      throw new Error(result?.message || "Failed to fetch bookings.");
+      throw new Error(result?.message || 'Failed to fetch bookings.');
     }
 
     return result;
   } catch (error) {
-    console.error("Error fetching technician bookings:", error);
+    console.error('Error fetching technician bookings:', error);
     throw error;
   }
 };
