@@ -1,10 +1,35 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { JwtPayload } from 'jsonwebtoken';
-import { jwtUtils } from './utils/jwt';
 
 const AUTH_ROUTES = ['/login', '/register'];
 const PUBLIC_ROUTES = ['/', '/services', '/find-technicians'];
+
+// Decode JWT without signature verification.
+// Verification is the backend's responsibility.
+// We only need the role claim for routing decisions.
+function decodeToken(token: string): { role?: string } | null {
+  try {
+    const [, payload] = token.split('.');
+    if (!payload) return null;
+    const decoded = JSON.parse(
+      Buffer.from(payload, 'base64url').toString('utf8')
+    );
+    return decoded ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function isTokenExpired(token: string): boolean {
+  try {
+    const decoded = decodeToken(token);
+    if (!decoded || typeof (decoded as { exp?: number }).exp !== 'number')
+      return false;
+    return Date.now() >= (decoded as { exp: number }).exp * 1000;
+  } catch {
+    return false;
+  }
+}
 
 async function refreshAccessToken(
   refreshToken: string
@@ -20,10 +45,9 @@ async function refreshAccessToken(
     );
     if (!res.ok) return null;
     const result = await res.json();
-    if (result.success && result.data?.accessToken) {
-      return result.data.accessToken;
-    }
-    return null;
+    return result.success && result.data?.accessToken
+      ? result.data.accessToken
+      : null;
   } catch {
     return null;
   }
@@ -35,50 +59,43 @@ export async function proxy(request: NextRequest) {
   let accessToken = request.cookies.get('accessToken')?.value;
   const refreshToken = request.cookies.get('refreshToken')?.value;
 
-  let decodedAccessToken = accessToken
-    ? jwtUtils.verifyToken(accessToken, process.env.JWT_ACCESS_SECRET as string)
-    : null;
-
-  const decodedRefreshToken = refreshToken
-    ? jwtUtils.verifyToken(
-        refreshToken,
-        process.env.JWT_REFRESH_SECRET as string
-      )
-    : null;
-
   const response = NextResponse.next();
 
-  // Access token expired but refresh token valid — silently refresh
-  if (
-    !decodedAccessToken?.success &&
-    decodedRefreshToken?.success &&
-    refreshToken
-  ) {
-    const newAccessToken = await refreshAccessToken(refreshToken);
-    if (newAccessToken) {
-      response.cookies.set('accessToken', newAccessToken, {
+  // If access token is expired but refresh token exists, silently refresh
+  if (accessToken && isTokenExpired(accessToken) && refreshToken) {
+    const newToken = await refreshAccessToken(refreshToken);
+    if (newToken) {
+      response.cookies.set('accessToken', newToken, {
         httpOnly: true,
         maxAge: 60 * 60 * 24,
         sameSite: 'lax',
       });
-      accessToken = newAccessToken;
-      decodedAccessToken = jwtUtils.verifyToken(
-        newAccessToken,
-        process.env.JWT_ACCESS_SECRET as string
-      );
+      accessToken = newToken;
+    } else {
+      // Refresh failed — clear tokens
+      response.cookies.delete('accessToken');
+      response.cookies.delete('refreshToken');
+      accessToken = undefined;
     }
   }
 
-  let userRole: string | null = null;
-
-  if (!decodedAccessToken?.success) {
-    response.cookies.delete('accessToken');
-    accessToken = undefined;
+  // If no access token at all, check if refresh token can get one
+  if (!accessToken && refreshToken) {
+    const newToken = await refreshAccessToken(refreshToken);
+    if (newToken) {
+      response.cookies.set('accessToken', newToken, {
+        httpOnly: true,
+        maxAge: 60 * 60 * 24,
+        sameSite: 'lax',
+      });
+      accessToken = newToken;
+    }
   }
 
-  if (decodedAccessToken?.success && decodedAccessToken.data) {
-    userRole = (decodedAccessToken.data as JwtPayload).role;
-  }
+  const decoded = accessToken ? decodeToken(accessToken) : null;
+  const userRole: string | undefined = (decoded as { role?: string } | null)
+    ?.role;
+  const isAuthenticated = !!accessToken && !!decoded;
 
   const isPublicRoute = PUBLIC_ROUTES.some(
     (route) => pathname === route || pathname.startsWith(route + '/')
@@ -87,8 +104,8 @@ export async function proxy(request: NextRequest) {
     (route) => pathname === route || pathname.startsWith(route + '/')
   );
 
-  // Logged-in user trying to access login/register → redirect to dashboard
-  if (accessToken && isAuthRoute) {
+  // Logged-in user hitting login/register → go to their dashboard
+  if (isAuthenticated && isAuthRoute) {
     if (userRole === 'CUSTOMER')
       return NextResponse.redirect(new URL('/dashboard', request.url));
     if (userRole === 'ADMIN')
@@ -100,23 +117,25 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // Unauthenticated user trying to access a protected page
-  if (!accessToken && !isPublicRoute && !isAuthRoute) {
-    return NextResponse.redirect(new URL('/login', request.url));
+  // Unauthenticated trying to access protected route
+  if (!isAuthenticated && !isPublicRoute && !isAuthRoute) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('from', pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
-  // Role-based access control
+  // Role-based route protection
   if (pathname.startsWith('/dashboard') && userRole !== 'CUSTOMER') {
-    return NextResponse.redirect(new URL('/not-found', request.url));
+    return NextResponse.redirect(new URL('/login', request.url));
   }
   if (pathname.startsWith('/admin-dashboard') && userRole !== 'ADMIN') {
-    return NextResponse.redirect(new URL('/not-found', request.url));
+    return NextResponse.redirect(new URL('/login', request.url));
   }
   if (
     pathname.startsWith('/technician-dashboard') &&
     userRole !== 'TECHNICIAN'
   ) {
-    return NextResponse.redirect(new URL('/not-found', request.url));
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   return response;
