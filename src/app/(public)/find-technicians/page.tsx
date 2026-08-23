@@ -1,7 +1,5 @@
-
-
-import Image from "next/image";
-import Link from "next/link";
+import Image from 'next/image';
+import Link from 'next/link';
 import {
   ArrowRight,
   BadgeCheck,
@@ -9,15 +7,15 @@ import {
   MapPin,
   Star,
   Wallet,
-} from "lucide-react";
+} from 'lucide-react';
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 import {
   getAllTechnicians,
   Technician,
-} from "@/app/(dashboard)/_actions/getAllTechnicians";
+} from '@/app/(dashboard)/_actions/getAllTechnicians';
 
 interface FindTechniciansPageProps {
   searchParams: Promise<{
@@ -45,15 +43,13 @@ export default async function FindTechniciansPage({
     profession: params.profession,
     isAvailable:
       params.isAvailable !== undefined
-        ? params.isAvailable === "true"
+        ? params.isAvailable === 'true'
         : undefined,
     isApproved:
       params.isApproved !== undefined
-        ? params.isApproved === "true"
+        ? params.isApproved === 'true'
         : undefined,
-    minRating: params.minRating
-      ? Number(params.minRating)
-      : undefined,
+    minRating: params.minRating ? Number(params.minRating) : undefined,
     minExperience: params.minExperience
       ? Number(params.minExperience)
       : undefined,
@@ -81,6 +77,8 @@ export default async function FindTechniciansPage({
         {technicians.data.map((tech: Technician) => {
           const profile = tech.technicianProfile;
 
+          if (!profile) return null;
+
           return (
             <Card
               key={tech.id}
@@ -95,7 +93,7 @@ export default async function FindTechniciansPage({
                   <Image
                     src={
                       profile.profilePhoto ||
-                      "https://placehold.co/300x300?text=User"
+                      'https://placehold.co/300x300?text=User'
                     }
                     alt={tech.name}
                     fill
@@ -120,13 +118,13 @@ export default async function FindTechniciansPage({
                   </div>
 
                   <p className="text-sm font-medium text-primary">
-                    {profile.profession || "Technician"}
+                    {profile.profession || 'Technician'}
                   </p>
 
                   <div className="mt-1 flex items-center justify-center gap-1 text-xs text-muted-foreground">
                     <MapPin className="h-3 w-3" />
                     <span className="truncate">
-                      {profile.city || "Bangladesh"}
+                      {profile.city || 'Bangladesh'}
                     </span>
                   </div>
                 </div>
@@ -136,7 +134,7 @@ export default async function FindTechniciansPage({
                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
 
                   <span className="text-sm font-semibold">
-                    {profile.averageRating?.toFixed(1) ?? "0.0"}
+                    {profile.averageRating?.toFixed(1) ?? '0.0'}
                   </span>
 
                   <span className="text-xs text-muted-foreground">
@@ -172,11 +170,7 @@ export default async function FindTechniciansPage({
                 </div>
 
                 {/* Button */}
-                <Button
-                  asChild
-                  size="sm"
-                  className="mt-4 w-full rounded-lg"
-                >
+                <Button asChild size="sm" className="mt-4 w-full rounded-lg">
                   <Link
                     href={`/find-technicians/${tech.id}`}
                     className="flex items-center justify-center gap-2"
@@ -194,9 +188,7 @@ export default async function FindTechniciansPage({
       {/* Empty State */}
       {technicians.data.length === 0 && (
         <div className="mt-12 flex flex-col items-center justify-center rounded-2xl border border-dashed py-16">
-          <h2 className="text-xl font-semibold">
-            No Technicians Found
-          </h2>
+          <h2 className="text-xl font-semibold">No Technicians Found</h2>
 
           <p className="mt-2 text-sm text-muted-foreground">
             Try adjusting your search filters and try again.

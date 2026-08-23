@@ -28,12 +28,13 @@ import {
   bookingStatusConfig,
   paymentStatusConfig,
 } from './config/bookingStatusConfig';
+import CancelBookingButton from '../../_components/CancelBookingButton';
 
 export default async function MyBookings() {
   const result = await getAllBookings();
   const user = await getMe();
 
-  const customerId = user.data.profile.id;
+  const customerId = user.data.id;
 
   const bookings =
     result?.data.filter(
@@ -223,6 +224,16 @@ export default async function MyBookings() {
                           <Button size="sm" variant="destructive" disabled>
                             Cancelled
                           </Button>
+                        )}
+
+                        {/* Cancel button — visible before IN_PROGRESS */}
+                        {![
+                          'IN_PROGRESS',
+                          'COMPLETED',
+                          'CANCELLED',
+                          'DECLINED',
+                        ].includes(booking.status) && (
+                          <CancelBookingButton bookingId={booking.id} />
                         )}
 
                         <Button asChild size="sm" variant="outline">

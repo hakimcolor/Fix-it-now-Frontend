@@ -36,7 +36,7 @@ export default function PaymentSuccessPage() {
               <Clock className="mt-1 h-5 w-5 text-primary" />
 
               <div>
-                <h3 className="font-semibold">What's Next?</h3>
+                <h3 className="font-semibold">What&apos;s Next?</h3>
 
                 <p className="mt-1 text-sm text-muted-foreground">
                   Your booking status has been updated to PAID. The technician

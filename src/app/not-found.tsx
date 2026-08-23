@@ -1,9 +1,7 @@
+import Link from 'next/link';
+import { SearchX } from 'lucide-react';
 
-
-import Link from "next/link";
-import { SearchX } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 
 export default function NotFound() {
   return (
@@ -22,8 +20,8 @@ export default function NotFound() {
         </h2>
 
         <p className="mt-4 text-muted-foreground">
-          Sorry, the page you're looking for doesn't exist or may have been
-          moved. Let's get you back to where you need to be.
+          Sorry, the page you&apos;re looking for doesn&apos;t exist or may have
+          been moved. Let&apos;s get you back to where you need to be.
         </p>
 
         <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">

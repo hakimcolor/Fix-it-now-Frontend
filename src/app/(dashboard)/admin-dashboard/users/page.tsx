@@ -1,155 +1,88 @@
-
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-
-import { getAllUsers } from "../../_actions/getAllUsers";
-import UserActionsInAdmindeshboard, {
-  ActiveStatus,
-} from "../../_components/UserActionsInAdmindeshboard";
+import { Users, ShieldCheck, Wrench, UserX } from 'lucide-react';
+import { getAllUsers } from '../../_actions/getAllUsers';
+import { Card, CardContent } from '@/components/ui/card';
+import AdminUsersClient from './AdminUsersClient';
 
 export interface IUser {
   id: string;
   name: string;
   email: string;
   phone: string;
-
-  role: "ADMIN" | "CUSTOMER" | "TECHNICIAN";
-
-  activeStatus: ActiveStatus;
-
+  role: 'ADMIN' | 'CUSTOMER' | 'TECHNICIAN';
+  activeStatus: 'ACTIVE' | 'BLOCKED' | 'BAN' | 'UNBAN';
   userStatus: string | null;
-
   isVerified: boolean;
-
   lastLoginAt: string | null;
-
   createdAt: string;
-
   updatedAt: string;
-
-  password: string;
 }
 
 export default async function AdminUserPage() {
   const result = await getAllUsers();
-
   const users: IUser[] = result.data ?? [];
+
+  const stats = [
+    {
+      label: 'Total Users',
+      value: users.length,
+      icon: Users,
+      color: 'text-blue-600',
+      bg: 'bg-blue-50',
+    },
+    {
+      label: 'Customers',
+      value: users.filter((u) => u.role === 'CUSTOMER').length,
+      icon: ShieldCheck,
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-50',
+    },
+    {
+      label: 'Technicians',
+      value: users.filter((u) => u.role === 'TECHNICIAN').length,
+      icon: Wrench,
+      color: 'text-violet-600',
+      bg: 'bg-violet-50',
+    },
+    {
+      label: 'Banned / Blocked',
+      value: users.filter(
+        (u) => u.activeStatus === 'BAN' || u.activeStatus === 'BLOCKED'
+      ).length,
+      icon: UserX,
+      color: 'text-red-600',
+      bg: 'bg-red-50',
+    },
+  ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Users</h1>
-
+        <h1 className="text-2xl font-bold tracking-tight">Users</h1>
         <p className="text-muted-foreground">
-          Manage all customers and technicians.
+          Manage all customers, technicians and admins on the platform.
         </p>
       </div>
 
-      <div className="rounded-lg border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>User</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Verified</TableHead>
-              <TableHead>Joined</TableHead>
-              <TableHead className="w-[70px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {users.length ? (
-              users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar>
-                        <AvatarFallback>
-                          {user.name
-                            .split(" ")
-                            .map((word) => word[0])
-                            .join("")
-                            .toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-
-                      <div>
-                        <p className="font-medium">{user.name}</p>
-
-                        <p className="text-xs text-muted-foreground">
-                          {user.id.slice(0, 8)}...
-                        </p>
-                      </div>
-                    </div>
-                  </TableCell>
-
-                  <TableCell>{user.email}</TableCell>
-
-                  <TableCell>{user.phone}</TableCell>
-
-                  <TableCell>
-                    <Badge variant="secondary">{user.role}</Badge>
-                  </TableCell>
-
-                  <TableCell>
-                    <Badge
-                      variant={
-                        user.activeStatus === "ACTIVE"
-                          ? "default"
-                          : "destructive"
-                      }
-                    >
-                      {user.activeStatus}
-                    </Badge>
-                  </TableCell>
-
-                  <TableCell>
-                    <Badge
-                      variant={user.isVerified ? "default" : "outline"}
-                    >
-                      {user.isVerified
-                        ? "Verified"
-                        : "Not Verified"}
-                    </Badge>
-                  </TableCell>
-
-                  <TableCell>
-                    {new Date(user.createdAt).toLocaleDateString()}
-                  </TableCell>
-
-                  <TableCell>
-                    <UserActionsInAdmindeshboard
-                      userId={user.id}
-                      activeStatus={user.activeStatus}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={8}
-                  className="h-24 text-center text-muted-foreground"
-                >
-                  No users found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {stats.map((s) => {
+          const Icon = s.icon;
+          return (
+            <Card key={s.label}>
+              <CardContent className="flex items-center gap-4 p-5">
+                <div className={`rounded-xl p-3 ${s.bg}`}>
+                  <Icon className={`h-5 w-5 ${s.color}`} />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">{s.label}</p>
+                  <p className="text-2xl font-bold">{s.value}</p>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
+
+      <AdminUsersClient users={users} />
     </div>
   );
 }

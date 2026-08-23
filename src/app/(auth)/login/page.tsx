@@ -36,11 +36,7 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     const result = await loginUser(data);
-    if (result.success) {
-      toast.success('Login successful!');
-      // Full navigation so browser sends the new cookie in the next request
-      window.location.href = result.redirectTo;
-    } else {
+    if (result.success === false) {
       toast.error('Login failed', { description: result.message });
     }
   };

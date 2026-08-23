@@ -2,11 +2,10 @@
 
 import { LoginFormData } from '@/schemas/login.schema';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
-type LoginResult =
-  | { success: true; redirectTo: string }
-  | { success: false; message: string };
+type LoginResult = { success: false; message: string };
 
 export async function loginUser(data: LoginFormData): Promise<LoginResult> {
   const response = await fetch(
@@ -30,25 +29,31 @@ export async function loginUser(data: LoginFormData): Promise<LoginResult> {
 
     cookieStore.set('accessToken', result.data.accessToken, {
       httpOnly: true,
+      path: '/',
       maxAge: 60 * 60 * 24,
       sameSite: 'lax',
     });
 
     cookieStore.set('refreshToken', result.data.refreshToken, {
       httpOnly: true,
+      path: '/',
       maxAge: 60 * 60 * 24 * 7,
       sameSite: 'lax',
     });
 
     const decoded = jwt.decode(result.data.accessToken) as JwtPayload | null;
-    const role = decoded?.role ?? result.data?.user?.role ?? result.data?.role;
+    const role =
+      decoded?.role ??
+      result.data?.user?.role ??
+      result.data?.profile?.role ??
+      result.data?.role;
 
     let redirectTo = '/';
     if (role === 'CUSTOMER') redirectTo = '/dashboard';
     else if (role === 'ADMIN') redirectTo = '/admin-dashboard';
     else if (role === 'TECHNICIAN') redirectTo = '/technician-dashboard';
 
-    return { success: true, redirectTo };
+    redirect(redirectTo);
   }
 
   return { success: false, message: 'Login failed. Please try again.' };

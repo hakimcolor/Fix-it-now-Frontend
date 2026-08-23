@@ -7,6 +7,7 @@ import {
   Users,
   LayoutGrid,
   CreditCard,
+  DollarSign,
 } from 'lucide-react';
 
 export const navigation = {
@@ -36,6 +37,11 @@ export const navigation = {
       icon: Calendar,
     },
     { name: 'Profile', href: '/technician-dashboard/profile', icon: User },
+    {
+      name: 'Earnings',
+      href: '/technician-dashboard/earnings',
+      icon: DollarSign,
+    },
   ],
 
   admin: [
@@ -47,5 +53,6 @@ export const navigation = {
       href: '/admin-dashboard/categories',
       icon: LayoutGrid,
     },
+    { name: 'Payments', href: '/admin-dashboard/payments', icon: CreditCard },
   ],
 } as const;

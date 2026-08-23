@@ -1,9 +1,6 @@
-"use server";
+'use server';
 
-import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
-
-
+import { cookies } from 'next/headers';
 
 interface ServiceBookingPayload {
   serviceId: string;
@@ -16,19 +13,19 @@ export const serviceBooking = async ({
   note,
   bookingSlotIds,
 }: ServiceBookingPayload) => {
-  const token = (await cookies()).get("accessToken")?.value;
+  const token = (await cookies()).get('accessToken')?.value;
   try {
     // 1. Get service details to retrieve technicianId
     // http://localhost:5000/api/services/2b15a4ad-0513-4a6c-bd5c-4cea3760799b
     const serviceRes = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/services/${serviceId}`,
       {
-        cache: "no-store",
+        cache: 'no-store',
       }
     );
 
     if (!serviceRes.ok) {
-      throw new Error("Failed to fetch service.");
+      throw new Error('Failed to fetch service.');
     }
 
     const service = await serviceRes.json();
@@ -36,17 +33,17 @@ export const serviceBooking = async ({
     const technicianId = service.data.technicianId;
 
     if (!technicianId) {
-      throw new Error("Technician not found.");
+      throw new Error('Technician not found.');
     }
 
     // 2. Create booking
     const bookingRes = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/create`,
       {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : "",
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : '',
         },
         body: JSON.stringify({
           technicianId,
@@ -60,11 +57,10 @@ export const serviceBooking = async ({
     const result = await bookingRes.json();
 
     if (!bookingRes.ok) {
-      throw new Error(result.message || "Booking failed.");
+      throw new Error(result.message || 'Booking failed.');
     }
 
     // revalidatePath("/booking");
-   
 
     return {
       success: true,
@@ -74,8 +70,7 @@ export const serviceBooking = async ({
   } catch (error) {
     return {
       success: false,
-      message:
-        error instanceof Error ? error.message : "Something went wrong.",
+      message: error instanceof Error ? error.message : 'Something went wrong.',
     };
   }
 };

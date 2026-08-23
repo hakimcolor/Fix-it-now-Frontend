@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -15,178 +15,253 @@ import {
   Wrench,
   ChevronLeft,
   ChevronRight,
+  Clock,
+  TrendingUp,
+  Zap,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 
 const slides = [
   {
     id: 0,
-    badge: 'Trusted Home Services',
-    title: 'Expert Help,',
-    titleAccent: 'Right When You Need It.',
+    eyebrow: 'Home Services Platform',
+    title: 'Expert Repairs,',
+    titleAccent: 'At Your Doorstep.',
     description:
-      'Find trusted professionals for AC repair, plumbing, electrical work, cleaning, painting, and more — all in one place.',
-    primaryButton: 'Find a Service',
+      'Connect with verified professionals for AC, plumbing, electrical, cleaning and more — booked in minutes.',
+    primaryButton: 'Explore Services',
     primaryHref: '/services',
     secondaryButton: 'Find Technicians',
     secondaryHref: '/find-technicians',
     icon: Search,
     image:
-      'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?q=80&w=1200&auto=format&fit=crop',
-    rating: '4.9',
-    reviews: '120+ Reviews',
-    floatingText: 'Verified Professional',
-    accent: 'from-blue-600 to-primary',
+      'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?q=80&w=1400&auto=format&fit=crop',
+    badge: 'Verified Professional',
+    badgeIcon: CheckCircle2,
+    color: '#3b82f6',
+    colorEnd: '#8b5cf6',
+    accentClass: 'from-blue-500 to-violet-500',
   },
   {
     id: 1,
-    badge: 'Easy Booking',
-    title: 'Choose. Schedule.',
-    titleAccent: 'Done.',
+    eyebrow: 'Instant Booking',
+    title: 'Schedule Fast,',
+    titleAccent: 'Get It Done.',
     description:
-      'Pick your service, choose a qualified technician, select an available time slot, and book in just a few clicks.',
-    primaryButton: 'Book a Technician',
+      'Choose a technician, pick a time slot, confirm — your home service is booked in under 60 seconds.',
+    primaryButton: 'Book Now',
     primaryHref: '/find-technicians',
     secondaryButton: 'How It Works',
     secondaryHref: '/how-it-works',
     icon: CalendarCheck,
     image:
-      'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1200&auto=format&fit=crop',
-    rating: '4.8',
-    reviews: 'Easy Scheduling',
-    floatingText: 'Available Today',
-    accent: 'from-teal-500 to-emerald-400',
+      'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1400&auto=format&fit=crop',
+    badge: 'Available Today',
+    badgeIcon: Zap,
+    color: '#14b8a6',
+    colorEnd: '#10b981',
+    accentClass: 'from-teal-400 to-emerald-500',
   },
   {
     id: 2,
-    badge: 'Verified Professionals',
-    title: 'Skilled Professionals',
-    titleAccent: 'You Can Trust.',
+    eyebrow: 'Trusted Professionals',
+    title: 'Background Checked,',
+    titleAccent: 'Top Rated.',
     description:
-      'Compare profiles, ratings, experience, and availability before making your choice.',
-    primaryButton: 'Find Technicians',
+      'Every technician is verified, reviewed, and rated. You see the full profile before you commit.',
+    primaryButton: 'Browse Technicians',
     primaryHref: '/find-technicians',
-    secondaryButton: 'Explore Services',
+    secondaryButton: 'Our Services',
     secondaryHref: '/services',
     icon: ShieldCheck,
     image:
-      'https://images.unsplash.com/photo-1504148455328-c376907d081c?q=80&w=1200&auto=format&fit=crop',
-    rating: '4.9',
-    reviews: 'Top Rated',
-    floatingText: 'Verified Technician',
-    accent: 'from-violet-500 to-purple-400',
+      'https://images.unsplash.com/photo-1504148455328-c376907d081c?q=80&w=1400&auto=format&fit=crop',
+    badge: 'Background Checked',
+    badgeIcon: ShieldCheck,
+    color: '#8b5cf6',
+    colorEnd: '#ec4899',
+    accentClass: 'from-violet-500 to-pink-500',
   },
   {
     id: 3,
-    badge: 'For Technicians',
-    title: 'Turn Your Skills Into',
-    titleAccent: 'More Jobs.',
+    eyebrow: 'Grow Your Business',
+    title: 'More Clients,',
+    titleAccent: 'More Revenue.',
     description:
-      'Create your professional profile, manage your availability, receive bookings, and grow your business.',
+      'Join hundreds of technicians growing their business on FixItNow — manage bookings and get paid faster.',
     primaryButton: 'Join as Technician',
     primaryHref: '/register',
     secondaryButton: 'Learn More',
     secondaryHref: '/how-it-works',
     icon: Wrench,
     image:
-      'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1200&auto=format&fit=crop',
-    rating: 'Grow',
-    reviews: 'Your Business',
-    floatingText: 'More Opportunities',
-    accent: 'from-orange-500 to-amber-400',
+      'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1400&auto=format&fit=crop',
+    badge: 'New Opportunities',
+    badgeIcon: TrendingUp,
+    color: '#f97316',
+    colorEnd: '#eab308',
+    accentClass: 'from-orange-500 to-yellow-400',
   },
+];
+
+const stats = [
+  { value: '10K+', label: 'Happy Clients' },
+  { value: '500+', label: 'Verified Pros' },
+  { value: '4.9', label: 'Avg Rating' },
+  { value: '98%', label: 'Satisfaction' },
 ];
 
 export default function HeroCarousel() {
   const [current, setCurrent] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
 
-  const prev = () => setCurrent((c) => (c - 1 + slides.length) % slides.length);
-  const next = () => setCurrent((c) => (c + 1) % slides.length);
+  const prev = useCallback(
+    () => setCurrent((c) => (c - 1 + slides.length) % slides.length),
+    []
+  );
+  const next = useCallback(
+    () => setCurrent((c) => (c + 1) % slides.length),
+    []
+  );
 
   useEffect(() => {
     if (isHovering) return;
-    const t = setInterval(next, 6000);
+    const t = setInterval(next, 5500);
     return () => clearInterval(t);
-  }, [isHovering, current]);
+  }, [isHovering, next]);
 
   const slide = slides[current];
-  const Icon = slide.icon;
+  const BadgeIcon = slide.badgeIcon;
 
   return (
     <section
-      className="relative min-h-[92vh] w-full overflow-hidden bg-background"
+      className="relative w-full overflow-hidden bg-[#06080f]"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      {/* Background grid */}
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.2)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.2)_1px,transparent_1px)] bg-size-[40px_40px] mask-[radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" />
-
-      {/* Animated bg glow */}
+      {/* Ambient orb A */}
       <AnimatePresence mode="wait">
         <motion.div
-          key={current}
+          key={`orb1-${current}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1 }}
-          className={`pointer-events-none absolute -left-40 -top-40 h-150 w-150 rounded-full bg-linear-to-br ${slide.accent} opacity-10 blur-[140px]`}
+          transition={{ duration: 1.4 }}
+          className="pointer-events-none absolute"
+          style={{
+            top: '-20%',
+            left: '-15%',
+            width: '70vw',
+            height: '70vw',
+            borderRadius: '50%',
+            background: `radial-gradient(circle, ${slide.color}1f 0%, transparent 65%)`,
+            filter: 'blur(80px)',
+          }}
         />
       </AnimatePresence>
 
-      <div className="container relative mx-auto flex min-h-[92vh] max-w-7xl items-center px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid w-full items-center gap-12 lg:grid-cols-2 lg:gap-16">
-          {/* LEFT */}
+      {/* Ambient orb B */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={`orb2-${current}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.4 }}
+          className="pointer-events-none absolute"
+          style={{
+            bottom: '-15%',
+            right: '-10%',
+            width: '55vw',
+            height: '55vw',
+            borderRadius: '50%',
+            background: `radial-gradient(circle, ${slide.colorEnd}18 0%, transparent 65%)`,
+            filter: 'blur(100px)',
+          }}
+        />
+      </AnimatePresence>
+
+      {/* Dot grid */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            'radial-gradient(rgba(255,255,255,0.055) 1px, transparent 1px)',
+          backgroundSize: '28px 28px',
+          maskImage:
+            'radial-gradient(ellipse 90% 90% at 50% 40%, black 20%, transparent 100%)',
+        }}
+      />
+
+      {/* Top accent line */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={`line-${current}`}
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          exit={{ scaleX: 0 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+          className="absolute top-0 left-0 h-0.5 w-full origin-left"
+          style={{
+            background: `linear-gradient(to right, ${slide.color}, ${slide.colorEnd}, transparent)`,
+          }}
+        />
+      </AnimatePresence>
+
+      {/* Main content grid */}
+      <div className="relative mx-auto grid min-h-screen max-w-7xl grid-cols-1 items-center px-6 lg:grid-cols-2 lg:px-10">
+        {/* LEFT — Text */}
+        <div className="flex flex-col justify-center py-24 lg:py-0 lg:pr-16">
           <AnimatePresence mode="wait">
             <motion.div
-              key={`left-${current}`}
-              initial={{ opacity: 0, x: -40 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 40 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-              className="order-2 flex flex-col items-center text-center lg:order-1 lg:items-start lg:text-left"
+              key={`text-${current}`}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.45, ease: 'easeOut' }}
+              className="flex flex-col items-center text-center lg:items-start lg:text-left"
             >
-              {/* Badge */}
-              <Badge
-                variant="outline"
-                className={`mb-6 gap-1.5 rounded-full border-primary/30 bg-primary/10 px-4 py-1.5 text-sm text-primary`}
-              >
-                <Icon className="h-3.5 w-3.5" />
-                {slide.badge}
-              </Badge>
-
-              {/* Heading */}
-              <h1 className="max-w-2xl text-4xl font-extrabold leading-[1.1] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl">
-                {slide.title}{' '}
+              {/* Eyebrow */}
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/8 bg-white/4 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-white/50">
                 <span
-                  className={`bg-linear-to-r ${slide.accent} bg-clip-text text-transparent`}
+                  className="h-1.5 w-1.5 animate-pulse rounded-full"
+                  style={{ background: slide.color }}
+                />
+                {slide.eyebrow}
+              </div>
+
+              {/* Headline */}
+              <h1 className="text-5xl font-black leading-[1.04] tracking-tight text-white sm:text-6xl xl:text-7xl">
+                {slide.title}
+                <br />
+                <span
+                  className={`bg-linear-to-r ${slide.accentClass} bg-clip-text text-transparent`}
                 >
                   {slide.titleAccent}
                 </span>
               </h1>
 
-              <p className="mt-6 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg md:text-xl md:leading-8">
+              <p className="mt-5 max-w-md text-base leading-7 text-white/40 sm:text-lg">
                 {slide.description}
               </p>
 
-              {/* Buttons */}
-              <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4">
+              {/* CTAs */}
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button
                   asChild
                   size="lg"
-                  className="group h-13 w-full rounded-xl px-8 text-base font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/30 sm:w-auto"
+                  className={`group h-12 gap-2 rounded-xl bg-linear-to-r ${slide.accentClass} border-0 px-7 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:scale-[1.03] hover:shadow-2xl`}
                 >
                   <Link href={slide.primaryHref}>
                     {slide.primaryButton}
-                    <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                   </Link>
                 </Button>
                 <Button
                   asChild
                   size="lg"
                   variant="outline"
-                  className="h-13 w-full rounded-xl border-2 px-8 text-base font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/5 sm:w-auto"
+                  className="h-12 rounded-xl border border-white/10 bg-white/4 px-7 text-sm font-semibold text-white/80 backdrop-blur-sm transition-all duration-300 hover:border-white/20 hover:bg-white/8 hover:text-white"
                 >
                   <Link href={slide.secondaryHref}>
                     {slide.secondaryButton}
@@ -194,142 +269,199 @@ export default function HeroCarousel() {
                 </Button>
               </div>
 
-              {/* Trust bar */}
-              <div className="mt-10 flex flex-wrap items-center justify-center gap-6 lg:justify-start">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-green-500/10">
-                    <CheckCircle2 className="h-5 w-5 text-green-500" />
-                  </div>
-                  <span className="text-sm font-medium">Verified Pros</span>
+              {/* Mobile slide controls */}
+              <div className="mt-10 flex items-center gap-3 lg:hidden">
+                <button
+                  onClick={prev}
+                  aria-label="Previous"
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/50 transition-all hover:bg-white/10 hover:text-white"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <div className="flex gap-1.5">
+                  {slides.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrent(i)}
+                      className={`rounded-full transition-all duration-300 ${i === current ? `h-2 w-6 bg-linear-to-r ${slide.accentClass}` : 'h-2 w-2 bg-white/20'}`}
+                    />
+                  ))}
                 </div>
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-yellow-500/10">
-                    <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                  </div>
-                  <span className="text-sm font-medium">4.9 Avg Rating</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
-                    <ShieldCheck className="h-5 w-5 text-primary" />
-                  </div>
-                  <span className="text-sm font-medium">Secure Payments</span>
-                </div>
+                <button
+                  onClick={next}
+                  aria-label="Next"
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/50 transition-all hover:bg-white/10 hover:text-white"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
               </div>
             </motion.div>
           </AnimatePresence>
+        </div>
 
-          {/* RIGHT — Image */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`right-${current}`}
-              initial={{ opacity: 0, scale: 0.94, x: 40 }}
-              animate={{ opacity: 1, scale: 1, x: 0 }}
-              exit={{ opacity: 0, scale: 0.96, x: -40 }}
-              transition={{ duration: 0.55, ease: 'easeOut' }}
-              className="order-1 relative flex items-center justify-center lg:order-2"
-            >
-              {/* Image frame */}
-              <div className="relative aspect-4/3 w-full max-w-xl overflow-hidden rounded-3xl border border-border/50 shadow-2xl shadow-black/20">
+        {/* RIGHT — Image */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`img-${current}`}
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="relative hidden lg:flex lg:items-center lg:justify-center lg:py-16"
+          >
+            {/* Glow */}
+            <div
+              className="absolute inset-8 rounded-[2rem] opacity-25 blur-3xl"
+              style={{
+                background: `linear-gradient(135deg, ${slide.color}, ${slide.colorEnd})`,
+              }}
+            />
+
+            {/* Image card */}
+            <div className="relative w-full max-w-lg overflow-hidden rounded-[2rem] border border-white/8 shadow-2xl">
+              <div className="relative aspect-4/3 w-full">
                 <Image
-                  src={slide.image || '/placeholder-service.png'}
+                  src={slide.image}
                   alt={slide.title}
                   fill
                   priority
-                  className="object-cover"
-                  sizes="(max-width:768px) 100vw,(max-width:1200px) 50vw,600px"
+                  className="object-cover transition-transform duration-700 hover:scale-105"
+                  sizes="(max-width:1200px) 50vw, 580px"
                 />
-                <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/5 to-transparent" />
 
-                {/* Bottom overlay */}
-                <div className="absolute bottom-5 left-5 right-5">
-                  <div className="flex items-end justify-between gap-3">
+                {/* Bottom bar */}
+                <div className="absolute bottom-0 left-0 right-0 p-5">
+                  <div className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-black/40 px-4 py-3 backdrop-blur-md">
                     <div>
-                      <p className="text-sm text-white/70">FixItNow</p>
-                      <p className="mt-0.5 text-lg font-semibold text-white">
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-white/40">
+                        FixItNow
+                      </p>
+                      <p className="mt-0.5 text-sm font-bold text-white">
                         Professional Home Services
                       </p>
                     </div>
-                    <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-white/20 bg-white/95 px-3 py-1.5 text-sm font-bold text-gray-900 shadow-lg">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      {slide.rating}
+                    <div className="flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-sm font-black text-gray-900">
+                      <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                      4.9
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Floating verified card */}
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="absolute -left-4 top-6 flex items-center gap-3 rounded-2xl border border-border/80 bg-card p-3 shadow-xl sm:-left-6 sm:p-4"
+            {/* Floating badge — top left */}
+            <motion.div
+              initial={{ opacity: 0, x: -16 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              className="absolute -left-6 top-24 flex items-center gap-2.5 rounded-2xl border border-white/10 bg-white/6 px-4 py-3 shadow-xl backdrop-blur-xl"
+            >
+              <div
+                className="flex h-9 w-9 items-center justify-center rounded-xl"
+                style={{
+                  background: `linear-gradient(135deg, ${slide.color}, ${slide.colorEnd})`,
+                }}
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500/10">
-                  <CheckCircle2 className="h-5 w-5 text-green-500" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Trusted</p>
-                  <p className="text-sm font-semibold">{slide.floatingText}</p>
-                </div>
-              </motion.div>
-
-              {/* Floating reviews card */}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="absolute -bottom-4 -right-4 flex items-center gap-3 rounded-2xl border border-border/80 bg-card px-4 py-3 shadow-xl sm:-right-6"
-              >
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
-                  <Users className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">{slide.reviews}</p>
-                  <div className="mt-0.5 flex gap-0.5">
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <Star
-                        key={s}
-                        className="h-3 w-3 fill-yellow-400 text-yellow-400"
-                      />
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
+                <BadgeIcon className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <p className="text-[10px] text-white/35">Status</p>
+                <p className="text-xs font-bold text-white">{slide.badge}</p>
+              </div>
             </motion.div>
-          </AnimatePresence>
+
+            {/* Floating reviews — bottom right */}
+            <motion.div
+              initial={{ opacity: 0, x: 16 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.42 }}
+              className="absolute -right-6 bottom-24 flex items-center gap-2.5 rounded-2xl border border-white/10 bg-white/6 px-4 py-3 shadow-xl backdrop-blur-xl"
+            >
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10">
+                <Users className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <div className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star
+                      key={s}
+                      className="h-3 w-3 fill-yellow-400 text-yellow-400"
+                    />
+                  ))}
+                </div>
+                <p className="mt-0.5 text-xs font-bold text-white">
+                  500+ Reviews
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Desktop vertical slide controls */}
+            <div className="absolute right-0 top-1/2 flex -translate-y-1/2 translate-x-3 flex-col items-center gap-3">
+              <button
+                onClick={prev}
+                aria-label="Previous"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/40 backdrop-blur transition-all hover:bg-white/10 hover:text-white"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <div className="flex flex-col gap-1.5">
+                {slides.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrent(i)}
+                    aria-label={`Slide ${i + 1}`}
+                    className={`rounded-full transition-all duration-300 ${i === current ? 'h-6 w-2' : 'h-2 w-2 bg-white/20 hover:bg-white/40'}`}
+                    style={
+                      i === current
+                        ? {
+                            background: `linear-gradient(to bottom, ${slide.color}, ${slide.colorEnd})`,
+                          }
+                        : {}
+                    }
+                  />
+                ))}
+              </div>
+              <button
+                onClick={next}
+                aria-label="Next"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/40 backdrop-blur transition-all hover:bg-white/10 hover:text-white"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Stats bar */}
+      <div className="relative border-t border-white/6 bg-white/2 backdrop-blur-sm">
+        <div className="mx-auto max-w-7xl px-6 py-5 lg:px-10">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {stats.map(({ value, label }) => (
+              <div
+                key={label}
+                className="flex flex-col items-center gap-0.5 text-center sm:items-start sm:text-left"
+              >
+                <span
+                  className={`text-2xl font-black bg-linear-to-r ${slide.accentClass} bg-clip-text text-transparent`}
+                >
+                  {value}
+                </span>
+                <span className="text-xs text-white/35">{label}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Nav Controls */}
-      <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-4">
-        <button
-          onClick={prev}
-          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-border bg-background/80 shadow-md backdrop-blur transition-all duration-200 hover:border-primary hover:bg-primary hover:text-primary-foreground"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-
-        {/* Dots */}
-        <div className="flex items-center gap-2">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              className={`cursor-pointer rounded-full transition-all duration-300 ${
-                i === current
-                  ? 'h-2.5 w-8 bg-primary'
-                  : 'h-2.5 w-2.5 bg-border hover:bg-primary/50'
-              }`}
-            />
-          ))}
-        </div>
-
-        <button
-          onClick={next}
-          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-border bg-background/80 shadow-md backdrop-blur transition-all duration-200 hover:border-primary hover:bg-primary hover:text-primary-foreground"
-        >
-          <ChevronRight className="h-5 w-5" />
-        </button>
+      {/* Slide counter */}
+      <div className="absolute bottom-18 left-6 hidden items-center gap-2 lg:flex lg:left-10">
+        <Clock className="h-3.5 w-3.5 text-white/20" />
+        <span className="text-xs tabular-nums text-white/20">
+          {String(current + 1).padStart(2, '0')} /{' '}
+          {String(slides.length).padStart(2, '0')}
+        </span>
       </div>
     </section>
   );

@@ -1,13 +1,10 @@
-
-
-
 export interface IUserProfile {
   id: string;
   name: string;
   email: string;
   phone: string;
-  role: "CUSTOMER" | "TECHNICIAN" | "ADMIN";
-  activeStatus: "ACTIVE" | "INACTIVE";
+  role: 'CUSTOMER' | 'TECHNICIAN' | 'ADMIN';
+  activeStatus: 'ACTIVE' | 'INACTIVE';
   userStatus: string | null;
   isVerified: boolean;
   lastLoginAt: string;
@@ -17,9 +14,7 @@ export interface IUserProfile {
 }
 
 export interface ApiResponse {
-  data: {
-    profile: IUserProfile;
-  };
+  data: IUserProfile;
   message: string;
   statusCode: number;
   success: boolean;

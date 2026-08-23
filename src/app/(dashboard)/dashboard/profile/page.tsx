@@ -25,11 +25,11 @@ import { notFound } from 'next/navigation';
 export default async function CustomerProfilePage() {
   const result = await getMe();
 
-  if (!result?.success || !result?.data?.profile) {
+  if (!result?.success || !result?.data) {
     notFound();
   }
 
-  const profile = result.data.profile;
+  const profile = result.data;
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">

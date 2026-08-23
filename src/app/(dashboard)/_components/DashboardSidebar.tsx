@@ -1,22 +1,18 @@
+'use client';
 
-
-"use client";
-
-import SidebarContent from "./SidebarContent";
-import MobileHeader from "./MobileHeader";
-import { ApiResponse } from "../types/dashboard.types";
+import SidebarContent from './SidebarContent';
+import MobileHeader from './MobileHeader';
+import { ApiResponse } from '../types/dashboard.types';
 
 interface Props {
   user: ApiResponse;
 }
 
-export default function DashboardSidebar({
-  user,
-}: Props) {
-  const role = user.data.profile.role.toLowerCase() as
-    | "customer"
-    | "technician"
-    | "admin";
+export default function DashboardSidebar({ user }: Props) {
+  const role = (user?.data?.role ?? 'CUSTOMER').toLowerCase() as
+    | 'customer'
+    | 'technician'
+    | 'admin';
 
   return (
     <>
@@ -26,10 +22,7 @@ export default function DashboardSidebar({
       </aside>
 
       {/* Mobile Header */}
-      <MobileHeader
-        role={role}
-        user={user}
-      />
+      <MobileHeader role={role} user={user} />
 
       <div className="hidden w-72 shrink-0 lg:block" />
     </>

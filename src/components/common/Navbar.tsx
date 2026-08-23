@@ -11,8 +11,8 @@ import {
   Search,
   Users,
   LayoutDashboard,
+  ChevronDown,
 } from 'lucide-react';
-
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,53 +23,67 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import ThemeSwitcher from './ThemeSwitcher';
 import { logout } from '@/services/logout';
 import { toast } from 'sonner';
 import SiteLogo from './SiteLogo';
 
-// Navigation items
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/services', label: 'Services', icon: Search },
   { href: '/find-technicians', label: 'Find Technicians', icon: Users },
 ];
 
+// Role → avatar gradient
+const roleGradient: Record<string, string> = {
+  ADMIN: 'from-rose-500 to-orange-500',
+  TECHNICIAN: 'from-blue-500 to-violet-500',
+  CUSTOMER: 'from-teal-400 to-emerald-500',
+};
+
 type IUser = {
   success: boolean;
   message: string;
   data?: {
-    profile?: {
-      id: string;
-      name: string;
-      email: string;
-      phone: string;
-      activeStatus: string;
-      role: string;
-      isVerified: boolean;
-      lastLoginAt: string | null;
-      userStatus: string | null;
-      createdAt: string;
-      updatedAt: string;
-      technicianProfile?: null;
-    };
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    status: string;
   };
 };
 
-type NavbarProps = {
-  user: IUser;
-};
-
-export default function Navbar({ user }: NavbarProps) {
+export default function Navbar({ user }: { user: IUser }) {
   const pathname = usePathname();
-
   const router = useRouter();
+  const [showLogoutDialog, setShowLogoutDialog] = React.useState(false);
 
-  // login state from props
-  const profile = user?.data?.profile;
-  const isLoggedIn = !!user?.success && !!profile;
+  const profile = user?.success ? user?.data : null;
+  const isLoggedIn = !!profile;
+
+  const initials = profile?.name
+    ? profile.name
+        .split(' ')
+        .map((n: string) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    : 'U';
+
+  const gradient =
+    roleGradient[profile?.role ?? ''] ?? 'from-primary to-primary/70';
 
   const dashboardLink =
     profile?.role === 'ADMIN'
@@ -78,216 +92,261 @@ export default function Navbar({ user }: NavbarProps) {
         ? '/technician-dashboard'
         : '/dashboard';
 
-  const handleLogout = async () => {
+  const profileLink =
+    profile?.role === 'TECHNICIAN'
+      ? '/technician-dashboard/profile'
+      : '/dashboard/profile';
+
+  const handleLogout = () => setShowLogoutDialog(true);
+
+  const confirmLogout = async () => {
     try {
       toast.loading('Logging out...', { id: 'logout' });
-
-      await logout(); // logout function
-
+      await logout();
       toast.success('Logged out successfully!', {
         id: 'logout',
         description: 'See you soon 👋',
       });
-
       router.replace('/login');
-    } catch (error) {
-      console.error('Logout error:', error);
-
-      toast.error('Failed to logout', {
-        id: 'logout',
-        description: 'Please try again',
-      });
+    } catch {
+      toast.error('Failed to logout', { id: 'logout' });
     }
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <SiteLogo />
+    <>
+      <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-backdrop-filter:bg-background/60">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="flex h-16 items-center justify-between">
+            {/* Logo */}
+            <SiteLogo />
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    'flex items-center gap-1.5 text-sm font-medium transition-all duration-200 hover:text-foreground relative group',
-                    isActive ? 'text-primary' : 'text-muted-foreground'
-                  )}
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                  <span
+            {/* Desktop nav links */}
+            <div className="hidden items-center gap-8 md:flex">
+              {navItems.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
                     className={cn(
-                      'absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300',
-                      isActive ? 'w-full' : 'w-0 group-hover:w-full'
+                      'group relative flex items-center gap-1.5 text-sm font-medium transition-colors duration-200',
+                      isActive
+                        ? 'text-foreground'
+                        : 'text-muted-foreground hover:text-foreground'
                     )}
-                  />
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* Right Side - Auth Section */}
-          <div className="flex items-center gap-3">
-            {/* === Theme Switcher (Dropdown) === */}
-            <ThemeSwitcher />
-
-            {isLoggedIn && profile ? (
-              /* === Logged In: User Dropdown === */
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="relative h-9 w-9 rounded-full"
                   >
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage
-                        src="https://github.com/shadcn.png"
-                        alt="User"
-                      />
-                      <AvatarFallback>User</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {user.data?.profile?.name || 'Name'}
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user.data?.profile?.email || 'Email'}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href={dashboardLink} className="cursor-pointer">
-                      <LayoutDashboard className="mr-2 h-4 w-4" />
-                      Dashboard
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href={
-                        profile?.role === 'TECHNICIAN'
-                          ? '/technician-dashboard/profile'
-                          : '/dashboard/profile'
-                      }
-                      className="cursor-pointer"
+                    <item.icon className="h-3.5 w-3.5" />
+                    {item.label}
+                    <span
+                      className={cn(
+                        'absolute -bottom-5.25 left-0 h-0.5 rounded-full bg-primary transition-all duration-300',
+                        isActive ? 'w-full' : 'w-0 group-hover:w-full'
+                      )}
+                    />
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Right actions */}
+            <div className="flex items-center gap-2">
+              <ThemeSwitcher />
+
+              {isLoggedIn && profile ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="flex h-9 items-center gap-2 rounded-full px-2 pr-3 hover:bg-accent"
                     >
-                      <User className="mr-2 h-4 w-4" />
-                      Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    className="text-destructive focus:text-destructive"
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              /* === Not Logged In: Login + Sign Up === */
-              <div className="hidden md:flex items-center gap-3">
-                <Button variant="ghost" asChild>
-                  <Link href="/login">Login</Link>
-                </Button>
-                <Button asChild>
-                  <Link href="/register">Sign Up</Link>
-                </Button>
-              </div>
-            )}
-
-            {/* Mobile Menu */}
-            <Sheet>
-              <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-80">
-                <div className="flex flex-col gap-6 pt-8">
-                  <div className="flex items-center gap-3 px-2">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-                      <span className="text-lg font-bold text-primary-foreground">
-                        F
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback
+                          className={`bg-linear-to-br ${gradient} text-xs font-bold text-white`}
+                        >
+                          {initials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="hidden max-w-25 truncate text-sm font-medium sm:block">
+                        {profile.name}
                       </span>
-                    </div>
-                    <span className="font-semibold text-2xl">FixItNow</span>
-                  </div>
+                      <ChevronDown className="hidden h-3.5 w-3.5 text-muted-foreground sm:block" />
+                    </Button>
+                  </DropdownMenuTrigger>
 
-                  {/* Nav Links */}
-                  <div className="flex flex-col gap-2">
-                    {navItems.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className={cn(
-                          'flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium transition-colors',
-                          pathname === item.href
-                            ? 'bg-primary text-primary-foreground'
-                            : 'hover:bg-muted'
-                        )}
-                      >
-                        <item.icon className="h-5 w-5" />
-                        {item.label}
-                      </Link>
-                    ))}
-                  </div>
-
-                  {/* Auth Section in Mobile */}
-                  <div className="border-t pt-6 mt-auto">
-                    {isLoggedIn && profile ? (
-                      <>
-                        <div className="px-4 text-sm text-muted-foreground mb-4">
-                          Account
-                        </div>
-                        <div className="space-y-1">
-                          <Link
-                            href={
-                              profile?.role === 'TECHNICIAN'
-                                ? '/technician-dashboard/profile'
-                                : '/dashboard/profile'
-                            }
-                            className="flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-muted"
+                  <DropdownMenuContent className="w-60" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex items-center gap-3 py-1">
+                        <Avatar className="h-9 w-9">
+                          <AvatarFallback
+                            className={`bg-linear-to-br ${gradient} text-sm font-bold text-white`}
                           >
-                            <User className="h-5 w-5" /> Profile
+                            {initials}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                          <p className="text-sm font-semibold leading-none">
+                            {profile.name}
+                          </p>
+                          <p className="mt-1 text-xs leading-none text-muted-foreground">
+                            {profile.email}
+                          </p>
+                          <span className="mt-1.5 inline-flex w-fit items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                            {profile.role}
+                          </span>
+                        </div>
+                      </div>
+                    </DropdownMenuLabel>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem asChild>
+                      <Link href={dashboardLink} className="cursor-pointer">
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href={profileLink} className="cursor-pointer">
+                        <User className="mr-2 h-4 w-4" />
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem
+                      className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <div className="hidden items-center gap-2 md:flex">
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link href="/login">Log in</Link>
+                  </Button>
+                  <Button size="sm" asChild>
+                    <Link href="/register">Sign Up</Link>
+                  </Button>
+                </div>
+              )}
+
+              {/* Mobile hamburger */}
+              <Sheet>
+                <SheetTrigger asChild className="md:hidden">
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-80">
+                  <div className="flex flex-col gap-6 pt-6">
+                    <SiteLogo />
+
+                    {/* User info in mobile */}
+                    {isLoggedIn && profile && (
+                      <div className="flex items-center gap-3 rounded-xl border border-border/50 bg-muted/40 p-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarFallback
+                            className={`bg-linear-to-br ${gradient} font-bold text-white`}
+                          >
+                            {initials}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="text-sm font-semibold">
+                            {profile.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {profile.role}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Nav links */}
+                    <div className="flex flex-col gap-1">
+                      {navItems.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className={cn(
+                            'flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
+                            pathname === item.href
+                              ? 'bg-primary text-primary-foreground'
+                              : 'hover:bg-muted'
+                          )}
+                        >
+                          <item.icon className="h-4 w-4" />
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+
+                    <div className="mt-auto border-t pt-4">
+                      {isLoggedIn && profile ? (
+                        <div className="flex flex-col gap-1">
+                          <Link
+                            href={dashboardLink}
+                            className="flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium hover:bg-muted"
+                          >
+                            <LayoutDashboard className="h-4 w-4" /> Dashboard
+                          </Link>
+                          <Link
+                            href={profileLink}
+                            className="flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium hover:bg-muted"
+                          >
+                            <User className="h-4 w-4" /> Profile
                           </Link>
                           <button
                             onClick={handleLogout}
-                            className="w-full flex items-center gap-3 rounded-lg px-4 py-3 text-destructive hover:bg-destructive/10"
+                            className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10"
                           >
-                            <LogOut className="h-5 w-5" /> Log out
+                            <LogOut className="h-4 w-4" /> Log out
                           </button>
                         </div>
-                      </>
-                    ) : (
-                      <div className="flex flex-col gap-3 px-2">
-                        <Button variant="outline" asChild className="w-full">
-                          <Link href="/login">Login</Link>
-                        </Button>
-                        <Button asChild className="w-full">
-                          <Link href="/register">Sign Up</Link>
-                        </Button>
-                      </div>
-                    )}
+                      ) : (
+                        <div className="flex flex-col gap-2 px-2">
+                          <Button variant="outline" asChild className="w-full">
+                            <Link href="/login">Log in</Link>
+                          </Button>
+                          <Button asChild className="w-full">
+                            <Link href="/register">Sign Up</Link>
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {/* Logout Confirmation Dialog */}
+      <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Log out of your account?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You will be signed out and redirected to the login page.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmLogout}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Yes, log out
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
