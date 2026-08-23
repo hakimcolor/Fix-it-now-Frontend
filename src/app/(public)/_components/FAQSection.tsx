@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import { HelpCircle } from "lucide-react";
+import { motion } from 'framer-motion';
+import { HelpCircle } from 'lucide-react';
 
-import { Badge } from "@/components/ui/badge";
+import { Badge } from '@/components/ui/badge';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from '@/components/ui/accordion';
 
-import { faqs } from "./faqData";
-import Link from "next/link";
+import { faqs } from './faqData';
+import Link from 'next/link';
 
 export default function FAQSection() {
   return (
@@ -53,7 +53,6 @@ export default function FAQSection() {
         {/* 2-Column Layout */}
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-            
             {/* FAQ Column - Takes more space */}
             <div className="lg:col-span-7">
               <Accordion type="single" collapsible className="space-y-5">
@@ -100,22 +99,19 @@ export default function FAQSection() {
                 className="sticky top-24" // Optional: makes it stick nicely on scroll
               >
                 <div className="rounded-3xl border bg-primary/5 p-8 text-center">
-                  <h3 className="text-2xl font-bold">
-                    Still have questions?
-                  </h3>
+                  <h3 className="text-2xl font-bold">Still have questions?</h3>
 
                   <p className="mt-3 text-muted-foreground">
-                    Our support team is ready to help you with bookings, payments,
-                    technician registration, or any other questions.
+                    Our support team is ready to help you with bookings,
+                    payments, technician registration, or any other questions.
                   </p>
 
                   <button className="mt-6 rounded-full bg-primary px-8 py-3 font-medium text-primary-foreground transition hover:scale-105">
-                   <Link href="/contact-support">Contact Support</Link>
+                    <Link href="/services">Browse Services</Link>
                   </button>
                 </div>
               </motion.div>
             </div>
-
           </div>
         </div>
       </div>

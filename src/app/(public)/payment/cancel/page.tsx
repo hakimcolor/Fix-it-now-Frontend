@@ -74,7 +74,7 @@ export default function PaymentCancelPage() {
             </Button>
 
             <Button asChild variant="outline" className="flex-1">
-              <Link href="/help">Get Help</Link>
+              <Link href="/services">Browse Services</Link>
             </Button>
           </div>
 

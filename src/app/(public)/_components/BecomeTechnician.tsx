@@ -88,7 +88,7 @@ export default function BecomeTechnician() {
                 variant="outline"
                 className="rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:border-primary hover:bg-primary/5"
               >
-                <Link href="/how-it-works">Learn More</Link>
+                <Link href="/find-technicians">Learn More</Link>
               </Button>
             </div>
           </motion.div>

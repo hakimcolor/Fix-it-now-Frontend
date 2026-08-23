@@ -1,24 +1,13 @@
+import Link from 'next/link';
+import { Mail, MapPin, Phone, Send } from 'lucide-react';
 
+import { companyLinks, socialLinks, supportLinks } from './footerLinks';
 
-import Link from "next/link";
-import {
-  Mail,
-  MapPin,
-  Phone,
-  Send,
-} from "lucide-react";
-
-import {
-  companyLinks,
-  socialLinks,
-  supportLinks,
-} from "./footerLinks";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export default function Footer() {
-    const currentYear = new Date().getFullYear();
+  const currentYear = new Date().getFullYear();
   return (
     <footer className="relative overflow-hidden border-t bg-background">
       {/* Background */}
@@ -31,22 +20,15 @@ export default function Footer() {
         <div className="grid gap-12 lg:grid-cols-5">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <Link
-              href="/"
-              className="flex items-center gap-3"
-            >
+            <Link href="/" className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-xl font-bold text-primary-foreground">
                 F
               </div>
 
               <div>
-                <h3 className="text-2xl font-bold">
-                  FixItNow
-                </h3>
+                <h3 className="text-2xl font-bold">FixItNow</h3>
 
-                <p className="text-sm text-muted-foreground">
-                  Home Services
-                </p>
+                <p className="text-sm text-muted-foreground">Home Services</p>
               </div>
             </Link>
 
@@ -93,9 +75,7 @@ export default function Footer() {
           {/* Company */}
 
           <div>
-            <h4 className="mb-5 text-lg font-semibold">
-              Company
-            </h4>
+            <h4 className="mb-5 text-lg font-semibold">Company</h4>
 
             <div className="space-y-3">
               {companyLinks.map((link) => (
@@ -113,9 +93,7 @@ export default function Footer() {
           {/* Support */}
 
           <div>
-            <h4 className="mb-5 text-lg font-semibold">
-              Support
-            </h4>
+            <h4 className="mb-5 text-lg font-semibold">Support</h4>
 
             <div className="space-y-3">
               {supportLinks.map((link) => (
@@ -133,19 +111,14 @@ export default function Footer() {
           {/* Newsletter */}
 
           <div>
-            <h4 className="mb-5 text-lg font-semibold">
-              Newsletter
-            </h4>
+            <h4 className="mb-5 text-lg font-semibold">Newsletter</h4>
 
             <p className="mb-5 text-sm text-muted-foreground">
               Subscribe to receive home maintenance tips and exclusive offers.
             </p>
 
             <div className="space-y-3">
-              <Input
-                placeholder="Enter your email"
-                type="email"
-              />
+              <Input placeholder="Enter your email" type="email" />
 
               <Button className="w-full">
                 <Send className="mr-2 h-4 w-4" />
@@ -158,21 +131,15 @@ export default function Footer() {
         {/* Bottom */}
 
         <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t pt-8 text-sm text-muted-foreground md:flex-row">
-          <p>
-            © {currentYear} FixItNow. All rights reserved.
-          </p>
+          <p>© {currentYear} FixItNow. All rights reserved.</p>
 
           <div className="flex gap-6">
-            <Link href="/privacy-policy" className="hover:text-primary">
-              Privacy
+            <Link href="/register" className="hover:text-primary">
+              Register
             </Link>
 
-            <Link href="/terms" className="hover:text-primary">
-              Terms
-            </Link>
-
-            <Link href="/cookies" className="hover:text-primary">
-              Cookies
+            <Link href="/login" className="hover:text-primary">
+              Login
             </Link>
           </div>
         </div>
