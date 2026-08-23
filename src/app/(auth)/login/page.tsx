@@ -168,56 +168,16 @@
 //   );
 // }
 
+'use client';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"use client";
-
-import { useState } from "react";
-import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
-import Container from "@/components/common/Container";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+import Link from 'next/link';
+import { Eye, EyeOff } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
+import Container from '@/components/common/Container';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -225,13 +185,13 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { loginUser } from "../_actions/loginUser";
-import { loginSchema, LoginFormData } from "@/schemas/login.schema";
-import DemoCredentials from "../_components/DemoCredentials";
-import { GoogleLoginButton } from "../_components/GoogleLoginButton";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { loginUser } from '../_actions/loginUser';
+import { loginSchema, LoginFormData } from '@/schemas/login.schema';
+import DemoCredentials from '../_components/DemoCredentials';
+import { GoogleLoginButton } from '../_components/GoogleLoginButton';
 // import GoogleLoginButton from "../_components/GoogleLoginButton";
 
 export default function Login() {
@@ -247,23 +207,32 @@ export default function Login() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
   });
   const onSubmit = async (data: LoginFormData) => {
     try {
-      const result = await loginUser(data);
-      toast.success("Login successful", {
-        description: result.message || "Welcome back!",
-      });
+      await loginUser(data);
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Invalid email or password";
+      // Next.js redirect() throws internally — let it propagate
+      if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+        throw error;
+      }
+      // Check for Next.js redirect digest
+      if (
+        error &&
+        typeof error === 'object' &&
+        'digest' in error &&
+        String((error as { digest: string }).digest).startsWith('NEXT_REDIRECT')
+      ) {
+        throw error;
+      }
 
-      toast.error("Login failed", {
+      const message =
+        error instanceof Error ? error.message : 'Invalid email or password';
+
+      toast.error('Login failed', {
         description: message,
       });
     }
@@ -282,34 +251,25 @@ export default function Login() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="space-y-5"
-            >
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               {/* Email */}
               <div className="space-y-2">
-                <Label htmlFor="email">
-                  Email
-                </Label>
+                <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="john@example.com"
                   autoComplete="email"
-                  {...register("email")}
+                  {...register('email')}
                 />
                 {errors.email && (
-                  <p className="text-sm text-red-500">
-                    {errors.email.message}
-                  </p>
+                  <p className="text-sm text-red-500">{errors.email.message}</p>
                 )}
               </div>
               {/* Password */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">
-                    Password
-                  </Label>
+                  <Label htmlFor="password">Password</Label>
                   <Link
                     href="/reset-password"
                     className="text-primary text-sm hover:underline"
@@ -320,14 +280,10 @@ export default function Login() {
                 <div className="relative">
                   <Input
                     id="password"
-                    type={
-                      showPassword
-                        ? "text"
-                        : "password"
-                    }
+                    type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
                     autoComplete="current-password"
-                    {...register("password")}
+                    {...register('password')}
                     className="pr-11"
                   />
                   <Button
@@ -335,11 +291,7 @@ export default function Login() {
                     variant="ghost"
                     size="icon"
                     aria-label="Toggle password visibility"
-                    onClick={() =>
-                      setShowPassword(
-                        (prev) => !prev
-                      )
-                    }
+                    onClick={() => setShowPassword((prev) => !prev)}
                     className="absolute top-1/2 right-1 h-8 w-8 -translate-y-1/2 hover:bg-transparent"
                   >
                     {showPassword ? (
@@ -357,15 +309,8 @@ export default function Login() {
               </div>
 
               {/* Submit Button */}
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isSubmitting}
-              >
-
-                {isSubmitting
-                  ? "Logging in..."
-                  : "Login"}
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? 'Logging in...' : 'Login'}
               </Button>
 
               {/* Google Login component */}
@@ -389,11 +334,10 @@ export default function Login() {
               </div>
               <DemoCredentials setValue={setValue} />
             </form>
-
           </CardContent>
           <CardFooter className="justify-center">
             <p className="text-muted-foreground text-sm">
-              Don&apos;t have an account?{" "}
+              Don&apos;t have an account?{' '}
               <Link
                 href="/register"
                 className="text-primary font-medium hover:underline"

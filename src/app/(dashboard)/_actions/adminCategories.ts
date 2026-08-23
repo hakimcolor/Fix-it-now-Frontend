@@ -94,7 +94,7 @@ export async function toggleCategoryStatus(
         message: result?.message || 'Failed to update category',
       };
 
-    revalidateTag('categories', 'max');
+    revalidateTag('categories', 'max'); // two-arg form — single-arg is deprecated in Next.js 16
     return { success: true, message: result.message || 'Category updated' };
   } catch {
     return { success: false, message: 'Something went wrong' };

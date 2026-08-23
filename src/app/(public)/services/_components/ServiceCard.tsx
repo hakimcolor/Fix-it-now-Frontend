@@ -1,5 +1,3 @@
-
-
 // import Image from "next/image";
 // import { Card, CardContent } from "@/components/ui/card";
 // import { Badge } from "@/components/ui/badge";
@@ -69,29 +67,13 @@
 //   );
 // }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import Image from "next/image";
-import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Clock3, Star } from "lucide-react";
-import { IService } from "@/types/types.service";
+import Image from 'next/image';
+import Link from 'next/link';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Clock3, Star } from 'lucide-react';
+import { IService } from '@/types/types.service';
 
 interface ServiceCardProps {
   service: IService;
@@ -111,9 +93,9 @@ export default function ServiceCard({ service }: ServiceCardProps) {
 
         <Badge
           className="absolute left-3 top-3"
-          variant={service.isAvailable ? "default" : "secondary"}
+          variant={service.isAvailable ? 'default' : 'secondary'}
         >
-          {service.isAvailable ? "Available" : "Unavailable"}
+          {service.isAvailable ? 'Available' : 'Unavailable'}
         </Badge>
       </div>
 
@@ -123,7 +105,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
           <div className="flex items-center gap-1">
             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
             <span className="font-medium">
-              {service.averageRating.toFixed(1)}
+              {(service.averageRating ?? 0).toFixed(1)}
             </span>
             <span className="text-sm text-muted-foreground">
               ({service.totalReviews} reviews)
@@ -132,9 +114,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
         </div>
 
         {/* Title */}
-        <h3 className="line-clamp-1 text-xl font-semibold">
-          {service.title}
-        </h3>
+        <h3 className="line-clamp-1 text-xl font-semibold">{service.title}</h3>
 
         {/* Description */}
         <p className="line-clamp-2 text-sm text-muted-foreground">
@@ -150,20 +130,16 @@ export default function ServiceCard({ service }: ServiceCardProps) {
         {/* Price & Button */}
         <div className="flex items-end justify-between pt-2">
           <div>
-            <h4 className="text-2xl font-bold">
-              ${service.price}
-            </h4>
+            <h4 className="text-2xl font-bold">${service.price}</h4>
 
             <p className="text-xs text-muted-foreground">
-              {service.priceType === "FIXED"
-                ? "Fixed Price"
-                : "Per Hour"}
+              {service.priceType === 'FIXED' ? 'Fixed Price' : 'Per Hour'}
             </p>
           </div>
 
           <Button asChild disabled={!service.isAvailable}>
             <Link href={`/services/${service.id}`}>
-              {service.isAvailable ? "Book Now" : "Unavailable"}
+              {service.isAvailable ? 'Book Now' : 'Unavailable'}
             </Link>
           </Button>
         </div>

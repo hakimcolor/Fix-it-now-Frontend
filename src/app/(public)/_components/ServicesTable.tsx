@@ -1,7 +1,7 @@
 // ServicesTable.tsx
-"use client";
+'use client';
 
-import Image from "next/image";
+import Image from 'next/image';
 import {
   Table,
   TableBody,
@@ -9,24 +9,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { format } from "date-fns";
-import {
-  MoreHorizontal,
-  Eye,
-  Pencil,
-  Trash2,
-  Star,
-  Clock,
-} from "lucide-react";
+} from '@/components/ui/dropdown-menu';
+import { format } from 'date-fns';
+import { MoreHorizontal, Eye, Pencil, Trash2, Star, Clock } from 'lucide-react';
 
 type Category = {
   id: string;
@@ -149,7 +142,7 @@ export function ServicesTable({ data }: ServicesTableProps) {
                 <div className="flex items-center gap-1.5">
                   <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
                   <span className="text-sm font-medium">
-                    {service.averageRating.toFixed(1)}
+                    {(service.averageRating ?? 0).toFixed(1)}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     ({service.totalReviews})
@@ -159,18 +152,16 @@ export function ServicesTable({ data }: ServicesTableProps) {
 
               {/* Availability */}
               <TableCell>
-                <Badge
-                  variant={service.isAvailable ? "default" : "secondary"}
-                >
-                  {service.isAvailable ? "Available" : "Unavailable"}
+                <Badge variant={service.isAvailable ? 'default' : 'secondary'}>
+                  {service.isAvailable ? 'Available' : 'Unavailable'}
                 </Badge>
               </TableCell>
 
               {/* Updated At */}
               <TableCell className="text-sm text-muted-foreground">
                 {service.updatedAt
-                  ? format(new Date(service.updatedAt), "MMM dd, yyyy")
-                  : "—"}
+                  ? format(new Date(service.updatedAt), 'MMM dd, yyyy')
+                  : '—'}
               </TableCell>
 
               {/* Actions */}

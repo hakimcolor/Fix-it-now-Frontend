@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { UseFormSetValue } from "react-hook-form";
-import { Shield, UserCog, User } from "lucide-react";
+import { UseFormSetValue } from 'react-hook-form';
+import { Shield, UserCog, User } from 'lucide-react';
 
 interface LoginFormData {
   email: string;
@@ -14,31 +14,29 @@ interface DemoCredentialsProps {
 
 const demoAccounts = [
   {
-    role: "ADMIN",
-    email: "ADMIN@example.com",
-    password: "ADMIN",
+    role: 'ADMIN',
+    email: 'admin@gmail.com',
+    password: 'password123',
     icon: Shield,
   },
   {
-    role: "TECHNICIAN",
-    email: "TECHNICIAN@example.com",
-    password: "TECHNICIAN",
+    role: 'TECHNICIAN',
+    email: 'tech@gmail.com',
+    password: 'password123',
     icon: UserCog,
   },
   {
-    role: "CUSTOMER",
-    email: "CUSTOMER@example.com",
-    password: "CUSTOMER",
+    role: 'CUSTOMER',
+    email: 'john@gmail.com',
+    password: 'password123',
     icon: User,
   },
 ];
 
-export default function DemoCredentials({
-  setValue,
-}: DemoCredentialsProps) {
+export default function DemoCredentials({ setValue }: DemoCredentialsProps) {
   const handleFill = (email: string, password: string) => {
-    setValue("email", email);
-    setValue("password", password);
+    setValue('email', email);
+    setValue('password', password);
   };
 
   return (
@@ -59,9 +57,7 @@ export default function DemoCredentials({
             <button
               key={account.role}
               type="button"
-              onClick={() =>
-                handleFill(account.email, account.password)
-              }
+              onClick={() => handleFill(account.email, account.password)}
               className="hover:border-primary hover:bg-background flex w-full items-center justify-between rounded-lg border bg-background p-3 transition-all"
             >
               <div className="flex items-center gap-3">
@@ -70,9 +66,7 @@ export default function DemoCredentials({
                 </div>
 
                 <div className="text-left">
-                  <p className="font-medium">
-                    {account.role}
-                  </p>
+                  <p className="font-medium">{account.role}</p>
                   <p className="text-muted-foreground text-xs">
                     {account.email}
                   </p>
@@ -80,12 +74,8 @@ export default function DemoCredentials({
               </div>
 
               <div className="text-right">
-                <p className="text-sm font-semibold">
-                  {account.password}
-                </p>
-                <p className="text-primary text-xs">
-                  Use
-                </p>
+                <p className="text-sm font-semibold">{account.password}</p>
+                <p className="text-primary text-xs">Use</p>
               </div>
             </button>
           );
