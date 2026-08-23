@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label';
 import { loginUser } from '../_actions/loginUser';
 import { loginSchema, LoginFormData } from '@/schemas/login.schema';
 import DemoCredentials from '../_components/DemoCredentials';
+import { unstable_rethrow } from 'next/navigation';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -38,15 +39,7 @@ export default function LoginPage() {
     try {
       await loginUser(data);
     } catch (error) {
-      // Let Next.js redirect() propagate
-      if (
-        error &&
-        typeof error === 'object' &&
-        'digest' in error &&
-        String((error as { digest: string }).digest).startsWith('NEXT_REDIRECT')
-      ) {
-        throw error;
-      }
+      unstable_rethrow(error);
       toast.error('Login failed', {
         description:
           error instanceof Error ? error.message : 'Invalid email or password',
