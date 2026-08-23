@@ -6,7 +6,6 @@ import { Eye, EyeOff, Wrench } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -24,7 +23,6 @@ import DemoCredentials from '../_components/DemoCredentials';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
 
   const {
     register,
@@ -40,7 +38,8 @@ export default function LoginPage() {
     const result = await loginUser(data);
     if (result.success) {
       toast.success('Login successful!');
-      router.push(result.redirectTo);
+      // Full navigation so browser sends the new cookie in the next request
+      window.location.href = result.redirectTo;
     } else {
       toast.error('Login failed', { description: result.message });
     }
