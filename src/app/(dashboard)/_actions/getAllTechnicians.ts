@@ -1,6 +1,6 @@
-"use server";
+'use server';
 
-import { ActiveStatus } from "../_components/UserActionsInAdmindeshboard";
+import { ActiveStatus } from '../_components/UserActionsInAdmindeshboard';
 
 export interface GetAllTechniciansParams {
   page?: number;
@@ -17,22 +17,22 @@ export interface GetAllTechniciansParams {
 export interface TechnicianProfile {
   id: string;
   userId: string;
-  bio: string | null;
+  bio?: string;
   profilePhoto: string;
-  description: string | null;
-  profession: string | null;
-  skills: string[] | null;
-  yearsOfExperience: number | null;
-  hourlyRate: number | null;
+  description?: string;
+  profession?: string;
+  skills?: string[];
+  yearsOfExperience?: number;
+  hourlyRate?: number;
   averageRating: number;
   totalReviews: number;
   totalCompletedJobs: number;
   isAvailable: boolean;
-  responseTime: string | null;
+  responseTime?: string;
   isApproved: boolean;
-  address: string | null;
-  city: string | null;
-  district: string | null;
+  address?: string;
+  city?: string;
+  district?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -42,8 +42,8 @@ export interface Technician {
   name: string;
   email: string;
   phone: string;
-  activeStatus: "ACTIVE" | "BLOCKED" | "BAN" | "UNBAN";
-  role: "TECHNICIAN";
+  activeStatus: 'ACTIVE' | 'BLOCKED' | 'BAN' | 'UNBAN';
+  role: 'TECHNICIAN';
   isVerified: boolean;
   lastLoginAt: string | null;
   createdAt: string;
@@ -73,35 +73,34 @@ export async function getAllTechnicians(
     const params = new URLSearchParams();
 
     // Pagination
-    if (filters.page) params.append("page", filters.page.toString());
-    if (filters.limit) params.append("limit", filters.limit.toString());
+    if (filters.page) params.append('page', filters.page.toString());
+    if (filters.limit) params.append('limit', filters.limit.toString());
 
     // Filters
-    if (filters.city) params.append("city", filters.city);
-    if (filters.profession)
-      params.append("profession", filters.profession);
+    if (filters.city) params.append('city', filters.city);
+    if (filters.profession) params.append('profession', filters.profession);
 
     if (filters.isAvailable !== undefined)
-      params.append("isAvailable", String(filters.isAvailable));
+      params.append('isAvailable', String(filters.isAvailable));
 
     if (filters.isApproved !== undefined)
-      params.append("isApproved", String(filters.isApproved));
+      params.append('isApproved', String(filters.isApproved));
 
     if (filters.minRating !== undefined)
-      params.append("minRating", filters.minRating.toString());
+      params.append('minRating', filters.minRating.toString());
 
     if (filters.minExperience !== undefined)
-      params.append("minExperience", filters.minExperience.toString());
+      params.append('minExperience', filters.minExperience.toString());
 
     if (filters.maxHourlyRate !== undefined)
-      params.append("maxHourlyRate", filters.maxHourlyRate.toString());
+      params.append('maxHourlyRate', filters.maxHourlyRate.toString());
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/technicians?${params.toString()}`,
       {
-        method: "GET",
+        method: 'GET',
         next: {
-          tags: ["technicians"],
+          tags: ['technicians'],
         },
       }
     );
@@ -109,20 +108,17 @@ export async function getAllTechnicians(
     const result = await res.json();
 
     if (!res.ok) {
-      throw new Error(result.message || "Failed to fetch technicians.");
+      throw new Error(result.message || 'Failed to fetch technicians.');
     }
 
     return result;
   } catch (error) {
-    console.error("Error fetching technicians:", error);
+    console.error('Error fetching technicians:', error);
 
     return {
       success: false,
       statusCode: 500,
-      message:
-        error instanceof Error
-          ? error.message
-          : "Something went wrong.",
+      message: error instanceof Error ? error.message : 'Something went wrong.',
       data: [],
       meta: {
         page: filters.page ?? 1,
