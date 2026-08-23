@@ -15,20 +15,20 @@ interface DemoCredentialsProps {
 const demoAccounts = [
   {
     role: 'ADMIN',
-    email: 'admin@gmail.com',
-    password: 'password123',
+    email: 'ADMIN@example.com',
+    password: 'ADMIN',
     icon: Shield,
   },
   {
     role: 'TECHNICIAN',
-    email: 'tech@gmail.com',
-    password: 'password123',
+    email: 'TECHNICIAN@example.com',
+    password: 'TECHNICIAN',
     icon: UserCog,
   },
   {
     role: 'CUSTOMER',
-    email: 'john@gmail.com',
-    password: 'password123',
+    email: 'CUSTOMER@example.com',
+    password: 'CUSTOMER',
     icon: User,
   },
 ];
