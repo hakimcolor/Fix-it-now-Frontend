@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from 'next/image';
 
 import {
   Card,
@@ -6,10 +6,10 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { FolderOpen } from "lucide-react";
-import { getAllCategories } from "../_actions/getAllCategories";
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { FolderOpen } from 'lucide-react';
+import { getAllCategories } from '../_actions/getAllCategories';
 
 export default async function Categories() {
   const result = await getAllCategories();
@@ -40,14 +40,11 @@ export default async function Categories() {
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {result.data.map((category) => (
-          <Card
-            key={category.id}
-            className="transition-shadow hover:shadow-lg"
-          >
+          <Card key={category.id} className="transition-shadow hover:shadow-lg">
             <CardHeader className="items-center text-center">
               <div className="relative mb-4 h-20 w-20 overflow-hidden rounded-full border bg-muted">
                 <Image
-                  src={category.icon}
+                  src={category.icon || '/placeholder-service.png'}
                   alt={category.name}
                   fill
                   className="object-cover"
@@ -56,10 +53,8 @@ export default async function Categories() {
 
               <CardTitle>{category.name}</CardTitle>
 
-              <Badge
-                variant={category.isActive ? "default" : "secondary"}
-              >
-                {category.isActive ? "Active" : "Inactive"}
+              <Badge variant={category.isActive ? 'default' : 'secondary'}>
+                {category.isActive ? 'Active' : 'Inactive'}
               </Badge>
             </CardHeader>
 
@@ -70,13 +65,11 @@ export default async function Categories() {
 
               <div className="space-y-1 text-sm">
                 <p>
-                  <span className="font-medium">Slug:</span>{" "}
-                  {category.slug}
+                  <span className="font-medium">Slug:</span> {category.slug}
                 </p>
 
                 <p className="text-muted-foreground text-xs">
-                  Created:{" "}
-                  {new Date(category.createdAt).toLocaleDateString()}
+                  Created: {new Date(category.createdAt).toLocaleDateString()}
                 </p>
               </div>
             </CardContent>

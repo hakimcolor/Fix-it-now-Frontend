@@ -93,7 +93,7 @@ export function ServicesTable({ data }: ServicesTableProps) {
               <TableCell>
                 <div className="relative h-12 w-12 overflow-hidden rounded-md">
                   <Image
-                    src={service.thumbnail}
+                    src={service.thumbnail || '/placeholder-service.png'}
                     alt={service.title}
                     fill
                     className="object-cover"

@@ -1,10 +1,7 @@
-
 // import { getTechnicianById } from "../../_actions/getTechnicianById";
 
 // import { getMe } from "@/services/getMe";
 // import { getTechnicianServices } from "../../_actions/getTechnicianServices";
-
-
 
 // export default async function TechnicianServicesPage() {
 
@@ -14,7 +11,6 @@
 
 //   const allServices = await getTechnicianServices(technicianId);
 
-
 //   return (
 //     <div>
 //       <pre>{JSON.stringify(result, null, 2)}</pre>
@@ -22,7 +18,6 @@
 //     </div>
 //   );
 // }
-
 
 // dashboard/
 // └── technician/
@@ -39,32 +34,12 @@
 //         │       └── create/
 //         │           └── page.tsx     // Add slot
 
+import Image from 'next/image';
+import Link from 'next/link';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import Image from "next/image";
-import Link from "next/link";
-
-import { getMe } from "@/services/getMe";
-import { getTechnicianById } from "../../_actions/getTechnicianById";
-import { getTechnicianServices } from "../../_actions/getTechnicianServices";
+import { getMe } from '@/services/getMe';
+import { getTechnicianById } from '../../_actions/getTechnicianById';
+import { getTechnicianServices } from '../../_actions/getTechnicianServices';
 
 import {
   Card,
@@ -72,7 +47,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 
 import {
   Table,
@@ -81,22 +56,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
-import {
-  Star,
-  Clock,
-  Plus,
-  Pencil,
-  CalendarDays,
-  Trash2,
-} from "lucide-react";
-import DeleteServiceButton from "../../_components/DeleteServiceButton";
-
-
+import { Star, Clock, Plus, Pencil, CalendarDays, Trash2 } from 'lucide-react';
+import DeleteServiceButton from '../../_components/DeleteServiceButton';
 
 export interface Category {
   id: string;
@@ -133,7 +99,7 @@ export interface TechnicianService {
   title: string;
   description: string;
   price: string;
-  priceType: "FIXED" | "HOURLY";
+  priceType: 'FIXED' | 'HOURLY';
   estimatedDuration: number;
   thumbnail: string;
   isAvailable: boolean;
@@ -170,9 +136,7 @@ export default async function TechnicianServicesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">My Services</h1>
-          <p className="text-muted-foreground">
-            Manage your offered services.
-          </p>
+          <p className="text-muted-foreground">Manage your offered services.</p>
         </div>
 
         <Button asChild>
@@ -188,41 +152,31 @@ export default async function TechnicianServicesPage() {
       <Card>
         <CardHeader>
           <CardTitle>{technician?.data?.displayName}</CardTitle>
-          <CardDescription>
-            {technician?.data?.profession}
-          </CardDescription>
+          <CardDescription>{technician?.data?.profession}</CardDescription>
         </CardHeader>
 
         <CardContent className="grid gap-4 md:grid-cols-4">
           <div>
-            <p className="text-sm text-muted-foreground">
-              Total Services
-            </p>
+            <p className="text-sm text-muted-foreground">Total Services</p>
             <p className="text-2xl font-bold">{services.length}</p>
           </div>
 
           <div>
-            <p className="text-sm text-muted-foreground">
-              Experience
-            </p>
+            <p className="text-sm text-muted-foreground">Experience</p>
             <p className="text-2xl font-bold">
               {technician?.data?.yearsOfExperience ?? 0} yrs
             </p>
           </div>
 
           <div>
-            <p className="text-sm text-muted-foreground">
-              Rating
-            </p>
+            <p className="text-sm text-muted-foreground">Rating</p>
             <p className="text-2xl font-bold">
               {technician?.data?.averageRating ?? 0}
             </p>
           </div>
 
           <div>
-            <p className="text-sm text-muted-foreground">
-              Reviews
-            </p>
+            <p className="text-sm text-muted-foreground">Reviews</p>
             <p className="text-2xl font-bold">
               {technician?.data?.totalReviews ?? 0}
             </p>
@@ -235,9 +189,7 @@ export default async function TechnicianServicesPage() {
       <Card>
         <CardHeader>
           <CardTitle>Services</CardTitle>
-          <CardDescription>
-            All services you currently provide.
-          </CardDescription>
+          <CardDescription>All services you currently provide.</CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -251,9 +203,7 @@ export default async function TechnicianServicesPage() {
                 <TableHead>Rating</TableHead>
                 <TableHead>Slots</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="text-right">
-                  Actions
-                </TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -273,7 +223,7 @@ export default async function TechnicianServicesPage() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Image
-                          src={service.thumbnail}
+                          src={service.thumbnail || '/placeholder-service.png'}
                           alt={service.title}
                           width={60}
                           height={60}
@@ -281,22 +231,17 @@ export default async function TechnicianServicesPage() {
                         />
 
                         <div>
-                          <p className="font-medium">
-                            {service.title}
-                          </p>
+                          <p className="font-medium">{service.title}</p>
                         </div>
                       </div>
                     </TableCell>
 
                     <TableCell>
-                      <Badge variant="secondary">
-                        {service.category.name}
-                      </Badge>
+                      <Badge variant="secondary">{service.category.name}</Badge>
                     </TableCell>
 
                     <TableCell>
                       ৳{service.price}
-
                       <p className="text-xs text-muted-foreground">
                         {service.priceType}
                       </p>
@@ -321,31 +266,21 @@ export default async function TechnicianServicesPage() {
                       </div>
                     </TableCell>
 
-                    <TableCell>
-                      {service.bookingSlots.length}
-                    </TableCell>
+                    <TableCell>{service.bookingSlots.length}</TableCell>
 
                     <TableCell>
                       <Badge
                         variant={
-                          service.isAvailable
-                            ? "default"
-                            : "destructive"
+                          service.isAvailable ? 'default' : 'destructive'
                         }
                       >
-                        {service.isAvailable
-                          ? "Available"
-                          : "Unavailable"}
+                        {service.isAvailable ? 'Available' : 'Unavailable'}
                       </Badge>
                     </TableCell>
 
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          asChild
-                        >
+                        <Button variant="outline" size="icon" asChild>
                           <Link
                             href={`/technician-dashboard/services/${service.id}/slots`}
                           >
@@ -353,11 +288,7 @@ export default async function TechnicianServicesPage() {
                           </Link>
                         </Button>
 
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          asChild
-                        >
+                        <Button variant="outline" size="icon" asChild>
                           <Link
                             href={`/technician-dashboard/services/${service.id}/edit`}
                           >
@@ -377,9 +308,7 @@ export default async function TechnicianServicesPage() {
                         </Button> */}
 
                         <div>
-                          <DeleteServiceButton
-                            serviceId={service.id}
-                          />
+                          <DeleteServiceButton serviceId={service.id} />
                         </div>
                       </div>
                     </TableCell>
@@ -393,5 +322,3 @@ export default async function TechnicianServicesPage() {
     </div>
   );
 }
-
-

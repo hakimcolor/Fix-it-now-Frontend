@@ -1,4 +1,3 @@
-
 // const SingleServiceByIdPage = async ({ params }: { params: Promise<{ id: string }> }) => {
 //   const { id } = await params;
 //   return <div>ServideByIdPage {id}</div>;
@@ -6,28 +5,10 @@
 
 // export default SingleServiceByIdPage
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-import Image from "next/image";
-import {
-  Badge,
-} from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import Image from 'next/image';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
   Star,
   Clock,
@@ -35,9 +16,9 @@ import {
   Tag,
   CheckCircle2,
   XCircle,
-} from "lucide-react";
-import { IBookingSlot } from "@/types/types.service";
-import BookingModal from "../_components/BookingModal";
+} from 'lucide-react';
+import { IBookingSlot } from '@/types/types.service';
+import BookingModal from '../_components/BookingModal';
 
 const SingleServiceByIdPage = async ({
   params,
@@ -49,7 +30,7 @@ const SingleServiceByIdPage = async ({
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/services/${id}`,
     {
-      cache: "no-store",
+      cache: 'no-store',
     }
   );
 
@@ -63,7 +44,7 @@ const SingleServiceByIdPage = async ({
           <Card className="overflow-hidden">
             <div className="relative h-[420px] w-full">
               <Image
-                src={data.thumbnail}
+                src={data.thumbnail || '/placeholder-service.png'}
                 alt={data.title}
                 fill
                 className="object-cover"
@@ -81,15 +62,11 @@ const SingleServiceByIdPage = async ({
                     Available
                   </Badge>
                 ) : (
-                  <Badge variant="destructive">
-                    Unavailable
-                  </Badge>
+                  <Badge variant="destructive">Unavailable</Badge>
                 )}
               </div>
 
-              <h1 className="text-4xl font-bold">
-                {data.title}
-              </h1>
+              <h1 className="text-4xl font-bold">{data.title}</h1>
 
               <div className="flex flex-wrap gap-6 text-muted-foreground">
                 <div className="flex items-center gap-2">
@@ -111,9 +88,7 @@ const SingleServiceByIdPage = async ({
               </div>
 
               <div>
-                <h2 className="mb-3 text-xl font-semibold">
-                  Description
-                </h2>
+                <h2 className="mb-3 text-xl font-semibold">Description</h2>
 
                 <p className="leading-7 text-muted-foreground">
                   {data.description}
@@ -124,18 +99,17 @@ const SingleServiceByIdPage = async ({
 
           <Card>
             <CardContent className="space-y-5 p-6">
-              <h2 className="text-2xl font-bold">
-                Booking Slots
-              </h2>
+              <h2 className="text-2xl font-bold">Booking Slots</h2>
 
               <div className="grid gap-4 md:grid-cols-2">
                 {data.bookingSlots.map((slot: IBookingSlot) => (
                   <div
                     key={slot.id}
-                    className={`rounded-xl border p-4 ${slot.isAvailable
-                      ? "border-green-300 bg-green-50"
-                      : "border-red-200 bg-red-50"
-                      }`}
+                    className={`rounded-xl border p-4 ${
+                      slot.isAvailable
+                        ? 'border-green-300 bg-green-50'
+                        : 'border-red-200 bg-red-50'
+                    }`}
                   >
                     <div className="mb-3 flex items-center gap-2 font-semibold">
                       <Calendar className="h-5 w-5" />
@@ -145,21 +119,19 @@ const SingleServiceByIdPage = async ({
 
                     <p className="text-sm text-muted-foreground">
                       {new Date(slot.startsAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
+                        hour: '2-digit',
+                        minute: '2-digit',
                       })}
 
-                      {" - "}
+                      {' - '}
 
                       {new Date(slot.endsAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
+                        hour: '2-digit',
+                        minute: '2-digit',
                       })}
                     </p>
 
-                    <p className="mt-2 text-sm">
-                      {slot.note}
-                    </p>
+                    <p className="mt-2 text-sm">{slot.note}</p>
 
                     <div className="mt-3">
                       {slot.isAvailable ? (
@@ -186,26 +158,20 @@ const SingleServiceByIdPage = async ({
           <Card className="sticky top-24">
             <CardContent className="space-y-6 p-6">
               <div>
-                <p className="text-muted-foreground">
-                  Service Price
-                </p>
+                <p className="text-muted-foreground">Service Price</p>
 
                 <h2 className="text-4xl font-bold text-primary">
                   ৳{data.price}
                 </h2>
 
-                <p className="text-muted-foreground">
-                  {data.priceType}
-                </p>
+                <p className="text-muted-foreground">{data.priceType}</p>
               </div>
 
               <div className="space-y-4">
                 <div className="flex justify-between">
                   <span>Category</span>
 
-                  <span className="font-medium">
-                    {data.category.name}
-                  </span>
+                  <span className="font-medium">{data.category.name}</span>
                 </div>
 
                 <div className="flex justify-between">
@@ -225,12 +191,10 @@ const SingleServiceByIdPage = async ({
 
                   <span
                     className={
-                      data.isAvailable
-                        ? "text-green-600"
-                        : "text-red-600"
+                      data.isAvailable ? 'text-green-600' : 'text-red-600'
                     }
                   >
-                    {data.isAvailable ? "Available" : "Unavailable"}
+                    {data.isAvailable ? 'Available' : 'Unavailable'}
                   </span>
                 </div>
               </div>

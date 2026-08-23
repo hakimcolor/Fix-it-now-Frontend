@@ -101,10 +101,14 @@ export default async function SingleBookingPage({
         </CardHeader>
 
         <CardContent className="space-y-4">
-          {booking.service.image && (
+          {(booking.service.image || booking.service.thumbnail) && (
             <div className="relative h-64 w-full overflow-hidden rounded-lg">
               <Image
-                src={booking.service.image}
+                src={
+                  booking.service.image ||
+                  booking.service.thumbnail ||
+                  '/placeholder-service.png'
+                }
                 alt={booking.service.title}
                 fill
                 className="object-cover"
