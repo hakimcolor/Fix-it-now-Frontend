@@ -1,84 +1,66 @@
+'use client';
 
-import Link from "next/link";
-import { User, Wrench } from "lucide-react";
+import Link from 'next/link';
+import { User, Wrench, ArrowRight } from 'lucide-react';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 
-import {
-
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
-export type Role = "CUSTOMER" | "TECHNICIAN";
+export type Role = 'CUSTOMER' | 'TECHNICIAN';
 
 interface Props {
   onSelect: (role: Role) => void;
 }
 
+const roles = [
+  {
+    value: 'CUSTOMER' as Role,
+    icon: User,
+    title: 'Customer',
+    description: 'Book qualified professionals for home services.',
+    color: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+  },
+  {
+    value: 'TECHNICIAN' as Role,
+    icon: Wrench,
+    title: 'Technician',
+    description: 'List your skills, set availability, and earn.',
+    color: 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
+  },
+];
+
 export default function RoleSelector({ onSelect }: Props) {
   return (
-    <>
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl">
-          Create Your Account
-        </CardTitle>
-
-        <CardDescription>
-          Choose how you'd like to use the platform.
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
-        <button
-          type="button"
-          onClick={() => onSelect("CUSTOMER")}
-          // onClick={() => handleRoleSelect("CUSTOMER")}
-          className="hover:border-primary hover:bg-accent flex w-full items-center gap-4 rounded-xl border p-5 text-left transition-all"
-        >
-          <div className="bg-primary/10 text-primary rounded-full p-3">
-            <User size={24} />
-          </div>
-
-          <div>
-            <h3 className="font-semibold">Customer</h3>
-            <p className="text-muted-foreground text-sm">
-              Book and manage service requests.
-            </p>
-          </div>
-        </button>
-
-        <button
-          type="button"
-          // onClick={() => handleRoleSelect("TECHNICIAN")}
-          onClick={() => onSelect("TECHNICIAN")}
-          className="hover:border-primary hover:bg-accent flex w-full items-center gap-4 rounded-xl border p-5 text-left transition-all"
-        >
-          <div className="bg-primary/10 text-primary rounded-full p-3">
-            <Wrench size={24} />
-          </div>
-
-          <div>
-            <h3 className="font-semibold">Technician</h3>
-            <p className="text-muted-foreground text-sm">
-              Accept service requests and earn money.
-            </p>
-          </div>
-        </button>
+    <Card className="shadow-xl">
+      <CardContent className="space-y-3 pt-6">
+        {roles.map(({ value, icon: Icon, title, description, color }) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => onSelect(value)}
+            className="group flex w-full items-center gap-4 rounded-xl border bg-background p-4 text-left transition-all hover:border-primary hover:bg-primary/5 hover:shadow-md"
+          >
+            <div className={`rounded-xl p-3 ${color}`}>
+              <Icon className="h-6 w-6" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold">{title}</p>
+              <p className="text-sm text-muted-foreground">{description}</p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+          </button>
+        ))}
       </CardContent>
 
-      <CardFooter className="justify-center">
-        <p className="text-muted-foreground text-sm">
-          Already have an account?{" "}
+      <CardFooter className="justify-center border-t pt-5">
+        <p className="text-sm text-muted-foreground">
+          Already have an account?{' '}
           <Link
             href="/login"
-            className="text-primary font-medium hover:underline"
+            className="font-semibold text-primary hover:underline"
           >
-            Login
+            Sign in
           </Link>
         </p>
       </CardFooter>
-    </>
+    </Card>
   );
 }
