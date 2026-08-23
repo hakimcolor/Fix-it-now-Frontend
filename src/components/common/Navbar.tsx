@@ -6,14 +6,11 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   Menu,
   User,
-  Settings,
   LogOut,
   Home,
   Search,
   Users,
-  PlayCircle,
   LayoutDashboard,
-  Contact,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -38,8 +35,6 @@ const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/services', label: 'Services', icon: Search },
   { href: '/find-technicians', label: 'Find Technicians', icon: Users },
-  { href: '/how-it-works', label: 'How It Works', icon: PlayCircle },
-  { href: '/contact', label: 'Contact', icon: Contact },
 ];
 
 type IUser = {
@@ -179,15 +174,16 @@ export default function Navbar({ user }: NavbarProps) {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/profile" className="cursor-pointer">
+                    <Link
+                      href={
+                        profile?.role === 'TECHNICIAN'
+                          ? '/technician-dashboard/profile'
+                          : '/dashboard/profile'
+                      }
+                      className="cursor-pointer"
+                    >
                       <User className="mr-2 h-4 w-4" />
                       Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/settings" className="cursor-pointer">
-                      <Settings className="mr-2 h-4 w-4" />
-                      Settings
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -258,16 +254,14 @@ export default function Navbar({ user }: NavbarProps) {
                         </div>
                         <div className="space-y-1">
                           <Link
-                            href="/profile"
+                            href={
+                              profile?.role === 'TECHNICIAN'
+                                ? '/technician-dashboard/profile'
+                                : '/dashboard/profile'
+                            }
                             className="flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-muted"
                           >
                             <User className="h-5 w-5" /> Profile
-                          </Link>
-                          <Link
-                            href="/settings"
-                            className="flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-muted"
-                          >
-                            <Settings className="h-5 w-5" /> Settings
                           </Link>
                           <button
                             onClick={handleLogout}

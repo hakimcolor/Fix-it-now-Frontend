@@ -4,17 +4,16 @@ import {
   Calendar,
   User,
   Star,
-  Settings,
   Users,
-  BarChart3,
   LayoutGrid,
+  CreditCard,
 } from 'lucide-react';
 
 export const navigation = {
   customer: [
     { name: 'Dashboard', href: '/dashboard', icon: Home },
-    { name: 'My Payments', href: '/dashboard/my-payments', icon: Wrench },
     { name: 'My Bookings', href: '/dashboard/my-bookings', icon: Calendar },
+    { name: 'My Payments', href: '/dashboard/my-payments', icon: CreditCard },
     { name: 'My Reviews', href: '/dashboard/reviews', icon: Star },
     { name: 'Profile', href: '/dashboard/profile', icon: User },
   ],
@@ -36,12 +35,6 @@ export const navigation = {
       href: '/technician-dashboard/bookings',
       icon: Calendar,
     },
-    {
-      name: 'Earnings',
-      href: '/technician-dashboard/earnings',
-      icon: BarChart3,
-    },
-    // { name: "Reviews", href: "/technician-dashboard/reviews", icon: Star },
     { name: 'Profile', href: '/technician-dashboard/profile', icon: User },
   ],
 
@@ -49,13 +42,10 @@ export const navigation = {
     { name: 'Dashboard', href: '/admin-dashboard', icon: Home },
     { name: 'Users', href: '/admin-dashboard/users', icon: Users },
     { name: 'Bookings', href: '/admin-dashboard/bookings', icon: Calendar },
-    { name: 'Services', href: '/admin-dashboard/services', icon: Wrench },
     {
       name: 'Categories',
       href: '/admin-dashboard/categories',
       icon: LayoutGrid,
     },
-    { name: 'Analytics', href: '/admin-dashboard/analytics', icon: BarChart3 },
-    { name: 'Settings', href: '/admin-dashboard/settings', icon: Settings },
   ],
 } as const;

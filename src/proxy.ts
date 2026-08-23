@@ -4,18 +4,7 @@ import { JwtPayload } from 'jsonwebtoken';
 import { jwtUtils } from './utils/jwt';
 
 const AUTH_ROUTES = ['/login', '/register'];
-const PUBLIC_ROUTES = [
-  '/',
-  '/services',
-  '/find-technicians',
-  '/how-it-works',
-  '/about',
-  '/contact',
-  '/help',
-  '/privacy-policy',
-  '/terms',
-  '/cookies',
-];
+const PUBLIC_ROUTES = ['/', '/services', '/find-technicians'];
 
 async function refreshAccessToken(
   refreshToken: string
