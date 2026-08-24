@@ -3,7 +3,14 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { PlusCircle, Tag, Pencil, Trash2, MoreHorizontal } from 'lucide-react';
+import {
+  PlusCircle,
+  Tag,
+  Pencil,
+  Trash2,
+  MoreHorizontal,
+  Layers,
+} from 'lucide-react';
 
 import {
   Card,
@@ -16,7 +23,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
@@ -42,11 +48,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-import {
-  Category,
-  createCategory,
-  toggleCategoryStatus,
-} from '../../_actions/adminCategories';
+import { Category, createCategory } from '../../_actions/adminCategories';
 import {
   updateCategory,
   deleteCategory,
@@ -146,23 +148,9 @@ export default function AdminCategoriesClient({ categories: initial }: Props) {
     });
   };
 
-  const handleToggle = (id: string, current: boolean) => {
-    startTransition(async () => {
-      const res = await toggleCategoryStatus(id, !current);
-      if (res.success) {
-        toast.success(res.message);
-        setCats((prev) =>
-          prev.map((c) => (c.id === id ? { ...c, isActive: !current } : c))
-        );
-      } else {
-        toast.error(res.message);
-      }
-    });
-  };
-
   return (
     <div className="space-y-6">
-      {/* Header toolbar */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
           {cats.length} categories total
@@ -188,86 +176,56 @@ export default function AdminCategoriesClient({ categories: initial }: Props) {
               key={cat.id}
               className="group relative overflow-hidden transition-shadow hover:shadow-md"
             >
-              {/* Active indicator strip */}
-              <div
-                className={`absolute left-0 top-0 h-full w-1 rounded-l-lg ${cat.isActive ? 'bg-emerald-500' : 'bg-muted'}`}
-              />
-
-              <CardHeader className="pb-3 pl-5">
+              <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <CardTitle className="truncate text-base">
                       {cat.name}
                     </CardTitle>
-                    {cat.slug && (
-                      <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">
-                        /{cat.slug}
-                      </p>
+                    {cat.description && (
+                      <CardDescription className="mt-1 line-clamp-2 text-xs">
+                        {cat.description}
+                      </CardDescription>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-1">
-                    <Badge
-                      variant="outline"
-                      className={
-                        cat.isActive
-                          ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                          : 'border-gray-200 bg-gray-50 text-gray-500'
-                      }
-                    >
-                      {cat.isActive ? 'Active' : 'Inactive'}
-                    </Badge>
-
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 opacity-0 group-hover:opacity-100"
-                          disabled={isPending}
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => openEdit(cat)}>
-                          <Pencil className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive focus:text-destructive"
-                          onClick={() => setDeleteTarget(cat)}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100"
+                        disabled={isPending}
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => openEdit(cat)}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-destructive focus:text-destructive"
+                        onClick={() => setDeleteTarget(cat)}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-
-                {cat.description && (
-                  <CardDescription className="line-clamp-2 text-xs">
-                    {cat.description}
-                  </CardDescription>
-                )}
               </CardHeader>
 
-              <CardContent className="pl-5">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(cat.createdAt).toLocaleDateString()}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">
-                      {cat.isActive ? 'Disable' : 'Enable'}
-                    </span>
-                    <Switch
-                      checked={cat.isActive}
-                      disabled={isPending}
-                      onCheckedChange={() => handleToggle(cat.id, cat.isActive)}
-                    />
-                  </div>
+              <CardContent>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{new Date(cat.createdAt).toLocaleDateString()}</span>
+                  {cat._count?.services !== undefined && (
+                    <Badge variant="secondary" className="gap-1">
+                      <Layers className="h-3 w-3" />
+                      {cat._count.services} services
+                    </Badge>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -289,7 +247,7 @@ export default function AdminCategoriesClient({ categories: initial }: Props) {
               <Label htmlFor="new-name">Name</Label>
               <Input
                 id="new-name"
-                placeholder="e.g. Plumbing"
+                placeholder="e.g. Electricals"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
               />
@@ -298,7 +256,7 @@ export default function AdminCategoriesClient({ categories: initial }: Props) {
               <Label htmlFor="new-desc">Description</Label>
               <Textarea
                 id="new-desc"
-                placeholder="Brief description…"
+                placeholder="Electrical repair and installation services"
                 value={newDesc}
                 onChange={(e) => setNewDesc(e.target.value)}
                 rows={3}
@@ -364,8 +322,8 @@ export default function AdminCategoriesClient({ categories: initial }: Props) {
               Delete &ldquo;{deleteTarget?.name}&rdquo;?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove the category from the platform. This
-              action cannot be undone.
+              This will permanently remove the category. This action cannot be
+              undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

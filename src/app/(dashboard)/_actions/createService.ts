@@ -1,51 +1,47 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 
 export interface CreateServicePayload {
-  categoryId: string;
   title: string;
   description: string;
   price: number;
-  priceType: 'FIXED' | 'HOURLY';
-  estimatedDuration: number;
-  thumbnail: string;
-  isAvailable: boolean;
+  categoryId: string;
 }
 
 export async function createService(data: CreateServicePayload) {
-  try {
-    const cookieStore = await cookies();
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get('accessToken')?.value;
 
-    const accessToken = cookieStore.get('accessToken')?.value;
+  if (!accessToken) {
+    return { success: false, message: 'Unauthorized' };
+  }
 
-    if (!accessToken) {
-      throw new Error('Unauthorized');
-    }
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/services`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(data),
+    cache: 'no-store',
+  });
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/services`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: accessToken,
-      },
-      body: JSON.stringify(data),
-      cache: 'no-store',
-    });
+  const result = await res.json();
 
-    const result = await res.json();
-
-    if (!res.ok) {
-      throw new Error(result.message || 'Failed to create service');
-    }
-
-    return result;
-  } catch (error) {
-    console.error('Create Service Error:', error);
-
+  if (!res.ok) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Something went wrong',
+      message: result.message || 'Failed to create service',
     };
   }
+
+  revalidatePath('/technician-dashboard/services');
+
+  return {
+    success: true,
+    message: result.message || 'Service created successfully',
+    data: result.data,
+  };
 }

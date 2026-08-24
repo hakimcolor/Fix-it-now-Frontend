@@ -124,7 +124,7 @@ export default async function TechnicianServicesPage() {
   }
 
   const technician = await getTechnicianById(technicianId);
-  const response = await getTechnicianServices(technicianId);
+  const response = await getTechnicianServices();
 
   const services = response?.data || [];
 

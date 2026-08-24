@@ -1,13 +1,13 @@
 'use server';
 
-import { updateTag } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 
 export interface CreateBookingPayload {
   serviceId: string;
-  bookingSlotId: string;
-  bookingDate: string;
-  note?: string;
+  scheduledDate: string;
+  timeSlot: string;
+  contactNumber: string;
 }
 
 export async function createBooking(payload: CreateBookingPayload) {
@@ -37,7 +37,7 @@ export async function createBooking(payload: CreateBookingPayload) {
     };
   }
 
-  updateTag('my-bookings');
+  revalidatePath('/dashboard/my-bookings');
 
   return {
     success: true,

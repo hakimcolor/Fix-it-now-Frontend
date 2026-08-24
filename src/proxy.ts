@@ -2,15 +2,24 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const AUTH_ROUTES = ['/login', '/register'];
-const PUBLIC_ROUTES = ['/', '/services', '/find-technicians'];
+const PUBLIC_ROUTES = [
+  '/',
+  '/services',
+  '/find-technicians',
+  '/about',
+  '/contact',
+  '/how-it-works',
+  '/find-technicians',
+];
 
 function decodeToken(token: string): { role?: string } | null {
   try {
     const [, payload] = token.split('.');
     if (!payload) return null;
-    return (
-      JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) ?? null
-    );
+    // Edge runtime compatible base64url decode
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const json = atob(base64);
+    return JSON.parse(json) ?? null;
   } catch {
     return null;
   }

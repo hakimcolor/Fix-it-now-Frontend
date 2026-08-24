@@ -83,8 +83,7 @@ export async function getAllTechnicians(
     if (filters.isAvailable !== undefined)
       params.append('isAvailable', String(filters.isAvailable));
 
-    if (filters.isApproved !== undefined)
-      params.append('isApproved', String(filters.isApproved));
+    // isApproved is not supported by this backend — skip it
 
     if (filters.minRating !== undefined)
       params.append('minRating', filters.minRating.toString());
@@ -100,6 +99,7 @@ export async function getAllTechnicians(
       {
         method: 'GET',
         cache: 'no-store',
+        signal: AbortSignal.timeout(10000), // 10s timeout
       }
     );
 

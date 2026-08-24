@@ -16,21 +16,39 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface TechnicianProfile {
+  id: string;
+  userId: string;
   profilePhoto?: string;
   profession?: string;
   averageRating?: number;
   totalReviews?: number;
   yearsOfExperience?: number;
   hourlyRate?: number;
+  location?: string;
   city?: string;
-  isApproved?: boolean;
+  isVerified?: boolean;
   isAvailable?: boolean;
+  skills?: string[];
+  experience?: number;
+  availability?: Record<string, string[]>;
 }
 
 interface Technician {
   id: string;
-  name: string;
-  technicianProfile: TechnicianProfile;
+  name?: string;
+  technicianProfile?: TechnicianProfile;
+  // backend /api/technicians returns flat profile + user nested
+  userId?: string;
+  bio?: string;
+  skills?: string[];
+  experience?: number;
+  hourlyRate?: number;
+  location?: string;
+  averageRating?: number;
+  totalReviews?: number;
+  isVerified?: boolean;
+  availability?: Record<string, string[]>;
+  user?: { name: string; email: string; status: string };
 }
 
 export default function TopRatedTechnicians({
@@ -72,13 +90,27 @@ export default function TopRatedTechnicians({
 
         <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
           {technicians.map((tech, index) => {
+            // Backend /api/technicians returns flat profile with nested user
             const profile = tech.technicianProfile;
-            const initials = tech.name
-              .split(' ')
-              .map((w) => w[0])
-              .join('')
-              .toUpperCase()
-              .slice(0, 2);
+            const name = tech.name ?? tech.user?.name ?? 'Technician';
+            const initials =
+              name
+                .split(' ')
+                .map((w: string) => w[0] ?? '')
+                .join('')
+                .toUpperCase()
+                .slice(0, 2) || 'T';
+
+            const photo = profile?.profilePhoto;
+            const profession = profile?.profession;
+            const rating = profile?.averageRating ?? tech.averageRating ?? 0;
+            const reviews = profile?.totalReviews ?? tech.totalReviews ?? 0;
+            const experience =
+              profile?.yearsOfExperience ?? tech.experience ?? 0;
+            const rate = profile?.hourlyRate ?? tech.hourlyRate ?? 0;
+            const city = profile?.city ?? tech.location ?? '';
+            const isAvailable = profile?.isAvailable ?? false;
+            const isVerified = profile?.isVerified ?? tech.isVerified ?? false;
 
             return (
               <motion.div
@@ -90,7 +122,7 @@ export default function TopRatedTechnicians({
               >
                 <Card className="group cursor-pointer overflow-hidden rounded-2xl border bg-background transition-all duration-300 hover:-translate-y-2 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10">
                   <CardContent className="flex flex-col items-center p-4 text-center">
-                    {profile?.isApproved && (
+                    {isVerified && (
                       <Badge className="mb-3 rounded-full bg-emerald-100 px-3 py-0.5 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400">
                         <BadgeCheck className="mr-1 h-3 w-3" />
                         Verified
@@ -101,40 +133,37 @@ export default function TopRatedTechnicians({
                     <div className="relative mb-3">
                       <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl transition-all duration-300 group-hover:scale-125 group-hover:opacity-80" />
                       <Avatar className="relative h-20 w-20 ring-2 ring-primary/10 transition-all duration-300 group-hover:scale-105 group-hover:ring-primary/40">
-                        <AvatarImage
-                          src={profile?.profilePhoto || undefined}
-                          alt={tech.name}
-                        />
+                        <AvatarImage src={photo || undefined} alt={name} />
                         <AvatarFallback className="bg-primary/10 text-lg font-bold text-primary">
                           {initials}
                         </AvatarFallback>
                       </Avatar>
-                      {profile?.isAvailable && (
+                      {isAvailable && (
                         <span className="absolute bottom-1 right-1 h-3.5 w-3.5 rounded-full border-2 border-background bg-emerald-500" />
                       )}
                     </div>
 
                     <h3 className="line-clamp-1 text-sm font-semibold">
-                      {tech.name}
+                      {name}
                     </h3>
                     <p className="text-xs text-muted-foreground">
-                      {profile?.profession ?? 'Technician'}
+                      {profession ?? 'Technician'}
                     </p>
 
-                    {profile?.city && (
+                    {city && (
                       <p className="mt-1 flex items-center gap-0.5 text-[10px] text-muted-foreground">
                         <MapPin className="h-2.5 w-2.5" />
-                        {profile.city}
+                        {city}
                       </p>
                     )}
 
                     <div className="mt-2 flex items-center gap-1 rounded-full bg-muted px-2.5 py-1">
                       <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                       <span className="text-xs font-semibold">
-                        {profile?.averageRating?.toFixed(1) ?? '0.0'}
+                        {rating.toFixed(1)}
                       </span>
                       <span className="text-[10px] text-muted-foreground">
-                        ({profile?.totalReviews ?? 0})
+                        ({reviews})
                       </span>
                     </div>
 
@@ -142,13 +171,13 @@ export default function TopRatedTechnicians({
                       <div className="rounded-lg bg-muted/60 p-1.5 text-center">
                         <Briefcase className="mx-auto h-3 w-3 text-primary" />
                         <p className="mt-0.5 text-[10px] font-medium">
-                          {profile?.yearsOfExperience ?? 0}yr
+                          {experience}yr
                         </p>
                       </div>
                       <div className="rounded-lg bg-muted/60 p-1.5 text-center">
                         <Wallet className="mx-auto h-3 w-3 text-primary" />
                         <p className="mt-0.5 text-[10px] font-medium">
-                          ৳{profile?.hourlyRate ?? 0}
+                          ৳{rate}
                         </p>
                       </div>
                     </div>

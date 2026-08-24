@@ -1,25 +1,25 @@
-"use server";
+'use server';
 
-import { cookies } from "next/headers";
-import { ActiveStatus } from "../_components/UserActionsInAdmindeshboard";
+import { cookies } from 'next/headers';
+import { revalidatePath } from 'next/cache';
 
-export async function updateUserStatusByAdmin(userId: string, status: ActiveStatus) {
+export async function updateUserStatusByAdmin(
+  userId: string,
+  status: 'ACTIVE' | 'BANNED'
+) {
   const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
+  const accessToken = cookieStore.get('accessToken')?.value;
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/admin/users/${userId}`,
     {
-      method: "PATCH",
+      method: 'PATCH',
       headers: {
-        "Content-Type": "application/json",
-        ...(accessToken && {
-          Authorization: `Bearer ${accessToken}`,
-        }),
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+        Cookie: `accessToken=${accessToken}`,
       },
-      body: JSON.stringify({
-        userStatus: status,
-      }),
+      body: JSON.stringify({ status }),
     }
   );
 
@@ -28,5 +28,6 @@ export async function updateUserStatusByAdmin(userId: string, status: ActiveStat
     throw new Error(`Failed to update user status: ${res.status} ${error}`);
   }
 
+  revalidatePath('/admin-dashboard/users');
   return res.json();
 }

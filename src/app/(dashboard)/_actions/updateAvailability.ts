@@ -1,20 +1,19 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 
-export interface AvailabilitySlotPayload {
-  serviceId: string;
-  date: string; // YYYY-MM-DD
-  startsAt: string; // HH:mm
-  endsAt: string; // HH:mm
-  isAvailable: boolean;
-  isBooked: boolean;
-  note?: string;
-  bookingDeadline: string; // YYYY-MM-DD
-  maxBookings: number;
-}
+export type WeeklyAvailability = {
+  monday?: string[];
+  tuesday?: string[];
+  wednesday?: string[];
+  thursday?: string[];
+  friday?: string[];
+  saturday?: string[];
+  sunday?: string[];
+};
 
-export async function updateAvailability(payload: AvailabilitySlotPayload) {
+export async function updateAvailability(availability: WeeklyAvailability) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
 
@@ -30,7 +29,7 @@ export async function updateAvailability(payload: AvailabilitySlotPayload) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ availability }),
       cache: 'no-store',
     }
   );
@@ -43,6 +42,8 @@ export async function updateAvailability(payload: AvailabilitySlotPayload) {
       message: result.message || 'Failed to update availability.',
     };
   }
+
+  revalidatePath('/technician-dashboard/availability');
 
   return {
     success: true,

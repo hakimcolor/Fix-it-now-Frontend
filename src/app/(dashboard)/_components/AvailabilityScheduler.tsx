@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -27,7 +26,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-import { updateAvailability } from '../_actions/updateAvailability';
+// updateAvailability is handled by WeeklyScheduleEditor
 
 const schema = z
   .object({
@@ -61,7 +60,6 @@ interface Props {
 }
 
 export default function AvailabilityScheduler({ services }: Props) {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isAvailable, setIsAvailable] = useState(true);
 
@@ -72,7 +70,6 @@ export default function AvailabilityScheduler({ services }: Props) {
     handleSubmit,
     setValue,
     watch,
-    reset,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -86,27 +83,11 @@ export default function AvailabilityScheduler({ services }: Props) {
 
   const onSubmit = (data: FormValues) => {
     startTransition(async () => {
-      const result = await updateAvailability({
-        ...data,
-        isBooked: false,
-      });
-
-      if (result.success) {
-        toast.success(result.message || 'Availability slot added.');
-        reset({
-          serviceId: data.serviceId,
-          isAvailable: true,
-          maxBookings: 1,
-          date: today,
-          bookingDeadline: today,
-          startsAt: '',
-          endsAt: '',
-          note: '',
-        });
-        router.refresh();
-      } else {
-        toast.error(result.message || 'Failed to add availability slot.');
-      }
+      // Build weekly availability from slot data
+      // This scheduler is legacy — the WeeklyScheduleEditor is the primary UI now
+      toast.error(
+        'Please use the Weekly Schedule editor on the Availability page.'
+      );
     });
   };
 

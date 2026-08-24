@@ -210,9 +210,6 @@ const SingleServiceByIdPage = async ({
 
               <BookingModal
                 serviceId={data.id}
-                slots={data.bookingSlots.filter(
-                  (slot: IBookingSlot) => slot.isAvailable
-                )}
                 isAuthenticated={isAuthenticated}
               />
             </CardContent>

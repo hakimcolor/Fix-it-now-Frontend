@@ -1,50 +1,37 @@
-"use server";
+'use server';
 
-import { revalidateTag } from "next/cache";
-import { cookies } from "next/headers";
+import { cookies } from 'next/headers';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-export const getTechnicianServices = async (
-  technicianId: string
-) => {
+// GET /api/technician/services — returns the logged-in technician's own services
+export const getTechnicianServices = async () => {
   try {
-        const cookieStore = await cookies();
-    
-        const accessToken = cookieStore.get("accessToken")?.value;
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get('accessToken')?.value;
+
     const res = await fetch(
-      `${API_URL}/api/services/technician/${technicianId}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/technician/services`,
       {
-        method: "GET",
-         headers: {
-          "Content-Type": "application/json",
-          ...(accessToken && {
-            Authorization: `Bearer ${accessToken}`,
-          }),
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
         },
-        next: {
-          tags: ["technician-services"],
-        },
-        cache: "no-store",
+        cache: 'no-store',
       }
     );
 
     const result = await res.json();
 
     if (!res.ok) {
-      throw new Error(
-        result?.message || "Failed to fetch technician services."
-      );
+      return {
+        success: false,
+        data: [],
+        message: result?.message || 'Failed to fetch services.',
+      };
     }
 
     return result;
   } catch (error) {
-    console.error("Error fetching technician services:", error);
-
-    return {
-      success: false,
-      data: [],
-      message: "Something went wrong.",
-    };
+    console.error('getTechnicianServices error:', error);
+    return { success: false, data: [], message: 'Something went wrong.' };
   }
 };

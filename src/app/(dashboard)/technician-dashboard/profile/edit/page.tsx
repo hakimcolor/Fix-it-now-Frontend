@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import {
   Card,
   CardContent,
@@ -23,29 +22,15 @@ import {
 } from '@/components/ui/card';
 
 import { updateTechnicianProfile } from '../../../_actions/updateTechnicianProfile';
-import { updateProfile } from '../../../_actions/updateProfile';
 
+// Matches exact backend payload:
+// { bio, skills: string[], experience, hourlyRate, location }
 const schema = z.object({
-  // base profile
-  name: z.string().min(2, 'Name is required'),
-  phone: z.string().min(7, 'Phone is required'),
-  profilePhoto: z
-    .string()
-    .url('Enter a valid URL')
-    .optional()
-    .or(z.literal('')),
-  // technician profile
   bio: z.string().optional(),
-  description: z.string().optional(),
-  profession: z.string().optional(),
-  skills: z.string().optional(),
-  yearsOfExperience: z.number().min(0).optional(),
+  skills: z.string().optional(), // comma-separated, converted to array on submit
+  experience: z.number().min(0).optional(),
   hourlyRate: z.number().min(0).optional(),
-  isAvailable: z.boolean().optional(),
-  responseTime: z.number().min(0).optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  district: z.string().optional(),
+  location: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -57,59 +42,49 @@ export default function EditTechnicianProfilePage() {
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { isAvailable: true },
+    defaultValues: {
+      bio: '',
+      skills: '',
+      experience: 0,
+      hourlyRate: 0,
+      location: '',
+    },
   });
-
-  const isAvailable = watch('isAvailable');
 
   const onSubmit = (data: FormValues) => {
     startTransition(async () => {
-      try {
-        // Update base profile (name, phone, profilePhoto)
-        const baseRes = await updateProfile({
-          name: data.name,
-          phone: data.phone,
-          profilePhoto: data.profilePhoto || undefined,
-        });
+      // Convert comma-separated skills string → string[]
+      const skillsArray = data.skills
+        ? data.skills
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [];
 
-        if (!baseRes.success) throw new Error(baseRes.message);
+      const result = await updateTechnicianProfile({
+        bio: data.bio,
+        skills: skillsArray,
+        experience: data.experience,
+        hourlyRate: data.hourlyRate,
+        location: data.location,
+      });
 
-        // Update technician-specific profile
-        const techRes = await updateTechnicianProfile({
-          bio: data.bio,
-          description: data.description,
-          profession: data.profession,
-          skills: data.skills,
-          yearsOfExperience: data.yearsOfExperience,
-          hourlyRate: data.hourlyRate,
-          isAvailable: data.isAvailable,
-          responseTime: data.responseTime,
-          address: data.address,
-          city: data.city,
-          district: data.district,
-          profilePhoto: data.profilePhoto || undefined,
-        });
-
-        if (!techRes.success) throw new Error(techRes.message);
-
-        toast.success('Profile updated successfully!');
-        router.push('/technician-dashboard/profile');
-        router.refresh();
-      } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : 'Failed to update profile'
-        );
+      if (!result.success) {
+        toast.error(result.message || 'Failed to update profile');
+        return;
       }
+
+      toast.success('Profile updated successfully!');
+      router.push('/technician-dashboard/profile');
+      router.refresh();
     });
   };
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 py-4">
+    <div className="mx-auto max-w-2xl space-y-6 py-4">
       <div className="flex items-center gap-3">
         <Button asChild variant="ghost" size="icon">
           <Link href="/technician-dashboard/profile">
@@ -119,166 +94,85 @@ export default function EditTechnicianProfilePage() {
         <div>
           <h1 className="text-2xl font-bold">Edit Profile</h1>
           <p className="text-sm text-muted-foreground">
-            Update your personal and professional details.
+            Update your professional details.
           </p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Basic Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Basic Information</CardTitle>
-            <CardDescription>Your account details.</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="name">Full Name</Label>
-              <Input id="name" {...register('name')} placeholder="John Doe" />
-              {errors.name && (
-                <p className="text-xs text-destructive">
-                  {errors.name.message}
-                </p>
-              )}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="phone">Phone</Label>
-              <Input
-                id="phone"
-                {...register('phone')}
-                placeholder="+8801700000000"
-              />
-              {errors.phone && (
-                <p className="text-xs text-destructive">
-                  {errors.phone.message}
-                </p>
-              )}
-            </div>
-            <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="profilePhoto">Profile Photo URL</Label>
-              <Input
-                id="profilePhoto"
-                {...register('profilePhoto')}
-                placeholder="https://example.com/photo.jpg"
-              />
-              {errors.profilePhoto && (
-                <p className="text-xs text-destructive">
-                  {errors.profilePhoto.message}
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Professional Info */}
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Professional Details</CardTitle>
             <CardDescription>
-              Skills, experience and service info.
+              These details appear on your public profile.
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-2">
+          <CardContent className="space-y-5">
+            {/* Bio */}
             <div className="space-y-1.5">
-              <Label htmlFor="profession">Profession</Label>
-              <Input
-                id="profession"
-                {...register('profession')}
-                placeholder="e.g. Electrician"
+              <Label htmlFor="bio">Bio</Label>
+              <Textarea
+                id="bio"
+                rows={3}
+                placeholder="e.g. 5+ years experienced electrician"
+                {...register('bio')}
               />
             </div>
+
+            {/* Skills */}
             <div className="space-y-1.5">
-              <Label htmlFor="skills">Skills (comma-separated)</Label>
+              <Label htmlFor="skills">Skills</Label>
               <Input
                 id="skills"
+                placeholder="Electrical Wiring, Panel Installation, Troubleshooting"
                 {...register('skills')}
-                placeholder="Wiring, AC Repair, Plumbing"
               />
+              <p className="text-xs text-muted-foreground">
+                Comma-separated list of skills
+              </p>
             </div>
+
+            {/* Experience */}
             <div className="space-y-1.5">
-              <Label htmlFor="yearsOfExperience">Years of Experience</Label>
+              <Label htmlFor="experience">Years of Experience</Label>
               <Input
-                id="yearsOfExperience"
+                id="experience"
                 type="number"
                 min={0}
-                {...register('yearsOfExperience', { valueAsNumber: true })}
+                placeholder="5"
+                {...register('experience', { valueAsNumber: true })}
               />
+              {errors.experience && (
+                <p className="text-xs text-destructive">
+                  {errors.experience.message}
+                </p>
+              )}
             </div>
+
+            {/* Hourly Rate */}
             <div className="space-y-1.5">
               <Label htmlFor="hourlyRate">Hourly Rate (৳)</Label>
               <Input
                 id="hourlyRate"
                 type="number"
                 min={0}
+                placeholder="50"
                 {...register('hourlyRate', { valueAsNumber: true })}
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="responseTime">Response Time (min)</Label>
-              <Input
-                id="responseTime"
-                type="number"
-                min={0}
-                {...register('responseTime', { valueAsNumber: true })}
-              />
-            </div>
-            <div className="flex items-center justify-between rounded-lg border p-4">
-              <div>
-                <p className="text-sm font-medium">Available for Bookings</p>
-                <p className="text-xs text-muted-foreground">
-                  Customers can book you
+              {errors.hourlyRate && (
+                <p className="text-xs text-destructive">
+                  {errors.hourlyRate.message}
                 </p>
-              </div>
-              <Switch
-                checked={!!isAvailable}
-                onCheckedChange={(v) => setValue('isAvailable', v)}
-              />
+              )}
             </div>
-            <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="bio">Bio</Label>
-              <Textarea
-                id="bio"
-                rows={3}
-                {...register('bio')}
-                placeholder="Tell customers about yourself..."
-              />
-            </div>
-            <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                rows={3}
-                {...register('description')}
-                placeholder="Additional details about your services..."
-              />
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Location */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Location</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-3">
+            {/* Location */}
             <div className="space-y-1.5">
-              <Label htmlFor="city">City</Label>
-              <Input id="city" {...register('city')} placeholder="Dhaka" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="district">District</Label>
+              <Label htmlFor="location">Location</Label>
               <Input
-                id="district"
-                {...register('district')}
-                placeholder="Dhaka"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="address">Address</Label>
-              <Input
-                id="address"
-                {...register('address')}
-                placeholder="123 Main St"
+                id="location"
+                placeholder="e.g. Dhaka"
+                {...register('location')}
               />
             </div>
           </CardContent>

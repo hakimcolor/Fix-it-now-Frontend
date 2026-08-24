@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 
-export async function cancelBooking(bookingId: string) {
+export async function cancelBooking(bookingId: string, reason?: string) {
   const token = (await cookies()).get('accessToken')?.value;
 
   const res = await fetch(
@@ -14,6 +14,7 @@ export async function cancelBooking(bookingId: string) {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify({ reason: reason || '' }),
       cache: 'no-store',
     }
   );

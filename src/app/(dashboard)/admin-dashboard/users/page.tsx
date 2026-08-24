@@ -7,14 +7,21 @@ export interface IUser {
   id: string;
   name: string;
   email: string;
-  phone: string;
   role: 'ADMIN' | 'CUSTOMER' | 'TECHNICIAN';
-  activeStatus: 'ACTIVE' | 'BLOCKED' | 'BAN' | 'UNBAN';
-  userStatus: string | null;
-  isVerified: boolean;
-  lastLoginAt: string | null;
+  status: 'ACTIVE' | 'BANNED';
   createdAt: string;
   updatedAt: string;
+  technicianProfile?: {
+    id: string;
+    bio: string | null;
+    skills: string[];
+    experience: number;
+    hourlyRate: number;
+    location: string;
+    totalReviews: number;
+    averageRating: number;
+    isVerified: boolean;
+  };
 }
 
 export default async function AdminUserPage() {
@@ -44,10 +51,8 @@ export default async function AdminUserPage() {
       bg: 'bg-violet-50',
     },
     {
-      label: 'Banned / Blocked',
-      value: users.filter(
-        (u) => u.activeStatus === 'BAN' || u.activeStatus === 'BLOCKED'
-      ).length,
+      label: 'Banned',
+      value: users.filter((u) => u.status === 'BANNED').length,
       icon: UserX,
       color: 'text-red-600',
       bg: 'bg-red-50',

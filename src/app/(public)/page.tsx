@@ -15,17 +15,25 @@ import { getAllTechnicians } from '@/app/(dashboard)/_actions/getAllTechnicians'
 import { getAllCategories } from './_actions/getAllCategories';
 
 export default async function Home() {
-  const [servicesRes, techniciansRes, categoriesRes] = await Promise.all([
-    getAllServicesss({ query: { limit: '6' } }).catch(() => ({ data: [] })),
-    getAllTechnicians({ limit: 6, isApproved: true }).catch(() => ({
-      data: [],
-    })),
-    getAllCategories().catch(() => ({ data: [] })),
-  ]);
+  const [servicesResult, techniciansResult, categoriesResult] =
+    await Promise.allSettled([
+      getAllServicesss({ query: { limit: '6' } }),
+      getAllTechnicians({ limit: 6 }),
+      getAllCategories(),
+    ]);
 
-  const services = servicesRes?.data ?? [];
-  const technicians = techniciansRes?.data ?? [];
-  const categories = categoriesRes?.data ?? [];
+  const services =
+    servicesResult.status === 'fulfilled'
+      ? (servicesResult.value?.data ?? [])
+      : [];
+  const technicians =
+    techniciansResult.status === 'fulfilled'
+      ? (techniciansResult.value?.data ?? [])
+      : [];
+  const categories =
+    categoriesResult.status === 'fulfilled'
+      ? (categoriesResult.value?.data ?? [])
+      : [];
 
   return (
     <div>

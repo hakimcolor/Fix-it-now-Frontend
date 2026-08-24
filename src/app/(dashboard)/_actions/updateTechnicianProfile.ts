@@ -5,17 +5,10 @@ import { cookies } from 'next/headers';
 
 export interface UpdateTechnicianProfilePayload {
   bio?: string;
-  description?: string;
-  profession?: string;
-  skills?: string;
-  yearsOfExperience?: number;
+  skills?: string[];
+  experience?: number;
   hourlyRate?: number;
-  isAvailable?: boolean;
-  responseTime?: number;
-  address?: string;
-  city?: string;
-  district?: string;
-  profilePhoto?: string;
+  location?: string;
 }
 
 export async function updateTechnicianProfile(

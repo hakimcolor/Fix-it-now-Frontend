@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Calendar, Clock, CheckCircle2 } from 'lucide-react';
+import { Calendar, Clock, Phone, CheckCircle2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import {
   Dialog,
@@ -12,38 +13,32 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { serviceBooking } from '../_actions/serviceBooking';
-import { toast } from 'sonner';
 
-interface BookingSlot {
-  id: string;
-  date: string;
-  startsAt: string;
-  endsAt: string;
-  note?: string;
-  isAvailable: boolean;
-}
+import { createBooking } from '@/app/(dashboard)/_actions/createBooking';
 
 interface BookingModalProps {
   serviceId: string;
-  slots: BookingSlot[];
   isAuthenticated?: boolean;
 }
 
 export default function BookingModal({
   serviceId,
-  slots,
   isAuthenticated = false,
 }: BookingModalProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
 
   const [open, setOpen] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
-  const [note, setNote] = useState('');
+  const [scheduledDate, setScheduledDate] = useState('');
+  const [timeSlot, setTimeSlot] = useState('');
+  const [contactNumber, setContactNumber] = useState('');
+
+  const today = new Date().toISOString().split('T')[0];
 
   const handleOpenChange = (value: boolean) => {
     if (value && !isAuthenticated) {
@@ -51,29 +46,35 @@ export default function BookingModal({
       return;
     }
     setOpen(value);
-    if (!value) setSelectedSlot(null);
+    if (!value) {
+      setScheduledDate('');
+      setTimeSlot('');
+      setContactNumber('');
+    }
   };
 
-  const handleContinue = async () => {
-    if (!selectedSlot) return;
+  const handleBook = () => {
+    if (!scheduledDate || !timeSlot || !contactNumber) {
+      toast.error('Please fill in all fields.');
+      return;
+    }
 
-    try {
-      const result = await serviceBooking({
+    startTransition(async () => {
+      const result = await createBooking({
         serviceId,
-        note,
-        bookingSlotIds: [selectedSlot],
+        scheduledDate,
+        timeSlot,
+        contactNumber,
       });
 
       if (result.success) {
-        toast.success('Booking created successfully.');
-        router.push('/dashboard/booking-success');
+        toast.success('Booking created successfully!');
+        setOpen(false);
+        router.push('/dashboard/my-bookings');
       } else {
-        toast.error(result.message ?? 'Booking failed.');
+        toast.error(result.message ?? 'Booking failed. Please try again.');
       }
-    } catch (error) {
-      console.error('Booking error:', error);
-      toast.error('Something went wrong. Please try again.');
-    }
+    });
   };
 
   return (
@@ -84,113 +85,95 @@ export default function BookingModal({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Select a Booking Slot</DialogTitle>
-
+          <DialogTitle>Book This Service</DialogTitle>
           <DialogDescription>
-            Choose one available slot to continue.
+            Choose a date and time slot to schedule your booking.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="max-h-100 space-y-3 overflow-y-auto pr-1">
-          {slots.length > 0 ? (
-            slots.map((slot) => {
-              const isSelected = selectedSlot === slot.id;
+        <div className="space-y-4 py-2">
+          {/* Scheduled Date */}
+          <div className="space-y-1.5">
+            <Label htmlFor="scheduledDate" className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              Scheduled Date
+            </Label>
+            <Input
+              id="scheduledDate"
+              type="date"
+              min={today}
+              value={scheduledDate}
+              onChange={(e) => setScheduledDate(e.target.value)}
+            />
+          </div>
 
-              return (
-                <button
-                  key={slot.id}
-                  type="button"
-                  onClick={() => setSelectedSlot(slot.id)}
-                  className={`w-full rounded-xl border p-4 text-left transition-all duration-200
-                    ${
-                      isSelected
-                        ? 'border-green-600 bg-green-50 ring-2 ring-green-500 dark:border-green-500 dark:bg-green-950/30'
-                        : 'border-border hover:border-green-500 hover:bg-muted/50'
-                    }`}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 font-semibold">
-                        <Calendar className="h-4 w-4" />
-                        {new Date(slot.date).toLocaleDateString()}
-                      </div>
+          {/* Time Slot */}
+          <div className="space-y-1.5">
+            <Label htmlFor="timeSlot" className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              Time Slot
+            </Label>
+            <Input
+              id="timeSlot"
+              placeholder="e.g. 09:00-12:00"
+              value={timeSlot}
+              onChange={(e) => setTimeSlot(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Format: HH:MM-HH:MM (e.g. 09:00-12:00)
+            </p>
+          </div>
 
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="h-4 w-4" />
-                        {new Date(slot.startsAt).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                        -
-                        {new Date(slot.endsAt).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </div>
+          {/* Contact Number */}
+          <div className="space-y-1.5">
+            <Label htmlFor="contactNumber" className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-muted-foreground" />
+              Contact Number
+            </Label>
+            <Input
+              id="contactNumber"
+              type="tel"
+              placeholder="e.g. 01711223344"
+              value={contactNumber}
+              onChange={(e) => setContactNumber(e.target.value)}
+            />
+          </div>
 
-                      {slot.note && (
-                        <p className="text-sm text-muted-foreground">
-                          {slot.note}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      {isSelected && (
-                        <CheckCircle2 className="h-6 w-6 text-green-600" />
-                      )}
-
-                      <Badge
-                        className={
-                          isSelected
-                            ? 'bg-green-600 text-white hover:bg-green-600'
-                            : 'bg-green-100 text-green-700 hover:bg-green-100'
-                        }
-                      >
-                        Available
-                      </Badge>
-                    </div>
-                  </div>
-                </button>
-              );
-            })
-          ) : (
-            <div className="rounded-lg border border-dashed py-12 text-center">
-              <p className="text-muted-foreground">No available slots found.</p>
+          {/* Summary */}
+          {scheduledDate && timeSlot && contactNumber && (
+            <div className="rounded-lg border bg-muted/40 p-3 space-y-1.5 text-sm">
+              <div className="flex items-center gap-2 text-green-600 font-medium">
+                <CheckCircle2 className="h-4 w-4" />
+                Ready to book
+              </div>
+              <p className="text-muted-foreground">
+                Date:{' '}
+                <span className="text-foreground font-medium">
+                  {scheduledDate}
+                </span>
+              </p>
+              <p className="text-muted-foreground">
+                Time:{' '}
+                <span className="text-foreground font-medium">{timeSlot}</span>
+              </p>
+              <p className="text-muted-foreground">
+                Contact:{' '}
+                <span className="text-foreground font-medium">
+                  {contactNumber}
+                </span>
+              </p>
             </div>
           )}
         </div>
 
-        {/* Booking Note */}
-        <form className="mt-4">
-          <label htmlFor="note" className="mb-2 block text-sm font-medium">
-            Booking Note
-          </label>
-
-          <textarea
-            id="note"
-            name="note"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="Tell the technician about your challenge in detail..."
-            rows={4}
-            maxLength={500}
-            className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-500"
-          />
-
-          <div className="mt-1 flex justify-end text-xs text-muted-foreground">
-            {note.length}/500
-          </div>
-        </form>
-
         <Button
           className="w-full"
-          disabled={!selectedSlot}
-          onClick={handleContinue}
+          onClick={handleBook}
+          disabled={isPending || !scheduledDate || !timeSlot || !contactNumber}
         >
-          {selectedSlot ? 'Continue with Selected Slot' : 'Select a Slot'}
+          {isPending ? 'Booking…' : 'Confirm Booking'}
         </Button>
       </DialogContent>
     </Dialog>

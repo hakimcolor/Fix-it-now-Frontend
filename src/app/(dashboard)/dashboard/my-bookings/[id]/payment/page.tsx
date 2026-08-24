@@ -208,15 +208,8 @@ export default async function PaymentPage({
             </CardHeader>
 
             <CardContent className="space-y-5">
-              <StripeButton
-                bookingId={booking.id}
-                amount={Number(booking.service.price)}
-              />
-
-              <SSLCommerzButton
-                bookingId={booking.id}
-                amount={Number(booking.service.price)}
-              />
+              <StripeButton bookingId={booking.id} />
+              <SSLCommerzButton bookingId={booking.id} />
             </CardContent>
           </Card>
         </div>

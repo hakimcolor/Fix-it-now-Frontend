@@ -8,12 +8,10 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export interface Category {
   id: string;
   name: string;
-  slug: string;
-  icon: string;
   description: string;
-  isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  _count?: { services: number };
 }
 
 export async function getAdminCategories(): Promise<{
@@ -25,9 +23,9 @@ export async function getAdminCategories(): Promise<{
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('accessToken')?.value;
 
-    const res = await fetch(`${API_URL}/api/categories`, {
+    const res = await fetch(`${API_URL}/api/admin/categories`, {
       headers: { Authorization: `Bearer ${accessToken}` },
-      next: { tags: ['categories'] },
+      cache: 'no-store',
     });
 
     const result = await res.json();
@@ -47,7 +45,7 @@ export async function createCategory(payload: {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('accessToken')?.value;
 
-    const res = await fetch(`${API_URL}/api/categories`, {
+    const res = await fetch(`${API_URL}/api/admin/categories`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -65,37 +63,6 @@ export async function createCategory(payload: {
 
     revalidateTag('categories', 'max');
     return { success: true, message: result.message || 'Category created' };
-  } catch {
-    return { success: false, message: 'Something went wrong' };
-  }
-}
-
-export async function toggleCategoryStatus(
-  id: string,
-  isActive: boolean
-): Promise<{ success: boolean; message: string }> {
-  try {
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get('accessToken')?.value;
-
-    const res = await fetch(`${API_URL}/api/categories/${id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({ isActive }),
-    });
-
-    const result = await res.json();
-    if (!res.ok)
-      return {
-        success: false,
-        message: result?.message || 'Failed to update category',
-      };
-
-    revalidateTag('categories', 'max'); // two-arg form — single-arg is deprecated in Next.js 16
-    return { success: true, message: result.message || 'Category updated' };
   } catch {
     return { success: false, message: 'Something went wrong' };
   }
