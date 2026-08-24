@@ -1,12 +1,12 @@
-"use server";
+'use server';
 
-import { cookies } from "next/headers";
+import { cookies } from 'next/headers';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export interface CreateReviewPayload {
   customerId: string;
-  technicianId: string;
+  technicianProfileId: string;
   bookingId: string;
   serviceId: string;
   rating: number;
@@ -26,30 +26,30 @@ export async function leaveReview(
   try {
     const cookieStore = await cookies();
 
-    const token = cookieStore.get("accessToken")?.value;
+    const token = cookieStore.get('accessToken')?.value;
 
     const res = await fetch(`${API_URL}/api/reviews`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         ...(token && {
           Authorization: `Bearer ${token}`,
         }),
       },
       body: JSON.stringify(payload),
-      cache: "no-store",
+      cache: 'no-store',
     });
 
     const result = await res.json();
 
     return result;
   } catch (error) {
-    console.error("Create Review Error:", error);
+    console.error('Create Review Error:', error);
 
     return {
       success: false,
       statusCode: 500,
-      message: "Something went wrong while creating the review.",
+      message: 'Something went wrong while creating the review.',
     };
   }
 }

@@ -27,7 +27,9 @@ export const getAllServicesss = async ({
 
     const url = `${API_URL}/api/services${params.size ? `?${params}` : ''}`;
 
-    const res = await fetch(url, { cache: 'no-store' });
+    const res = await fetch(url, {
+      cache: 'no-store',
+    });
 
     const result = await res.json();
 

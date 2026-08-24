@@ -21,6 +21,11 @@ export interface Review {
       email: string;
     };
   };
+  booking?: {
+    service?: {
+      title: string;
+    };
+  };
 }
 
 export const getAllReviews = async (): Promise<Review[]> => {

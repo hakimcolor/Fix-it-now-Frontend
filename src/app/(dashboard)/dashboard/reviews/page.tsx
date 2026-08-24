@@ -79,7 +79,6 @@
 //   },
 // ];
 
-
 // http://localhost:5000/api/reviews
 
 // export default function ReviewsPage() {
@@ -205,51 +204,14 @@
 //   );
 // }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import React from "react";
+import React from 'react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 
 import {
   Table,
@@ -258,21 +220,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
-import { Eye, Star } from "lucide-react";
-import { getAllReviews, Review } from "../../_actions/getAllReviews";
-
-
+import { Eye, Star } from 'lucide-react';
+import { getAllReviews, Review } from '../../_actions/getAllReviews';
 
 export default async function ReviewsPage() {
   const reviews: Review[] = await getAllReviews();
@@ -304,7 +260,7 @@ export default async function ReviewsPage() {
               {reviews.length > 0 ? (
                 reviews.map((review) => {
                   const technicianName =
-                    review.technician?.user?.name ?? "Unknown Technician";
+                    review.technician?.user?.name ?? 'Unknown Technician';
 
                   return (
                     <TableRow key={review.id}>
@@ -315,15 +271,15 @@ export default async function ReviewsPage() {
                             <AvatarImage
                               src={
                                 review.technician?.profilePhoto ||
-                                "/placeholder-user.jpg"
+                                '/placeholder-user.jpg'
                               }
                               alt={technicianName}
                             />
                             <AvatarFallback>
                               {technicianName
-                                .split(" ")
+                                .split(' ')
                                 .map((word) => word[0])
-                                .join("")
+                                .join('')
                                 .toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
@@ -340,7 +296,7 @@ export default async function ReviewsPage() {
                       {/* Service */}
                       <TableCell>
                         <Badge variant="secondary">
-                          {review.title || "N/A"}
+                          {review.booking?.service?.title ?? 'N/A'}
                         </Badge>
                       </TableCell>
 
@@ -352,8 +308,8 @@ export default async function ReviewsPage() {
                               key={index}
                               className={`h-4 w-4 ${
                                 index < review.rating
-                                  ? "fill-yellow-400 text-yellow-400"
-                                  : "text-muted-foreground"
+                                  ? 'fill-yellow-400 text-yellow-400'
+                                  : 'text-muted-foreground'
                               }`}
                             />
                           ))}

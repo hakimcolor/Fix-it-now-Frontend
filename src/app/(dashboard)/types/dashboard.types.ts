@@ -7,6 +7,7 @@ export interface IUserProfile {
   activeStatus: 'ACTIVE' | 'INACTIVE';
   userStatus: string | null;
   isVerified: boolean;
+  profilePhoto?: string | null;
   lastLoginAt: string;
   createdAt: string;
   updatedAt: string;
@@ -14,8 +15,8 @@ export interface IUserProfile {
 }
 
 export interface ApiResponse {
-  data: IUserProfile;
+  data?: IUserProfile | null;
   message: string;
-  statusCode: number;
+  statusCode?: number;
   success: boolean;
 }

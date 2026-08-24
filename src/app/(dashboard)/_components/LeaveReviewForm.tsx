@@ -1,41 +1,37 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Star, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from 'react';
+import { Star, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 import {
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
-import { toast } from "sonner";
+import { toast } from 'sonner';
 
-import {
-  ReviewFormValues,
-  reviewSchema,
-} from "@/schemas/reviewSchema";
-import { leaveReview } from "../_actions/LeaveReview";
-
+import { ReviewFormValues, reviewSchema } from '@/schemas/reviewSchema';
+import { leaveReview } from '../_actions/LeaveReview';
 
 interface LeaveReviewFormProps {
   customerId: string;
-  technicianId: string;
+  technicianProfileId: string;
   bookingId: string;
   serviceId: string;
 }
 
 export default function LeaveReviewForm({
   customerId,
-  technicianId,
+  technicianProfileId,
   bookingId,
   serviceId,
 }: LeaveReviewFormProps) {
@@ -53,15 +49,15 @@ export default function LeaveReviewForm({
     resolver: zodResolver(reviewSchema),
     defaultValues: {
       customerId,
-      technicianId,
+      technicianProfileId,
       bookingId,
       serviceId,
       rating: 5,
-      comment: "",
+      comment: '',
     },
   });
 
-  const rating = watch("rating");
+  const rating = watch('rating');
 
   const onSubmit = async (data: ReviewFormValues) => {
     try {
@@ -72,23 +68,21 @@ export default function LeaveReviewForm({
         return;
       }
 
-      toast.success("Review submitted successfully!");
+      toast.success('Review submitted successfully!');
 
-      router.push("/dashboard/my-bookings");
+      router.push('/dashboard/my-bookings');
       router.refresh();
     } catch (error) {
       console.error(error);
 
-      toast.error("Something went wrong.");
+      toast.error('Something went wrong.');
     }
   };
 
   return (
     <>
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">
-          Leave a Review
-        </CardTitle>
+        <CardTitle className="text-2xl">Leave a Review</CardTitle>
 
         <CardDescription>
           Share your experience with the technician.
@@ -96,30 +90,15 @@ export default function LeaveReviewForm({
       </CardHeader>
 
       <CardContent>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-6"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Hidden Fields */}
-          <input
-            type="hidden"
-            {...register("customerId")}
-          />
+          <input type="hidden" {...register('customerId')} />
 
-          <input
-            type="hidden"
-            {...register("technicianId")}
-          />
+          <input type="hidden" {...register('technicianProfileId')} />
 
-          <input
-            type="hidden"
-            {...register("bookingId")}
-          />
+          <input type="hidden" {...register('bookingId')} />
 
-          <input
-            type="hidden"
-            {...register("serviceId")}
-          />
+          <input type="hidden" {...register('serviceId')} />
 
           {/* Rating */}
           <div className="space-y-2">
@@ -130,22 +109,15 @@ export default function LeaveReviewForm({
                 <button
                   key={star}
                   type="button"
-                  onMouseEnter={() =>
-                    setHoveredStar(star)
-                  }
-                  onMouseLeave={() =>
-                    setHoveredStar(0)
-                  }
-                  onClick={() =>
-                    setValue("rating", star)
-                  }
+                  onMouseEnter={() => setHoveredStar(star)}
+                  onMouseLeave={() => setHoveredStar(0)}
+                  onClick={() => setValue('rating', star)}
                 >
                   <Star
                     className={`h-8 w-8 transition ${
-                      star <=
-                      (hoveredStar || rating)
-                        ? "fill-yellow-400 text-yellow-400"
-                        : "text-gray-300"
+                      star <= (hoveredStar || rating)
+                        ? 'fill-yellow-400 text-yellow-400'
+                        : 'text-gray-300'
                     }`}
                   />
                 </button>
@@ -153,9 +125,7 @@ export default function LeaveReviewForm({
             </div>
 
             {errors.rating && (
-              <p className="text-sm text-red-500">
-                {errors.rating.message}
-              </p>
+              <p className="text-sm text-red-500">{errors.rating.message}</p>
             )}
           </div>
 
@@ -166,13 +136,11 @@ export default function LeaveReviewForm({
             <Textarea
               rows={6}
               placeholder="Tell us about your experience..."
-              {...register("comment")}
+              {...register('comment')}
             />
 
             {errors.comment && (
-              <p className="text-sm text-red-500">
-                {errors.comment.message}
-              </p>
+              <p className="text-sm text-red-500">{errors.comment.message}</p>
             )}
           </div>
 
@@ -186,11 +154,7 @@ export default function LeaveReviewForm({
               Cancel
             </Button>
 
-            <Button
-              type="submit"
-              className="flex-1"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" className="flex-1" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

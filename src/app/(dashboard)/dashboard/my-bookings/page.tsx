@@ -1,6 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
-
 import {
   Card,
   CardContent,
@@ -8,10 +6,8 @@ import {
   CardTitle,
   CardDescription,
 } from '@/components/ui/card';
-
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-
 import {
   Table,
   TableBody,
@@ -20,26 +16,41 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-
 import { getAllBookings } from '../../_actions/getAllBookings';
 import { getMe } from '@/services/getMe';
-import { BookingDetailsProps } from '@/types/types.service';
-import {
-  bookingStatusConfig,
-  paymentStatusConfig,
-} from './config/bookingStatusConfig';
+import { bookingStatusConfig } from './config/bookingStatusConfig';
 import CancelBookingButton from '../../_components/CancelBookingButton';
+import PayNowButton from './_components/PayNowButton';
+
+interface Booking {
+  id: string;
+  customerId: string;
+  serviceId: string;
+  technicianProfileId: string;
+  servicePrice: number;
+  contactNumber: string;
+  scheduledDate: string;
+  timeSlot: string;
+  status: keyof typeof bookingStatusConfig;
+  cancellationReason?: string;
+  service?: {
+    id: string;
+    title: string;
+    price: number;
+    category?: { name: string };
+  };
+  technicianProfile?: { id: string; user?: { name: string } };
+  review?: { id: string } | null;
+  payment?: { id: string; status: string; amount: number } | null;
+  createdAt: string;
+}
 
 export default async function MyBookings() {
-  const result = await getAllBookings();
-  const user = await getMe();
+  const [result, user] = await Promise.all([getAllBookings(), getMe()]);
+  const customerId = user?.data?.id;
 
-  const customerId = user.data.id;
-
-  const bookings =
-    result?.data.filter(
-      (booking: BookingDetailsProps) => booking.customerId === customerId
-    ) || [];
+  const allBookings: Booking[] = result?.data ?? [];
+  const bookings = allBookings.filter((b) => b.customerId === customerId);
 
   if (!bookings.length) {
     return (
@@ -47,11 +58,9 @@ export default async function MyBookings() {
         <Card className="mx-auto max-w-xl">
           <CardContent className="space-y-4 py-12 text-center">
             <h2 className="text-2xl font-bold">No Bookings Found</h2>
-
             <p className="text-muted-foreground">
-              You haven't booked any services yet.
+              You haven&apos;t booked any services yet.
             </p>
-
             <Button asChild>
               <Link href="/services">Browse Services</Link>
             </Button>
@@ -66,7 +75,6 @@ export default async function MyBookings() {
       <Card>
         <CardHeader>
           <CardTitle className="text-3xl">My Bookings</CardTitle>
-
           <CardDescription>Manage all your booked services.</CardDescription>
         </CardHeader>
 
@@ -76,175 +84,135 @@ export default async function MyBookings() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Service</TableHead>
+                  <TableHead>Technician</TableHead>
                   <TableHead>Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Payment</TableHead>
+                  <TableHead>Time Slot</TableHead>
                   <TableHead>Price</TableHead>
-                  <TableHead>Duration</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
 
               <TableBody>
-                {bookings.map((booking: BookingDetailsProps) => (
-                  <TableRow key={booking.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-4">
-                        <Image
-                          src={
-                            booking.service?.thumbnail ||
-                            '/placeholder-service.png'
-                          }
-                          alt={booking.service?.title || 'Service'}
-                          width={60}
-                          height={60}
-                          className="h-14 w-14 rounded-md object-cover"
-                        />
+                {bookings.map((booking) => {
+                  const cfg = bookingStatusConfig[booking.status];
+                  const canCancel = ![
+                    'IN_PROGRESS',
+                    'COMPLETED',
+                    'CANCELLED',
+                    'DECLINED',
+                  ].includes(booking.status);
 
-                        <div>
-                          <p className="font-semibold">
-                            {booking.service?.title || 'Service title'}
+                  return (
+                    <TableRow key={booking.id}>
+                      <TableCell>
+                        <p className="font-semibold">
+                          {booking.service?.title ?? 'Service'}
+                        </p>
+                        {booking.service?.category?.name && (
+                          <p className="text-xs text-muted-foreground">
+                            {booking.service.category.name}
                           </p>
-                        </div>
-                      </div>
-                    </TableCell>
-
-                    <TableCell>
-                      {new Date(booking.bookingDate).toLocaleDateString()}
-                    </TableCell>
-
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={
-                          bookingStatusConfig[
-                            booking.status as keyof typeof bookingStatusConfig
-                          ]?.className
-                        }
-                      >
-                        {
-                          bookingStatusConfig[
-                            booking.status as keyof typeof bookingStatusConfig
-                          ]?.label
-                        }
-                      </Badge>
-                    </TableCell>
-
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={
-                          paymentStatusConfig[
-                            booking.paymentStatus as keyof typeof paymentStatusConfig
-                          ]?.className
-                        }
-                      >
-                        {booking.paymentStatus}
-                      </Badge>
-                    </TableCell>
-
-                    <TableCell>${booking.service?.price || 0}</TableCell>
-
-                    <TableCell>
-                      {booking.service?.estimatedDuration} mins
-                    </TableCell>
-
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        {/* REQUESTED */}
-                        {booking.status === 'REQUESTED' && (
-                          <Button size="sm" variant="secondary" disabled>
-                            Waiting...
-                          </Button>
                         )}
+                      </TableCell>
 
-                        {/* ACCEPTED */}
-                        {/* {booking.status ===
-                            "ACCEPTED" && (
-                              <Button size="sm">
-                                <Link
-                                  href={`/dashboard/my-bookings/${booking.id}/payment`}
-                                >
-                                  Pay Now
-                                </Link>
+                      <TableCell>
+                        {booking.technicianProfile?.user?.name ?? '—'}
+                      </TableCell>
 
-                              </Button>
-                            )} */}
+                      <TableCell>
+                        {new Date(booking.scheduledDate).toLocaleDateString()}
+                      </TableCell>
 
-                        {/* ACCEPTED */}
-                        {booking.status === 'ACCEPTED' &&
-                          (booking.paymentStatus === 'CANCELLED' ? (
+                      <TableCell>
+                        <span className="rounded-md bg-muted px-2 py-1 text-xs font-medium">
+                          {booking.timeSlot}
+                        </span>
+                      </TableCell>
+
+                      <TableCell className="font-semibold">
+                        ৳{booking.servicePrice}
+                      </TableCell>
+
+                      <TableCell>
+                        <Badge variant="outline" className={cfg?.className}>
+                          {cfg?.label ?? booking.status}
+                        </Badge>
+                      </TableCell>
+
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2 flex-wrap">
+                          {/* REQUESTED */}
+                          {booking.status === 'REQUESTED' && (
                             <Button size="sm" variant="secondary" disabled>
-                              Payment Completed
+                              Waiting…
                             </Button>
-                          ) : (
-                            <Button size="sm" asChild>
-                              <Link
-                                href={`/dashboard/my-bookings/${booking.id}/payment`}
-                              >
-                                Pay Now
-                              </Link>
+                          )}
+
+                          {/* ACCEPTED → Pay Now */}
+                          {booking.status === 'ACCEPTED' && (
+                            <PayNowButton bookingId={booking.id} />
+                          )}
+
+                          {/* DECLINED */}
+                          {booking.status === 'DECLINED' && (
+                            <Button size="sm" variant="destructive" disabled>
+                              Declined
                             </Button>
-                          ))}
+                          )}
 
-                        {/* DECLINED */}
-                        {booking.status === 'DECLINED' && (
-                          <Button size="sm" variant="destructive" disabled>
-                            Declined
-                          </Button>
-                        )}
+                          {/* PAID */}
+                          {booking.status === 'PAID' && (
+                            <Button size="sm" variant="secondary" disabled>
+                              Waiting for Technician
+                            </Button>
+                          )}
 
-                        {/* PAID */}
-                        {booking.status === 'PAID' && (
-                          <Button size="sm" variant="secondary" disabled>
-                            Waiting for Technician
-                          </Button>
-                        )}
+                          {/* IN_PROGRESS */}
+                          {booking.status === 'IN_PROGRESS' && (
+                            <Button size="sm" variant="secondary" disabled>
+                              In Progress
+                            </Button>
+                          )}
 
-                        {/* IN_PROGRESS */}
-                        {booking.status === 'IN_PROGRESS' && (
-                          <Button size="sm" variant="secondary" disabled>
-                            In Progress
-                          </Button>
-                        )}
+                          {/* COMPLETED */}
+                          {booking.status === 'COMPLETED' &&
+                            !booking.review && (
+                              <Button size="sm" asChild>
+                                <Link
+                                  href={`/dashboard/my-bookings/${booking.id}/leave-review`}
+                                >
+                                  Leave Review
+                                </Link>
+                              </Button>
+                            )}
 
-                        {/* COMPLETED */}
-                        {booking.status === 'COMPLETED' && (
-                          <Button size="sm">
-                            <Link
-                              href={`/dashboard/my-bookings/${booking.id}/leave-review`}
-                            >
-                              Leave Review
+                          {booking.status === 'COMPLETED' && booking.review && (
+                            <Badge variant="secondary">Reviewed</Badge>
+                          )}
+
+                          {/* CANCELLED */}
+                          {booking.status === 'CANCELLED' && (
+                            <Button size="sm" variant="destructive" disabled>
+                              Cancelled
+                            </Button>
+                          )}
+
+                          {/* Cancel button */}
+                          {canCancel && (
+                            <CancelBookingButton bookingId={booking.id} />
+                          )}
+
+                          <Button asChild size="sm" variant="outline">
+                            <Link href={`/dashboard/my-bookings/${booking.id}`}>
+                              Details
                             </Link>
                           </Button>
-                        )}
-
-                        {/* CANCELLED */}
-                        {booking.status === 'CANCELLED' && (
-                          <Button size="sm" variant="destructive" disabled>
-                            Cancelled
-                          </Button>
-                        )}
-
-                        {/* Cancel button — visible before IN_PROGRESS */}
-                        {![
-                          'IN_PROGRESS',
-                          'COMPLETED',
-                          'CANCELLED',
-                          'DECLINED',
-                        ].includes(booking.status) && (
-                          <CancelBookingButton bookingId={booking.id} />
-                        )}
-
-                        <Button asChild size="sm" variant="outline">
-                          <Link href={`/dashboard/my-bookings/${booking.id}`}>
-                            View Details
-                          </Link>
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>

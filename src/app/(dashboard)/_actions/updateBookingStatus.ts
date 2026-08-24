@@ -1,6 +1,5 @@
 // 'use server'
 
-
 // type BookingStatus =
 //   | "REQUESTED"
 //   | "ACCEPTED"
@@ -18,7 +17,7 @@
 //   const res = await fetch(
 //     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/bookings/${bookingId}`,
 //     {
-//       method: 'PATCH', 
+//       method: 'PATCH',
 //       headers: {
 //         'Content-Type': 'application/json',
 //       },
@@ -36,39 +35,19 @@
 //   return res.json();
 // }
 
+'use server';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"use server";
-
-import { cookies } from "next/headers";
+import { cookies } from 'next/headers';
+import { revalidatePath } from 'next/cache';
 
 type BookingStatus =
-  | "REQUESTED"
-  | "ACCEPTED"
-  | "DECLINED"
-  | "PAID"
-  | "IN_PROGRESS"
-  | "COMPLETED"
-  | "CANCELLED";
+  | 'REQUESTED'
+  | 'ACCEPTED'
+  | 'DECLINED'
+  | 'PAID'
+  | 'IN_PROGRESS'
+  | 'COMPLETED'
+  | 'CANCELLED';
 
 interface UpdateBookingStatusPayload {
   status: BookingStatus;
@@ -78,25 +57,28 @@ export async function updateBookingStatus(
   bookingId: string,
   payload: UpdateBookingStatusPayload
 ) {
-  const token = (await cookies()).get("accessToken")?.value;
+  const token = (await cookies()).get('accessToken')?.value;
 
+  // Technician uses /api/technician/bookings/:id
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/${bookingId}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/api/technician/bookings/${bookingId}`,
     {
-      method: "PATCH",
+      method: 'PATCH',
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
-      cache: "no-store",
+      cache: 'no-store',
     }
   );
 
   const result = await res.json();
 
   if (!res.ok) {
-    throw new Error(result.message || "Failed to update booking.");
+    throw new Error(result.message || 'Failed to update booking.');
   }
+
+  revalidatePath('/technician-dashboard/bookings');
   return result;
 }

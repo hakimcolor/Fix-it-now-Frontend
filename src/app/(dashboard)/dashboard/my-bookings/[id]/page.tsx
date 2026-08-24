@@ -14,6 +14,7 @@ import {
   CreditCard,
 } from 'lucide-react';
 import CancelBookingButton from '@/app/(dashboard)/_components/CancelBookingButton';
+import PayNowButton from '../_components/PayNowButton';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -24,8 +25,6 @@ import {
   paymentStatusConfig,
 } from '../config/bookingStatusConfig';
 
-import { BookingSlot } from '@/app/(dashboard)/types/bookingSlotProps';
-
 export default async function SingleBookingPage({
   params,
 }: {
@@ -34,7 +33,6 @@ export default async function SingleBookingPage({
   const { id } = await params;
 
   const result = await getBookingById(id);
-
   const booking = result?.data;
 
   if (!booking) {
@@ -45,30 +43,41 @@ export default async function SingleBookingPage({
     );
   }
 
-  const technicianProfile = await getTechnicianById(booking.technicianId);
-
-  const technician = technicianProfile.data?.technician?.user;
+  const technicianRes = booking.technicianProfileId
+    ? await getTechnicianById(booking.technicianProfileId)
+    : null;
+  const technician =
+    technicianRes?.data?.technician?.user ??
+    technicianRes?.data?.user ??
+    booking.technicianProfile?.user;
 
   const bookingStatus =
     bookingStatusConfig[booking.status as keyof typeof bookingStatusConfig];
 
-  const paymentStatus =
-    paymentStatusConfig[
-      booking.paymentStatus as keyof typeof paymentStatusConfig
-    ];
+  const paymentStatus = booking.payment?.status
+    ? paymentStatusConfig[
+        booking.payment.status as keyof typeof paymentStatusConfig
+      ]
+    : null;
 
-  // Show cancel button only before work starts
-  const canCancel = !['IN_PROGRESS', 'COMPLETED', 'CANCELLED'].includes(
+  const scheduledDate = booking.scheduledDate ?? booking.scheduledDate;
+  const timeSlot = booking.timeSlot ?? booking.timeSlot;
+  const price = booking.servicePrice ?? booking.service?.price ?? 0;
+  const serviceImage =
+    booking.service?.image || booking.service?.thumbnail || null;
+
+  const canCancel = !['IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'DECLINED'].includes(
     booking.status
   );
 
-  // Show Pay Now button only if payment is pending
   const canPay =
-    booking.paymentStatus === 'PENDING' && booking.status !== 'CANCELLED';
+    booking.status === 'ACCEPTED' &&
+    (!booking.payment ||
+      (booking.payment.status !== 'COMPLETED' &&
+        booking.payment.status !== 'PAID'));
 
   return (
     <div className="container mx-auto max-w-6xl space-y-6 py-8">
-      {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <Link href="/dashboard/my-bookings">
           <Button variant="outline" size="sm">
@@ -78,20 +87,11 @@ export default async function SingleBookingPage({
         </Link>
 
         <div className="flex flex-wrap items-center gap-2">
-          {canPay && (
-            <Button asChild>
-              <Link href={`/dashboard/my-bookings/${booking.id}/payment`}>
-                <CreditCard className="mr-2 h-4 w-4" />
-                Pay Now
-              </Link>
-            </Button>
-          )}
-
+          {canPay && <PayNowButton bookingId={booking.id} />}
           {canCancel && <CancelBookingButton bookingId={booking.id} />}
         </div>
       </div>
 
-      {/* Service */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -101,45 +101,46 @@ export default async function SingleBookingPage({
         </CardHeader>
 
         <CardContent className="space-y-4">
-          {(booking.service.image || booking.service.thumbnail) && (
+          {serviceImage && (
             <div className="relative h-64 w-full overflow-hidden rounded-lg">
               <Image
-                src={
-                  booking.service.image ||
-                  booking.service.thumbnail ||
-                  '/placeholder-service.png'
-                }
-                alt={booking.service.title}
+                src={serviceImage}
+                alt={booking.service?.title ?? 'Service'}
                 fill
                 className="object-cover"
               />
             </div>
           )}
-          <div>
-            <Badge className={bookingStatus.className}>{booking.status}</Badge>
 
-            <Badge className={paymentStatus.className}>
-              {booking.paymentStatus}
-            </Badge>
+          <div className="flex flex-wrap gap-2">
+            {bookingStatus && (
+              <Badge className={bookingStatus.className}>
+                {bookingStatus.label}
+              </Badge>
+            )}
+            {paymentStatus && (
+              <Badge className={paymentStatus.className}>
+                {paymentStatus.label}
+              </Badge>
+            )}
           </div>
 
           <div>
-            <h2 className="text-2xl font-bold">{booking.service.title}</h2>
-
-            <p className="mt-2 text-muted-foreground">
-              {booking.service.description}
-            </p>
+            <h2 className="text-2xl font-bold">
+              {booking.service?.title ?? 'Service'}
+            </h2>
+            {booking.service?.description && (
+              <p className="mt-2 text-muted-foreground">
+                {booking.service.description}
+              </p>
+            )}
           </div>
 
-          <div className="text-2xl font-bold text-primary">
-            ৳ {booking.service.price}
-          </div>
+          <div className="text-2xl font-bold text-primary">৳ {price}</div>
         </CardContent>
       </Card>
 
-      {/* Booking & Technician */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Booking Details */}
         <Card>
           <CardHeader>
             <CardTitle>Booking Details</CardTitle>
@@ -148,98 +149,61 @@ export default async function SingleBookingPage({
           <CardContent className="space-y-5">
             <div className="flex items-center gap-3">
               <Calendar className="h-5 w-5 text-primary" />
-
               <div>
-                <p className="text-sm text-muted-foreground">Booking Date</p>
-
+                <p className="text-sm text-muted-foreground">Scheduled Date</p>
                 <p className="font-medium">
-                  {new Date(booking.bookingDate).toLocaleDateString()}
+                  {scheduledDate
+                    ? new Date(scheduledDate).toLocaleDateString()
+                    : '—'}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <CreditCard className="h-5 w-5 text-primary" />
-
+              <Clock className="h-5 w-5 text-primary" />
               <div>
-                <p className="text-sm text-muted-foreground">Payment Status</p>
-
-                <p>{booking.paymentStatus}</p>
+                <p className="text-sm text-muted-foreground">Time Slot</p>
+                <p className="font-medium">{timeSlot ?? '—'}</p>
               </div>
             </div>
 
-            <div>
-              <p className="mb-2 flex items-center gap-2 font-medium">
-                <Clock className="h-5 w-5" />
-                Selected Slots
-              </p>
-
-              <div className="space-y-2">
-                {booking.bookingSlots.length > 0 ? (
-                  booking.bookingSlots.map((slot: BookingSlot) => (
-                    <Badge key={slot.id} variant="secondary" className="mr-2">
-                      {new Date(slot.startsAt).toLocaleString()} -{' '}
-                      {new Date(slot.endsAt).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </Badge>
-                  ))
-                ) : (
-                  <p className="text-muted-foreground">No slot information</p>
-                )}
+            <div className="flex items-center gap-3">
+              <CreditCard className="h-5 w-5 text-primary" />
+              <div>
+                <p className="text-sm text-muted-foreground">Payment Status</p>
+                <p className="font-medium">
+                  {booking.payment?.status ?? 'Not Paid'}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Technician */}
         <Card>
           <CardHeader>
             <CardTitle>Technician</CardTitle>
           </CardHeader>
 
           <CardContent className="space-y-4">
-            {booking.technician.profilePhoto && (
-              <Image
-                src={
-                  booking.technician.profilePhoto || '/placeholder-service.png'
-                }
-                alt="Technician"
-                width={90}
-                height={90}
-                className="rounded-full object-cover"
-              />
-            )}
-
             <div>
               <h3 className="text-lg font-semibold">
-                {technician?.name ?? 'Assigned Technician'}
+                {technician?.name ??
+                  booking.technicianProfile?.user?.name ??
+                  'Assigned Technician'}
               </h3>
-
-              <p className="text-muted-foreground">{booking.technician.bio}</p>
-
-              <p className="text-muted-foreground">
-                Mobile: {technician?.phone}
-              </p>
-
-              <p className="text-muted-foreground">
-                Email: {technician?.email}
-              </p>
-            </div>
-
-            <div>
-              <p className="font-medium">Description</p>
-
-              <p className="text-muted-foreground">
-                {booking.technician.description}
-              </p>
+              {technician?.email && (
+                <p className="text-muted-foreground">Email: {technician.email}</p>
+              )}
+              {technician?.phone && (
+                <p className="text-muted-foreground">
+                  Mobile: {technician.phone}
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Customer Note */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -249,17 +213,14 @@ export default async function SingleBookingPage({
         </CardHeader>
 
         <CardContent>
-          {booking.note ? (
-            <p>{booking.note}</p>
+          {booking.note || booking.cancellationReason ? (
+            <p>{booking.note || booking.cancellationReason}</p>
           ) : (
-            <p className="text-muted-foreground">
-              No additional note provided.
-            </p>
+            <p className="text-muted-foreground">No additional note provided.</p>
           )}
         </CardContent>
       </Card>
 
-      {/* Customer Information */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -271,22 +232,18 @@ export default async function SingleBookingPage({
         <CardContent className="grid gap-4 md:grid-cols-2">
           <div>
             <p className="text-sm text-muted-foreground">Name</p>
-            <p>{booking.customer.name}</p>
+            <p>{booking.customer?.name ?? '—'}</p>
           </div>
-
           <div>
             <p className="text-sm text-muted-foreground">Email</p>
-            <p>{booking.customer.email}</p>
+            <p>{booking.customer?.email ?? '—'}</p>
           </div>
-
           <div>
             <p className="text-sm text-muted-foreground">Phone</p>
-            <p>{booking.customer.phone}</p>
+            <p>{booking.contactNumber ?? '—'}</p>
           </div>
-
           <div>
             <p className="text-sm text-muted-foreground">Booking ID</p>
-
             <p className="break-all text-xs">{booking.id}</p>
           </div>
         </CardContent>

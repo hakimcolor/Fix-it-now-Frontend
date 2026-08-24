@@ -13,7 +13,7 @@ export async function updateCategory(
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('accessToken')?.value;
 
-    const res = await fetch(`${API_URL}/api/categories/${id}`, {
+    const res = await fetch(`${API_URL}/api/admin/categories/${id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -41,7 +41,7 @@ export async function deleteCategory(
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('accessToken')?.value;
 
-    const res = await fetch(`${API_URL}/api/categories/${id}`, {
+    const res = await fetch(`${API_URL}/api/admin/categories/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${accessToken}` },
     });

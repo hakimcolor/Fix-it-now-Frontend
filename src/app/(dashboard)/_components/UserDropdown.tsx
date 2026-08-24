@@ -28,6 +28,16 @@ interface Props {
 export default function UserDropdown({ user }: Props) {
   const router = useRouter();
 
+  const name = user?.data?.name ?? '';
+  const email = user?.data?.email ?? '';
+  const photo = user?.data?.profilePhoto ?? '';
+  const initials = name
+    .split(' ')
+    .map((n: string) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+
   const handleLogout = async () => {
     try {
       toast.loading('Logging out...', {
@@ -53,8 +63,8 @@ export default function UserDropdown({ user }: Props) {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-9 w-9 rounded-full">
           <Avatar className="h-9 w-9">
-            <AvatarImage src="" />
-            <AvatarFallback>{user.data.name?.charAt(0)}</AvatarFallback>
+            <AvatarImage src={photo} alt={name} />
+            <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -62,9 +72,9 @@ export default function UserDropdown({ user }: Props) {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>
           <div className="space-y-1">
-            <p className="font-medium">{user.data.name}</p>
+            <p className="font-medium">{name}</p>
 
-            <p className="text-xs text-muted-foreground">{user.data.email}</p>
+            <p className="text-xs text-muted-foreground">{email}</p>
           </div>
         </DropdownMenuLabel>
 

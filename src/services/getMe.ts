@@ -1,32 +1,53 @@
 'use server';
 
-import { cacheLife, cacheTag } from 'next/cache';
 import { cookies } from 'next/headers';
 
-async function fetchMe(accessToken: string) {
-  'use cache';
-  cacheLife('days');
-  cacheTag('my-profile');
-
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
-    headers: {
-      Cookie: `accessToken=${accessToken}`,
-    },
-  });
-
-  return res.json();
-}
-
 export const getMe = async () => {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get('accessToken')?.value;
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get('accessToken')?.value;
 
-  if (!accessToken) {
+    if (!accessToken) {
+      return {
+        success: false,
+        message: 'User not logged in!',
+        data: null,
+      };
+    }
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      cache: 'no-store',
+    });
+
+    const contentType = res.headers.get('content-type') ?? '';
+    if (!contentType.includes('application/json')) {
+      return {
+        success: false,
+        message: 'Failed to load user profile.',
+        data: null,
+      };
+    }
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      return {
+        success: false,
+        message: result?.message || 'Failed to load user profile.',
+        data: null,
+      };
+    }
+
+    return result;
+  } catch (error) {
+    console.error('getMe error:', error);
     return {
       success: false,
-      message: 'User not logged in!',
+      message: 'Failed to load user profile.',
+      data: null,
     };
   }
-
-  return fetchMe(accessToken);
 };

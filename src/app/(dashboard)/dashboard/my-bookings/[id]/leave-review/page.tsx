@@ -2,9 +2,9 @@
 // import React from 'react'
 
 // // {
-// //   "customerId": "93e4af2d-bd6f-46cc-b304-ee0de7cf7e94", done 
-// //   "technicianId": "b2365bc4-5a38-458a-b87b-505e570ceba4", done 
-// //   "bookingId": "0b207247-4f46-4bb6-be3c-945fecef3479", done 
+// //   "customerId": "93e4af2d-bd6f-46cc-b304-ee0de7cf7e94", done
+// //   "technicianId": "b2365bc4-5a38-458a-b87b-505e570ceba4", done
+// //   "bookingId": "0b207247-4f46-4bb6-be3c-945fecef3479", done
 // //   "serviceId": "086452e4-95d2-4624-8b7e-7c92ec91a555",
 // //   "rating": 5,
 // //   "comment": "Excellent service. The technician was professional, punctual, and completed the job perfectly."
@@ -38,29 +38,16 @@
 //     // comment: userinput | "",
 // };
 
-
 //   console.log(result, "from Leave Review Page");
-
-
-
 
 //   return (
 //     <div>Leave Review {id}</div>
 //   )
 // }
 
-
-
-
-
-
-
-
-
-import { getBookingById } from "@/app/(dashboard)/_actions/getBookingById";
-import LeaveReviewForm from "@/app/(dashboard)/_components/LeaveReviewForm";
-import { notFound } from "next/navigation";
-
+import { getBookingById } from '@/app/(dashboard)/_actions/getBookingById';
+import LeaveReviewForm from '@/app/(dashboard)/_components/LeaveReviewForm';
+import { notFound } from 'next/navigation';
 
 export default async function LeaveReview({
   params,
@@ -81,7 +68,7 @@ export default async function LeaveReview({
     <div className="container mx-auto max-w-3xl py-10">
       <LeaveReviewForm
         customerId={booking.customerId}
-        technicianId={booking.technicianId}
+        technicianProfileId={booking.technicianProfileId}
         bookingId={booking.id}
         serviceId={booking.serviceId}
       />

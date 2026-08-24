@@ -1,6 +1,6 @@
-"use server";
+'use server';
 
-import { cookies } from "next/headers";
+import { cookies } from 'next/headers';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -8,14 +8,20 @@ export interface Payment {
   id: string;
   bookingId: string;
   amount: number;
-  currency: string;
-  status: "PENDING" | "PAID" | "FAILED" | "CANCELLED";
-  method: "CARD" | "CASH" | "BANK_TRANSFER" | "MOBILE_BANKING";
-  provider: "STRIPE" | "SSLCOMMERZ";
-  stripeCustomerId: string| null;
-  transactionId: string | null;
+  transactionId: string;
+  provider: string;
+  status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED';
+  stripeCheckoutSessionId?: string | null;
+  paidAt?: string | null;
   createdAt: string;
   updatedAt: string;
+  booking?: {
+    id: string;
+    scheduledDate: string;
+    timeSlot: string;
+    status: string;
+    service?: { title: string; price: number };
+  };
 }
 
 interface ApiResponse {
@@ -27,20 +33,25 @@ interface ApiResponse {
 
 export async function getMyPayments(): Promise<ApiResponse> {
   const cookieStore = await cookies();
-  const token = cookieStore.get("accessToken")?.value;
+  const token = cookieStore.get('accessToken')?.value;
 
   const res = await fetch(`${API_URL}/api/payments`, {
-    method: "GET",
+    method: 'GET',
     headers: {
-      Authorization: token ? `Bearer ${token}` : "",
+      Authorization: token ? `Bearer ${token}` : '',
     },
-    cache: "no-store",
+    cache: 'no-store',
   });
 
   const result = await res.json();
 
   if (!res.ok) {
-    throw new Error(result.message || "Failed to fetch payments.");
+    return {
+      success: false,
+      statusCode: res.status,
+      message: result.message || 'Failed to fetch payments.',
+      data: [],
+    };
   }
 
   return result;

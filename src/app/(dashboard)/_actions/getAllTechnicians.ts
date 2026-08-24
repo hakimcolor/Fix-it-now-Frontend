@@ -55,7 +55,6 @@ export async function getAllTechnicians(
       {
         method: 'GET',
         cache: 'no-store',
-        signal: AbortSignal.timeout(10000),
       }
     );
 

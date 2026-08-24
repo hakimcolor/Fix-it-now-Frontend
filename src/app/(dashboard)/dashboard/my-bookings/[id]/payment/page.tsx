@@ -35,7 +35,7 @@ export default async function PaymentPage({
   }
 
   // Prevent payment if already paid
-  if (booking.paymentStatus === 'COMPLETED') {
+  if (booking.payment?.status === 'COMPLETED') {
     return (
       <div className="container mx-auto max-w-2xl py-12">
         <Card>
@@ -141,11 +141,11 @@ export default async function PaymentPage({
 
                   <div>
                     <p className="text-sm text-muted-foreground">
-                      Booking Date
+                      Scheduled Date
                     </p>
 
                     <p className="font-medium">
-                      {new Date(booking.bookingDate).toLocaleDateString()}
+                      {new Date(booking.scheduledDate).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -154,9 +154,9 @@ export default async function PaymentPage({
                   <Clock className="h-5 w-5 text-primary" />
 
                   <div>
-                    <p className="text-sm text-muted-foreground">Slots</p>
+                    <p className="text-sm text-muted-foreground">Time Slot</p>
 
-                    <p className="font-medium">{booking.bookingSlots.length}</p>
+                    <p className="font-medium">{booking.timeSlot}</p>
                   </div>
                 </div>
 
@@ -167,7 +167,8 @@ export default async function PaymentPage({
                     <p className="text-sm text-muted-foreground">Technician</p>
 
                     <p className="font-medium">
-                      {booking.technician.user?.name ?? 'Assigned Technician'}
+                      {booking.technicianProfile?.user?.name ??
+                        'Assigned Technician'}
                     </p>
                   </div>
                 </div>
@@ -180,7 +181,9 @@ export default async function PaymentPage({
                       Payment Status
                     </p>
 
-                    <Badge variant="outline">{booking.paymentStatus}</Badge>
+                    <Badge variant="outline">
+                      {booking.payment?.status ?? 'Not Paid'}
+                    </Badge>
                   </div>
                 </div>
               </div>

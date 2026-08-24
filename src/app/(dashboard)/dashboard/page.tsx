@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Card,
   CardContent,
@@ -17,12 +18,34 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 import TodayDate from '../_components/TodayDate';
 import { getMe } from '@/services/getMe';
 import { getAllBookings } from '../_actions/getAllBookings';
-import { getAllReviews } from '../_actions/getAllReviews';
 import { getMyPayments } from '../_actions/getMyPayments';
+import { bookingStatusConfig } from './my-bookings/config/bookingStatusConfig';
+
+type DashboardBooking = {
+  id: string;
+  customerId?: string;
+  customer?: { id?: string };
+  status: string;
+  scheduledDate?: string;
+  timeSlot?: string;
+  servicePrice?: number;
+  service?: { title?: string };
+  technicianProfile?: { user?: { name?: string } };
+};
+
+const PAID_PAYMENT_STATUSES = new Set(['PAID', 'COMPLETED']);
 
 export default async function CustomerDashboardHome() {
   const [me, bookingsRes, paymentsRes] = await Promise.all([
@@ -31,18 +54,21 @@ export default async function CustomerDashboardHome() {
     getMyPayments().catch(() => ({ data: [] })),
   ]);
 
-  const customerId = me.data?.profile?.id;
+  const customerId = me.data?.id;
   const userName = me.data?.name ?? 'there';
 
-  const allBookings = bookingsRes?.data ?? [];
-  const myBookings = allBookings.filter(
-    (b: { customerId: string }) => b.customerId === customerId
-  );
+  const allBookings: DashboardBooking[] = bookingsRes?.data ?? [];
+  const myBookings = customerId
+    ? allBookings.filter((b) => {
+        const ownerId = b.customerId ?? b.customer?.id;
+        return !ownerId || ownerId === customerId;
+      })
+    : allBookings;
 
   const payments = paymentsRes?.data ?? [];
 
   const totalSpent = payments
-    .filter((p: { status: string }) => p.status === 'PAID')
+    .filter((p: { status: string }) => PAID_PAYMENT_STATUSES.has(p.status))
     .reduce(
       (sum: number, p: { amount: number }) => sum + (Number(p.amount) || 0),
       0
@@ -57,43 +83,37 @@ export default async function CustomerDashboardHome() {
     },
     {
       title: 'Pending Bookings',
-      value: myBookings.filter(
-        (b: { status: string }) => b.status === 'REQUESTED'
-      ).length,
+      value: myBookings.filter((b) => b.status === 'REQUESTED').length,
       description: 'Waiting for confirmation',
       icon: Clock3,
     },
     {
       title: 'Active Services',
-      value: myBookings.filter(
-        (b: { status: string }) => b.status === 'IN_PROGRESS'
-      ).length,
+      value: myBookings.filter((b) => b.status === 'IN_PROGRESS').length,
       description: 'Currently in progress',
       icon: Wrench,
     },
     {
       title: 'Completed Jobs',
-      value: myBookings.filter(
-        (b: { status: string }) => b.status === 'COMPLETED'
-      ).length,
+      value: myBookings.filter((b) => b.status === 'COMPLETED').length,
       description: 'Successfully completed',
       icon: CheckCircle2,
     },
     {
       title: 'Total Spent',
-      value: `$${totalSpent.toLocaleString()}`,
+      value: `৳${totalSpent.toLocaleString()}`,
       description: 'Lifetime payments',
       icon: CreditCard,
     },
     {
       title: 'Accepted Bookings',
-      value: myBookings.filter(
-        (b: { status: string }) => b.status === 'ACCEPTED'
-      ).length,
+      value: myBookings.filter((b) => b.status === 'ACCEPTED').length,
       description: 'Ready to pay',
       icon: Star,
     },
   ];
+
+  const recentBookings = myBookings.slice(0, 5);
 
   return (
     <div className="space-y-8">
@@ -140,6 +160,69 @@ export default async function CustomerDashboardHome() {
           );
         })}
       </div>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Recent Bookings</CardTitle>
+            <CardDescription>Your latest service requests.</CardDescription>
+          </div>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/dashboard/my-bookings">View all</Link>
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Service</TableHead>
+                <TableHead>Technician</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {recentBookings.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={4}
+                    className="h-24 text-center text-muted-foreground"
+                  >
+                    No bookings yet. Browse services to get started.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                recentBookings.map((booking) => {
+                  const cfg =
+                    bookingStatusConfig[
+                      booking.status as keyof typeof bookingStatusConfig
+                    ];
+                  return (
+                    <TableRow key={booking.id}>
+                      <TableCell className="font-medium">
+                        {booking.service?.title ?? 'Service'}
+                      </TableCell>
+                      <TableCell>
+                        {booking.technicianProfile?.user?.name ?? '—'}
+                      </TableCell>
+                      <TableCell>
+                        {booking.scheduledDate
+                          ? new Date(booking.scheduledDate).toLocaleDateString()
+                          : '—'}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={cfg?.className}>
+                          {cfg?.label ?? booking.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 }
