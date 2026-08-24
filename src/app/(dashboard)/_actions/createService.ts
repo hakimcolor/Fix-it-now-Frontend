@@ -23,6 +23,7 @@ export async function createService(data: CreateServicePayload) {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
+      Cookie: `accessToken=${accessToken}`,
     },
     body: JSON.stringify(data),
     cache: 'no-store',

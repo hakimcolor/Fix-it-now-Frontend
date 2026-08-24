@@ -16,6 +16,7 @@ export async function getMyServices() {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${accessToken}`,
+        Cookie: `accessToken=${accessToken}`,
       },
       cache: 'no-store',
     }

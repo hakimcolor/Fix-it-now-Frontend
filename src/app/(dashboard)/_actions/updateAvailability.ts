@@ -28,6 +28,7 @@ export async function updateAvailability(availability: WeeklyAvailability) {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
+        Cookie: `accessToken=${accessToken}`,
       },
       body: JSON.stringify({ availability }),
       cache: 'no-store',

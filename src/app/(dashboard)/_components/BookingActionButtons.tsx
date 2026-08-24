@@ -1,14 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
+import {
+  MoreHorizontal,
+  CheckCircle2,
+  XCircle,
+  PlayCircle,
+  Trophy,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { updateBookingStatus } from '../_actions/updateBookingStatus';
-import { bookingStatusConfig } from '../dashboard/my-bookings/config/bookingStatusConfig';
 
-type BookingStatus =
+export type BookingStatus =
   | 'REQUESTED'
   | 'ACCEPTED'
   | 'DECLINED'
@@ -20,98 +34,157 @@ type BookingStatus =
 interface Props {
   bookingId: string;
   currentStatus: BookingStatus;
+  paymentStatus?: string;
 }
+
+const statusStyle: Record<string, string> = {
+  REQUESTED: 'bg-amber-100  text-amber-700  border-amber-200',
+  ACCEPTED: 'bg-blue-100   text-blue-700   border-blue-200',
+  DECLINED: 'bg-red-100    text-red-700    border-red-200',
+  PAID: 'bg-violet-100 text-violet-700 border-violet-200',
+  IN_PROGRESS: 'bg-orange-100 text-orange-700 border-orange-200',
+  COMPLETED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  CANCELLED: 'bg-gray-100   text-gray-600   border-gray-200',
+};
+
+const statusLabel: Record<string, string> = {
+  REQUESTED: 'Requested',
+  ACCEPTED: 'Accepted',
+  DECLINED: 'Declined',
+  PAID: 'Paid',
+  IN_PROGRESS: 'In Progress',
+  COMPLETED: 'Completed',
+  CANCELLED: 'Cancelled',
+};
 
 export default function BookingActionButtons({
   bookingId,
   currentStatus,
+  paymentStatus,
 }: Props) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [optimisticStatus, setOptimisticStatus] =
+    useState<BookingStatus>(currentStatus);
 
-  const handleAction = async (status: BookingStatus) => {
-    setLoading(true);
-    try {
-      await updateBookingStatus(bookingId, { status });
-      toast.success('Booking status updated.');
-      router.refresh();
-    } catch {
-      toast.error('Failed to update booking status.');
-    } finally {
-      setLoading(false);
-    }
+  const handle = (status: BookingStatus) => {
+    setOptimisticStatus(status); // immediate UI update
+    startTransition(async () => {
+      try {
+        await updateBookingStatus(bookingId, { status });
+        toast.success(`Status changed to ${statusLabel[status]}.`);
+        router.refresh();
+      } catch {
+        setOptimisticStatus(currentStatus); // revert on error
+        toast.error('Failed to update status.');
+      }
+    });
   };
 
-  const statusBadge = (
-    <Badge
-      variant="outline"
-      className={
-        bookingStatusConfig[currentStatus as keyof typeof bookingStatusConfig]
-          ?.className
-      }
-    >
-      {bookingStatusConfig[currentStatus as keyof typeof bookingStatusConfig]
-        ?.label ?? currentStatus}
+  const badge = (
+    <Badge variant="outline" className={statusStyle[optimisticStatus] ?? ''}>
+      {statusLabel[optimisticStatus] ?? optimisticStatus}
     </Badge>
   );
 
-  // REQUESTED → Accept or Decline
-  if (currentStatus === 'REQUESTED') {
-    return (
-      <div className="flex items-center gap-2 flex-wrap">
-        {statusBadge}
-        <Button
-          size="sm"
-          disabled={loading}
-          onClick={() => handleAction('ACCEPTED')}
-        >
-          Accept
-        </Button>
-        <Button
-          size="sm"
-          variant="destructive"
-          disabled={loading}
-          onClick={() => handleAction('DECLINED')}
-        >
-          Decline
-        </Button>
-      </div>
+  // Terminal states — nothing to do
+  if (['COMPLETED', 'DECLINED', 'CANCELLED'].includes(optimisticStatus)) {
+    return badge;
+  }
+
+  // Payment cleared = PAID or paymentStatus is PAID/COMPLETED
+  const paymentCleared =
+    optimisticStatus === 'PAID' ||
+    paymentStatus === 'PAID' ||
+    paymentStatus === 'COMPLETED';
+
+  // Build available actions based on current status
+  const actions: {
+    label: string;
+    status: BookingStatus;
+    icon: React.ReactNode;
+    danger?: boolean;
+  }[] = [];
+
+  if (optimisticStatus === 'REQUESTED') {
+    actions.push(
+      {
+        label: 'Accept',
+        status: 'ACCEPTED',
+        icon: <CheckCircle2 className="h-4 w-4 text-blue-600" />,
+      },
+      {
+        label: 'Decline',
+        status: 'DECLINED',
+        icon: <XCircle className="h-4 w-4 text-red-500" />,
+        danger: true,
+      }
     );
   }
 
-  // PAID → Mark In-Progress
-  if (currentStatus === 'PAID') {
-    return (
-      <div className="flex items-center gap-2 flex-wrap">
-        {statusBadge}
-        <Button
-          size="sm"
-          variant="secondary"
-          disabled={loading}
-          onClick={() => handleAction('IN_PROGRESS')}
-        >
-          Mark In-Progress
-        </Button>
-      </div>
-    );
+  if (optimisticStatus === 'ACCEPTED' || optimisticStatus === 'PAID') {
+    actions.push({
+      label: 'Mark In Progress',
+      status: 'IN_PROGRESS',
+      icon: <PlayCircle className="h-4 w-4 text-orange-500" />,
+    });
   }
 
-  // IN_PROGRESS → Mark Completed
-  if (currentStatus === 'IN_PROGRESS') {
-    return (
-      <div className="flex items-center gap-2 flex-wrap">
-        {statusBadge}
-        <Button
-          size="sm"
-          disabled={loading}
-          onClick={() => handleAction('COMPLETED')}
-        >
-          Mark Completed
-        </Button>
-      </div>
-    );
+  if (optimisticStatus === 'IN_PROGRESS') {
+    // Only allow Complete if payment is cleared
+    if (paymentCleared) {
+      actions.push({
+        label: 'Mark Completed',
+        status: 'COMPLETED',
+        icon: <Trophy className="h-4 w-4 text-emerald-600" />,
+      });
+    }
   }
 
-  // All other statuses — just show the badge
-  return statusBadge;
+  if (actions.length === 0) return badge;
+
+  return (
+    <div className="flex items-center gap-2">
+      {badge}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            disabled={isPending}
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel className="text-xs text-muted-foreground">
+            Change Status
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {actions.map((a) => (
+            <DropdownMenuItem
+              key={a.status}
+              onClick={() => handle(a.status)}
+              className={
+                a.danger ? 'text-destructive focus:text-destructive' : ''
+              }
+            >
+              {a.icon}
+              <span className="ml-2">{a.label}</span>
+            </DropdownMenuItem>
+          ))}
+          {optimisticStatus === 'IN_PROGRESS' && !paymentCleared && (
+            <DropdownMenuItem
+              disabled
+              className="text-xs text-muted-foreground"
+            >
+              <Trophy className="h-4 w-4 mr-2 opacity-40" />
+              Complete (awaiting payment)
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
 }

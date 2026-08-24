@@ -25,33 +25,47 @@ import {
 } from '@/components/ui/table';
 
 import { Badge } from '@/components/ui/badge';
-import { getMyTechnicianProfile } from '../_actions/getMyTechnicianProfile';
 import { getBookingsByTechnician } from '../_actions/getAllBookingsByTechnician';
+import { getMyServices } from '../_actions/getMyServices';
+import { getMe } from '@/services/getMe';
 import { bookingStatusConfig } from '../dashboard/my-bookings/config/bookingStatusConfig';
 
 export default async function TechnicianDashboardPage() {
-  const techProfile = await getMyTechnicianProfile();
-  const technicianId = techProfile?.id;
+  const [meRes, bookingsRes, servicesRes] = await Promise.all([
+    getMe(),
+    getBookingsByTechnician(),
+    getMyServices(),
+  ]);
 
-  let bookings: {
+  const userName: string = meRes?.data?.name ?? 'Technician';
+
+  const bookings: {
     id: string;
     status: string;
-    service?: { price?: number };
+    service?: { price?: number; title?: string };
     customer?: { name?: string; email?: string };
     bookingDate?: string;
     paymentStatus?: string;
-  }[] = [];
+  }[] = bookingsRes?.data ?? [];
 
-  if (technicianId) {
-    const res = await getBookingsByTechnician();
-    bookings = res?.data ?? [];
-  }
+  const services: {
+    id: string;
+    title: string;
+    price: number;
+    category?: { name: string };
+  }[] = servicesRes?.data ?? [];
 
   const totalEarnings = bookings
     .filter((b) => b.status === 'COMPLETED')
     .reduce((sum, b) => sum + (Number(b.service?.price) || 0), 0);
 
   const stats = [
+    {
+      title: 'Total Services',
+      value: servicesRes?.meta?.total ?? services.length,
+      icon: Wrench,
+      description: 'Services you offer',
+    },
     {
       title: 'Total Bookings',
       value: bookings.length,
@@ -62,13 +76,7 @@ export default async function TechnicianDashboardPage() {
       title: 'Pending Requests',
       value: bookings.filter((b) => b.status === 'REQUESTED').length,
       icon: Clock3,
-      description: 'Awaiting response',
-    },
-    {
-      title: 'In Progress',
-      value: bookings.filter((b) => b.status === 'IN_PROGRESS').length,
-      icon: Wrench,
-      description: 'Currently active',
+      description: 'Awaiting your response',
     },
     {
       title: 'Completed Jobs',
@@ -77,14 +85,14 @@ export default async function TechnicianDashboardPage() {
       description: 'Successfully finished',
     },
     {
-      title: 'Average Rating',
-      value: techProfile?.averageRating?.toFixed(1) ?? '0.0',
+      title: 'In Progress',
+      value: bookings.filter((b) => b.status === 'IN_PROGRESS').length,
       icon: Star,
-      description: `Based on ${techProfile?.totalReviews ?? 0} reviews`,
+      description: 'Currently active',
     },
     {
       title: 'Total Earnings',
-      value: `${totalEarnings.toLocaleString()}`,
+      value: `৳${totalEarnings.toLocaleString()}`,
       icon: DollarSign,
       description: 'From completed jobs',
     },
@@ -96,13 +104,14 @@ export default async function TechnicianDashboardPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          Technician Dashboard
+          Welcome back, {userName} 👋
         </h1>
         <p className="text-muted-foreground">
-          Welcome back! Here&apos;s an overview of your work.
+          Here&apos;s an overview of your work.
         </p>
       </div>
 
+      {/* Stats grid */}
       <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
         {stats.map((item) => {
           const Icon = item.icon;
@@ -125,6 +134,7 @@ export default async function TechnicianDashboardPage() {
         })}
       </div>
 
+      {/* Recent bookings */}
       <Card>
         <CardHeader>
           <CardTitle>Recent Bookings</CardTitle>
@@ -135,6 +145,7 @@ export default async function TechnicianDashboardPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Customer</TableHead>
+                <TableHead>Service</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Payment</TableHead>
@@ -144,7 +155,7 @@ export default async function TechnicianDashboardPage() {
               {recentBookings.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={4}
+                    colSpan={5}
                     className="text-center text-muted-foreground h-24"
                   >
                     No bookings yet.
@@ -154,10 +165,15 @@ export default async function TechnicianDashboardPage() {
                 recentBookings.map((booking) => (
                   <TableRow key={booking.id}>
                     <TableCell>
-                      <p className="font-medium">{booking.customer?.name}</p>
+                      <p className="font-medium">
+                        {booking.customer?.name ?? '—'}
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         {booking.customer?.email}
                       </p>
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {booking.service?.title ?? '—'}
                     </TableCell>
                     <TableCell>
                       {booking.bookingDate

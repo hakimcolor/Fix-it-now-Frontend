@@ -1,20 +1,12 @@
-
-
-import CreateServiceForm from "@/app/(dashboard)/_components/CreateServiceForm";
-import { getAllCategories } from "@/app/(public)/_actions/getAllCategories";
-
-
+import CreateServiceForm from '@/app/(dashboard)/_components/CreateServiceForm';
+import { getServiceCategories } from '@/app/(dashboard)/_actions/getServiceCategories';
 
 export default async function ServiceCreatePage() {
-    const result = await getAllCategories();
+  const categories = await getServiceCategories();
 
-    // console.log("Fetched categories:", result.data);
-    return (
-        <div className="mx-auto max-w-4xl space-y-6">
-        <CreateServiceForm
-          categories={result.data ?? []}
-        />
-
-        </div>
-    );
+  return (
+    <div className="mx-auto max-w-4xl space-y-6">
+      <CreateServiceForm categories={categories} />
+    </div>
+  );
 }
