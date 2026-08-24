@@ -41,17 +41,16 @@
 
 import { cookies } from 'next/headers';
 
-export const getBookingsByTechnician = async (technicianId: string) => {
+export const getBookingsByTechnician = async (_technicianId: string) => {
   try {
     const token = (await cookies()).get('accessToken')?.value;
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/technician/${technicianId}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/bookings?technicianId=true`,
       {
         method: 'GET',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
-          'Content-Type': 'application/json',
         },
         cache: 'no-store',
       }
@@ -66,6 +65,6 @@ export const getBookingsByTechnician = async (technicianId: string) => {
     return result;
   } catch (error) {
     console.error('Error fetching technician bookings:', error);
-    throw error;
+    return { success: false, data: [] };
   }
 };
