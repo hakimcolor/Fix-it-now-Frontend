@@ -1,427 +1,333 @@
-// import { getTechnicianById } from "../../_actions/getTechnicianById";
-
-
-// interface TechnicianDetailsPageProps {
-//   params: Promise<{
-//     id: string;
-//   }>;
-// }
-
-// export default async function TechnicianDetailsPage({
-//   params,
-// }: TechnicianDetailsPageProps) {
-//   const { id } = await params;
-
-//   const result = await getTechnicianById(id);
-//   const technicianContact = result.data.technician;
-//   const technicianProfile = result.data.technician.technicianProfile;
-//   console.log(technicianContact,  "technician:________________")
-
-//   return (
-//     <div>
-         
-//       <h1>{technicianContact.name}</h1>
-//       <h1>{technicianContact.email}</h1>
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-import Image from "next/image";
+import Link from 'next/link';
 import {
+  ArrowLeft,
   BadgeCheck,
   Briefcase,
-  Clock3,
+  Calendar,
+  Clock,
   Mail,
   MapPin,
-  Phone,
   Star,
+  Wallet,
   Wrench,
-  DollarSign,
-  Calendar,
-  CheckCircle2,
-  XCircle,
-} from "lucide-react";
+} from 'lucide-react';
 
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-
-import { getTechnicianById } from "../../_actions/getTechnicianById";
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { getTechnicianById } from '../../_actions/getTechnicianById';
 
 interface TechnicianDetailsPageProps {
-  params: Promise<{
-    id: string;
-  }>;
+  params: Promise<{ id: string }>;
 }
+
+const DAY_ORDER = [
+  'sunday',
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+];
 
 export default async function TechnicianDetailsPage({
   params,
 }: TechnicianDetailsPageProps) {
   const { id } = await params;
-
   const result = await getTechnicianById(id);
 
-  const technician = result.data.technician;
-  const profile = technician.technicianProfile;
+  // Flat shape: result.data is the technician object directly
+  const tech = result?.data;
 
-  const location = [
-    profile.address,
-    profile.city,
-    profile.district,
-  ]
-    .filter(Boolean)
-    .join(", ");
+  if (!tech) {
+    return (
+      <div className="container mx-auto flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4">
+        <Wrench className="h-12 w-12 text-muted-foreground" />
+        <h1 className="text-2xl font-bold">Technician Not Found</h1>
+        <Link
+          href="/find-technicians"
+          className="text-sm text-primary hover:underline"
+        >
+          ← Back to technicians
+        </Link>
+      </div>
+    );
+  }
+
+  const initials = tech.user?.name
+    ? tech.user.name
+        .split(' ')
+        .map((n: string) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    : 'T';
+
+  const isActive = tech.user?.status === 'ACTIVE';
+
+  const availability: Record<string, string[]> = tech.availability ?? {};
+  const sortedDays = DAY_ORDER.filter((d) => d in availability);
 
   return (
-    <div className="container mx-auto max-w-7xl px-4 py-10">
-      <div className="grid gap-8 lg:grid-cols-3">
-        {/* ================= LEFT SIDEBAR ================= */}
-        <Card className="h-fit">
-          <CardContent className="p-8">
-            <div className="flex flex-col items-center text-center">
-              <Image
-                src={
-                  profile.profilePhoto ||
-                  "https://placehold.co/300x300/png?text=Technician"
-                }
-                alt={technician.name}
-                width={150}
-                height={150}
-                className="h-36 w-36 rounded-full border object-cover"
-              />
+    <div className="min-h-screen bg-background">
+      {/* Back nav */}
+      <div className="border-b bg-card/50 backdrop-blur">
+        <div className="container mx-auto px-4 py-3">
+          <Link
+            href="/find-technicians"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Technicians
+          </Link>
+        </div>
+      </div>
 
-              <h1 className="mt-5 text-3xl font-bold">
-                {technician.name}
-              </h1>
+      <div className="container mx-auto max-w-6xl px-4 py-10">
+        <div className="grid gap-8 lg:grid-cols-3">
+          {/* ── LEFT SIDEBAR ── */}
+          <div className="space-y-5">
+            {/* Profile card */}
+            <Card className="overflow-hidden">
+              <div className="h-24 bg-linear-to-r from-primary via-secondary to-accent" />
+              <CardContent className="px-6 pb-6">
+                {/* Avatar */}
+                <div className="relative -mt-12 mb-4">
+                  <div className="flex h-24 w-24 items-center justify-center rounded-2xl border-4 border-background bg-linear-to-br from-primary/20 to-secondary/20 text-3xl font-bold text-primary shadow-lg">
+                    {initials}
+                  </div>
+                  {isActive && (
+                    <span className="absolute bottom-0 left-16 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-green-500">
+                      <span className="h-2 w-2 rounded-full bg-white" />
+                    </span>
+                  )}
+                </div>
 
-              <p className="mt-1 text-muted-foreground">
-                {profile.profession || "Professional Technician"}
-              </p>
+                {/* Name */}
+                <div className="flex items-center gap-2">
+                  <h1 className="text-2xl font-bold">
+                    {tech.user?.name ?? 'Technician'}
+                  </h1>
+                  {tech.isVerified && (
+                    <BadgeCheck className="h-5 w-5 shrink-0 text-blue-500" />
+                  )}
+                </div>
 
-              <div className="mt-5 flex flex-wrap justify-center gap-2">
-                <Badge>{technician.activeStatus}</Badge>
-
-                <Badge
-                  variant={profile.isAvailable ? "default" : "secondary"}
-                >
-                  {profile.isAvailable ? "Available" : "Unavailable"}
-                </Badge>
-
-                {profile.isApproved ? (
-                  <Badge className="bg-green-600 hover:bg-green-600">
-                    Approved
+                {/* Status badges */}
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <Badge
+                    variant={isActive ? 'default' : 'secondary'}
+                    className="rounded-full"
+                  >
+                    {tech.user?.status ?? 'Unknown'}
                   </Badge>
-                ) : (
-                  <Badge variant="destructive">
-                    Not Approved
-                  </Badge>
-                )}
-              </div>
+                  {tech.isVerified && (
+                    <Badge className="rounded-full bg-blue-500 hover:bg-blue-500">
+                      Verified
+                    </Badge>
+                  )}
+                </div>
+
+                <Separator className="my-4" />
+
+                {/* Contact info */}
+                <div className="space-y-3">
+                  {tech.user?.email && (
+                    <div className="flex items-center gap-3 text-sm">
+                      <Mail className="h-4 w-4 shrink-0 text-primary" />
+                      <span className="truncate text-muted-foreground">
+                        {tech.user.email}
+                      </span>
+                    </div>
+                  )}
+                  {tech.location && (
+                    <div className="flex items-center gap-3 text-sm">
+                      <MapPin className="h-4 w-4 shrink-0 text-primary" />
+                      <span className="text-muted-foreground">
+                        {tech.location}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3 text-sm">
+                    <Calendar className="h-4 w-4 shrink-0 text-primary" />
+                    <span className="text-muted-foreground">
+                      Joined {new Date(tech.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Rate card */}
+            <Card>
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                      Hourly Rate
+                    </p>
+                    <p className="mt-1 text-3xl font-bold text-primary">
+                      {tech.hourlyRate > 0
+                        ? `৳${tech.hourlyRate}`
+                        : 'Negotiable'}
+                    </p>
+                    <p className="text-xs text-muted-foreground">per hour</p>
+                  </div>
+                  <div className="rounded-2xl bg-primary/10 p-3">
+                    <Wallet className="h-7 w-7 text-primary" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick stats */}
+            <div className="grid grid-cols-2 gap-3">
+              <Card>
+                <CardContent className="flex flex-col items-center p-4">
+                  <Star className="mb-1.5 h-5 w-5 fill-yellow-400 text-yellow-400" />
+                  <p className="text-xl font-bold">
+                    {tech.averageRating > 0
+                      ? tech.averageRating.toFixed(1)
+                      : '—'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Rating</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="flex flex-col items-center p-4">
+                  <Briefcase className="mb-1.5 h-5 w-5 text-primary" />
+                  <p className="text-xl font-bold">{tech.experience}</p>
+                  <p className="text-xs text-muted-foreground">Yrs Exp</p>
+                </CardContent>
+              </Card>
             </div>
-
-            <Separator className="my-6" />
-
-            <div className="space-y-5">
-              <div className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-primary" />
-                <span>{technician.email}</span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Phone className="h-5 w-5 text-primary" />
-                <span>{technician.phone}</span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <MapPin className="h-5 w-5 text-primary" />
-                <span>{location || "Location not provided"}</span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Calendar className="h-5 w-5 text-primary" />
-                <span>
-                  Joined{" "}
-                  {new Date(profile.createdAt).toLocaleDateString()}
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* ================= RIGHT CONTENT ================= */}
-        <div className="space-y-8 lg:col-span-2">
-          {/* ================= STATS ================= */}
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardContent className="flex items-center gap-4 p-6">
-                <Briefcase className="h-8 w-8 text-primary" />
-
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Experience
-                  </p>
-
-                  <h3 className="text-2xl font-bold">
-                    {profile.yearsOfExperience
-                      ? `${profile.yearsOfExperience} Years`
-                      : "N/A"}
-                  </h3>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="flex items-center gap-4 p-6">
-                <Star className="h-8 w-8 fill-yellow-400 text-yellow-400" />
-
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Rating
-                  </p>
-
-                  <h3 className="text-2xl font-bold">
-                    {profile.averageRating ?? 0}
-                  </h3>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="flex items-center gap-4 p-6">
-                <BadgeCheck className="h-8 w-8 text-primary" />
-
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Jobs Done
-                  </p>
-
-                  <h3 className="text-2xl font-bold">
-                    {profile.totalCompletedJobs ?? 0}
-                  </h3>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="flex items-center gap-4 p-6">
-                <Clock3 className="h-8 w-8 text-primary" />
-
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Response Time
-                  </p>
-
-                  <h3 className="text-2xl font-bold">
-                    {profile.responseTime
-                      ? `${profile.responseTime} min`
-                      : "N/A"}
-                  </h3>
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
-          {/* ================= ABOUT ================= */}
-          <Card>
-            <CardContent className="p-8">
-              <h2 className="mb-5 text-2xl font-bold">
-                About
-              </h2>
+          {/* ── RIGHT CONTENT ── */}
+          <div className="space-y-6 lg:col-span-2">
+            {/* Bio */}
+            {tech.bio && (
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="mb-3 text-lg font-semibold">About</h2>
+                  <p className="leading-relaxed text-muted-foreground">
+                    {tech.bio}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
-              <p className="leading-8 text-muted-foreground">
-                {profile.bio ||
-                  "This technician hasn't added a bio yet."}
-              </p>
-
-              <Separator className="my-6" />
-
-              <p className="leading-8 text-muted-foreground">
-                {profile.description ||
-                  "No additional description available."}
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* ================= SKILLS ================= */}
-          <Card>
-            <CardContent className="p-8">
-              <h2 className="mb-5 text-2xl font-bold">
-                Skills
-              </h2>
-
-              {profile.skills ? (
-                <div className="flex flex-wrap gap-3">
-                  {profile.skills
-                    .split(",")
-                    .map((skill: string) => (
-                      <Badge
+            {/* Skills */}
+            {tech.skills && tech.skills.length > 0 && (
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="mb-4 text-lg font-semibold">Skills</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {tech.skills.map((skill: string) => (
+                      <div
                         key={skill}
-                        variant="secondary"
-                        className="px-4 py-2"
+                        className="flex items-center gap-1.5 rounded-xl border border-primary/20 bg-primary/5 px-3 py-1.5 text-sm font-medium text-primary"
                       >
-                        <Wrench className="mr-2 h-4 w-4" />
-                        {skill.trim()}
-                      </Badge>
+                        <Wrench className="h-3.5 w-3.5" />
+                        {skill}
+                      </div>
                     ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground">
-                  No skills added yet.
-                </p>
-              )}
-            </CardContent>
-          </Card>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-          {/* ================= DETAILS ================= */}
-          <div className="grid gap-6 md:grid-cols-2">
+            {/* Availability */}
+            {sortedDays.length > 0 && (
+              <Card>
+                <CardContent className="p-6">
+                  <div className="mb-4 flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-primary" />
+                    <h2 className="text-lg font-semibold">Availability</h2>
+                  </div>
+                  <div className="space-y-3">
+                    {sortedDays.map((day) => {
+                      const slots: string[] = availability[day];
+                      const hasSlots = slots.length > 0;
+                      return (
+                        <div
+                          key={day}
+                          className="flex items-start justify-between gap-4 rounded-xl border p-3"
+                        >
+                          <span className="w-24 shrink-0 text-sm font-medium capitalize">
+                            {day}
+                          </span>
+                          {hasSlots ? (
+                            <div className="flex flex-wrap gap-2">
+                              {slots.map((slot) => (
+                                <span
+                                  key={slot}
+                                  className="rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary"
+                                >
+                                  {slot}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              Not available
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Reviews placeholder */}
             <Card>
-              <CardContent className="space-y-5 p-6">
-                <h2 className="text-xl font-semibold">
-                  Professional Details
-                </h2>
-
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    Profession
-                  </span>
-
-                  <span className="font-medium">
-                    {profile.profession || "N/A"}
-                  </span>
+              <CardContent className="p-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Reviews</h2>
+                  <Badge variant="secondary" className="rounded-full">
+                    {tech.totalReviews} total
+                  </Badge>
                 </div>
-
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    Reviews
-                  </span>
-
-                  <span className="font-medium">
-                    {profile.totalReviews ?? 0}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    User ID
-                  </span>
-
-                  <span className="max-w-[170px] truncate text-right text-sm">
-                    {profile.userId}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    Profile ID
-                  </span>
-
-                  <span className="max-w-[170px] truncate text-right text-sm">
-                    {profile.id}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="space-y-5 p-6">
-                <h2 className="text-xl font-semibold">
-                  Account Status
-                </h2>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">
-                    Availability
-                  </span>
-
-                  {profile.isAvailable ? (
-                    <div className="flex items-center gap-2 text-green-600">
-                      <CheckCircle2 className="h-5 w-5" />
-                      Available
+                {tech.totalReviews === 0 ? (
+                  <div className="flex flex-col items-center py-8 text-center">
+                    <Star className="mb-2 h-8 w-8 text-muted-foreground/30" />
+                    <p className="text-sm text-muted-foreground">
+                      No reviews yet
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Be the first to leave a review
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <p className="text-4xl font-bold">
+                      {tech.averageRating.toFixed(1)}
+                    </p>
+                    <div>
+                      <div className="flex gap-0.5">
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <Star
+                            key={s}
+                            className={`h-4 w-4 ${
+                              s <= Math.round(tech.averageRating)
+                                ? 'fill-yellow-400 text-yellow-400'
+                                : 'text-muted-foreground/30'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {tech.totalReviews} reviews
+                      </p>
                     </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-red-500">
-                      <XCircle className="h-5 w-5" />
-                      Unavailable
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">
-                    Approval
-                  </span>
-
-                  {profile.isApproved ? (
-                    <div className="flex items-center gap-2 text-green-600">
-                      <CheckCircle2 className="h-5 w-5" />
-                      Approved
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-orange-500">
-                      <XCircle className="h-5 w-5" />
-                      Pending
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    Created
-                  </span>
-
-                  <span>
-                    {new Date(profile.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    Updated
-                  </span>
-
-                  <span>
-                    {new Date(profile.updatedAt).toLocaleDateString()}
-                  </span>
-                </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
-
-          {/* ================= PRICING ================= */}
-          <Card>
-            <CardContent className="flex flex-col items-center justify-between gap-6 p-8 md:flex-row">
-              <div className="flex items-center gap-4">
-                <DollarSign className="h-12 w-12 text-primary" />
-
-                <div>
-                  <h2 className="text-2xl font-bold">
-                    Hourly Rate
-                  </h2>
-
-                  <p className="text-muted-foreground">
-                    Professional service with transparent pricing.
-                  </p>
-                </div>
-              </div>
-
-              <h3 className="text-4xl font-bold text-primary">
-                {profile.hourlyRate
-                  ? `$${profile.hourlyRate}/hr`
-                  : "Not Set"}
-              </h3>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>

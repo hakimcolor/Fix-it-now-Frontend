@@ -1,54 +1,30 @@
 'use server';
 
-import { ActiveStatus } from '../_components/UserActionsInAdmindeshboard';
-
 export interface GetAllTechniciansParams {
   page?: number;
   limit?: number;
-  city?: string;
-  profession?: string;
-  isAvailable?: boolean;
-  isApproved?: boolean;
-  minRating?: number;
-  minExperience?: number;
-  maxHourlyRate?: number;
 }
 
-export interface TechnicianProfile {
-  id: string;
-  userId: string;
-  bio?: string;
-  profilePhoto: string;
-  description?: string;
-  profession?: string;
-  skills?: string[];
-  yearsOfExperience?: number;
-  hourlyRate?: number;
-  averageRating: number;
-  totalReviews: number;
-  totalCompletedJobs: number;
-  isAvailable: boolean;
-  responseTime?: string;
-  isApproved: boolean;
-  address?: string;
-  city?: string;
-  district?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
+// Shape returned directly by https://fixit-now-backend.vercel.app/api/technicians
 export interface Technician {
   id: string;
-  name: string;
-  email: string;
-  phone: string;
-  activeStatus: 'ACTIVE' | 'BLOCKED' | 'BAN' | 'UNBAN';
-  role: 'TECHNICIAN';
+  userId: string;
+  bio: string | null;
+  skills: string[];
+  experience: number;
+  hourlyRate: number;
+  location: string;
+  totalReviews: number;
+  averageRating: number;
+  availability: Record<string, unknown>;
   isVerified: boolean;
-  lastLoginAt: string | null;
   createdAt: string;
   updatedAt: string;
-  technicianProfile: TechnicianProfile;
+  user: {
+    name: string;
+    email: string;
+    status: string;
+  };
 }
 
 interface PaginationMeta {
@@ -71,35 +47,15 @@ export async function getAllTechnicians(
 ): Promise<GetAllTechniciansResponse> {
   try {
     const params = new URLSearchParams();
-
-    // Pagination
     if (filters.page) params.append('page', filters.page.toString());
     if (filters.limit) params.append('limit', filters.limit.toString());
-
-    // Filters
-    if (filters.city) params.append('city', filters.city);
-    if (filters.profession) params.append('profession', filters.profession);
-
-    if (filters.isAvailable !== undefined)
-      params.append('isAvailable', String(filters.isAvailable));
-
-    // isApproved is not supported by this backend — skip it
-
-    if (filters.minRating !== undefined)
-      params.append('minRating', filters.minRating.toString());
-
-    if (filters.minExperience !== undefined)
-      params.append('minExperience', filters.minExperience.toString());
-
-    if (filters.maxHourlyRate !== undefined)
-      params.append('maxHourlyRate', filters.maxHourlyRate.toString());
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/technicians?${params.toString()}`,
       {
         method: 'GET',
         cache: 'no-store',
-        signal: AbortSignal.timeout(10000), // 10s timeout
+        signal: AbortSignal.timeout(10000),
       }
     );
 

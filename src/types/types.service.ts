@@ -3,15 +3,30 @@ export interface IService {
   title: string;
   description: string;
   price: number;
-  priceType: "FIXED" | "HOURLY";
-  estimatedDuration: number;
-  thumbnail: string;
-  isAvailable: boolean;
-  averageRating: number;
-  totalReviews: number;
+  categoryId: string;
+  technicianProfileId: string;
+  createdAt: string;
+  updatedAt: string;
+  // optional fields (may not exist in all responses)
+  thumbnail?: string;
+  isAvailable?: boolean;
+  averageRating?: number;
+  totalReviews?: number;
+  estimatedDuration?: number;
+  priceType?: 'FIXED' | 'HOURLY';
+  category?: {
+    id: string;
+    name: string;
+    description: string;
+  };
+  technicianProfile?: {
+    id: string;
+    user?: {
+      name: string;
+      email: string;
+    };
+  };
 }
-
-
 
 export interface IBookingSlot {
   id: string;
@@ -29,8 +44,6 @@ export interface IBookingSlot {
   createdAt: string;
   updatedAt: string;
 }
-
-
 
 export interface BookingDetailsProps {
   id: string;
