@@ -21,13 +21,13 @@ const demoAccounts = [
   },
   {
     role: 'TECHNICIAN',
-    email: 'technician@gmail.com',
+    email: 'tech@gmail.com',
     password: 'password123',
     icon: UserCog,
   },
   {
     role: 'CUSTOMER',
-    email: 'customer@gmail.com',
+    email: 'john@gmail.com',
     password: 'password123',
     icon: User,
   },
