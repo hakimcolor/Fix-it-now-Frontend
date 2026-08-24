@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import {
   Ban,
@@ -61,6 +62,7 @@ const avatarGradients: Record<string, string> = {
 };
 
 export default function AdminUsersClient({ users }: { users: IUser[] }) {
+  const router = useRouter();
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<RoleFilter>('ALL');
   const [isPending, startTransition] = useTransition();
@@ -85,6 +87,7 @@ export default function AdminUsersClient({ users }: { users: IUser[] }) {
         toast.success(
           `User ${status === 'BAN' ? 'banned' : status === 'BLOCKED' ? 'blocked' : 'updated'} successfully.`
         );
+        router.refresh();
       } catch {
         toast.error('Failed to update user status.');
       }
