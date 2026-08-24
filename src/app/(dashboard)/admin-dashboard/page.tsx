@@ -4,13 +4,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import BookingStatusChart from '../_components/BookingStatusChart';
 import RevenueLineChart from '../_components/RevenueLineChart';
 import { getAllUsers } from '../_actions/getAllUsers';
-import { getAllBookings } from '../_actions/getAllBookings';
+import { getAdminBookings } from '../_actions/getAdminBookings';
 import { getAllTechnicians } from '../_actions/getAllTechnicians';
 
 export default async function AdminDashboardHome() {
   const [usersRes, bookingsRes, techniciansRes] = await Promise.all([
     getAllUsers(),
-    getAllBookings(),
+    getAdminBookings(),
     getAllTechnicians({ limit: 1000 }),
   ]);
 
@@ -35,7 +35,7 @@ export default async function AdminDashboardHome() {
     { title: 'Active Technicians', value: technicians.length, icon: Wrench },
     {
       title: 'Total Revenue',
-      value: `$${totalRevenue.toLocaleString()}`,
+      value: `${totalRevenue.toLocaleString()}`,
       icon: DollarSign,
     },
   ];
@@ -64,8 +64,8 @@ export default async function AdminDashboardHome() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <BookingStatusChart />
-        <RevenueLineChart />
+        <BookingStatusChart bookings={bookings} />
+        <RevenueLineChart bookings={bookings} />
       </div>
     </div>
   );
