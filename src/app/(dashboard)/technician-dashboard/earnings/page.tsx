@@ -33,7 +33,7 @@ export default async function TechnicianEarningsPage() {
   }[] = [];
 
   if (technicianId) {
-    const res = await getBookingsByTechnician(technicianId);
+    const res = await getBookingsByTechnician();
     bookings = res?.data ?? [];
   }
 

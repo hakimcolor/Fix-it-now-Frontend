@@ -33,7 +33,10 @@
 
 'use server';
 
-import { cacheLife, cacheTag } from 'next/cache';
+import {
+  unstable_cacheLife as cacheLife,
+  unstable_cacheTag as cacheTag,
+} from 'next/cache';
 
 export interface Category {
   id: string;

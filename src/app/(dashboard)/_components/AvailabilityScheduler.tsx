@@ -81,10 +81,8 @@ export default function AvailabilityScheduler({ services }: Props) {
     },
   });
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = () => {
     startTransition(async () => {
-      // Build weekly availability from slot data
-      // This scheduler is legacy — the WeeklyScheduleEditor is the primary UI now
       toast.error(
         'Please use the Weekly Schedule editor on the Availability page.'
       );

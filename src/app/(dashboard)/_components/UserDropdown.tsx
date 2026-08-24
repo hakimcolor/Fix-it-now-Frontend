@@ -25,12 +25,21 @@ interface Props {
   user: ApiResponse;
 }
 
+function getProfileHref(role?: string) {
+  if (role === 'ADMIN') return '/admin-dashboard';
+  if (role === 'TECHNICIAN') return '/technician-dashboard/profile';
+  return '/dashboard/profile';
+}
+
 export default function UserDropdown({ user }: Props) {
   const router = useRouter();
 
   const name = user?.data?.name ?? '';
   const email = user?.data?.email ?? '';
   const photo = user?.data?.profilePhoto ?? '';
+  const role = user?.data?.role;
+  const profileHref = getProfileHref(role);
+
   const initials = name
     .split(' ')
     .map((n: string) => n[0])
@@ -40,21 +49,12 @@ export default function UserDropdown({ user }: Props) {
 
   const handleLogout = async () => {
     try {
-      toast.loading('Logging out...', {
-        id: 'logout',
-      });
-
+      toast.loading('Logging out...', { id: 'logout' });
       await logout();
-
-      toast.success('Logged out successfully!', {
-        id: 'logout',
-      });
-
+      toast.success('Logged out successfully!', { id: 'logout' });
       router.replace('/login');
     } catch {
-      toast.error('Logout failed', {
-        id: 'logout',
-      });
+      toast.error('Logout failed', { id: 'logout' });
     }
   };
 
@@ -73,8 +73,10 @@ export default function UserDropdown({ user }: Props) {
         <DropdownMenuLabel>
           <div className="space-y-1">
             <p className="font-medium">{name}</p>
-
             <p className="text-xs text-muted-foreground">{email}</p>
+            {role && (
+              <p className="text-xs font-semibold text-primary">{role}</p>
+            )}
           </div>
         </DropdownMenuLabel>
 
@@ -86,8 +88,9 @@ export default function UserDropdown({ user }: Props) {
             Home
           </Link>
         </DropdownMenuItem>
+
         <DropdownMenuItem asChild>
-          <Link href="/profile">
+          <Link href={profileHref}>
             <User className="mr-2 h-4 w-4" />
             Profile
           </Link>

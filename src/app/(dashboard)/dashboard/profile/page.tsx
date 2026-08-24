@@ -30,6 +30,7 @@ export default async function CustomerProfilePage() {
   }
 
   const profile = result.data;
+  const displayStatus = profile.status ?? profile.activeStatus ?? '';
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -47,7 +48,7 @@ export default async function CustomerProfilePage() {
 
           <div className="mt-4 flex flex-wrap justify-center gap-2">
             <Badge>{profile.role}</Badge>
-            <Badge variant="secondary">{profile.activeStatus}</Badge>
+            <Badge variant="secondary">{displayStatus}</Badge>
             <Badge variant={profile.isVerified ? 'default' : 'destructive'}>
               {profile.isVerified ? 'Verified' : 'Not Verified'}
             </Badge>

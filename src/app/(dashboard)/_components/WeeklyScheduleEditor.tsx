@@ -200,7 +200,8 @@ export default function WeeklyScheduleEditor() {
 
               {state.enabled && state.slots.length === 0 && (
                 <p className="mt-2 text-xs text-muted-foreground">
-                  No slots added. Click "Add Slot" to add a time range.
+                  No slots added. Click &quot;Add Slot&quot; to add a time
+                  range.
                 </p>
               )}
 

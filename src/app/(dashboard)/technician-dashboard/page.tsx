@@ -33,10 +33,17 @@ export default async function TechnicianDashboardPage() {
   const techProfile = await getMyTechnicianProfile();
   const technicianId = techProfile?.id;
 
-  let bookings: any[] = [];
+  let bookings: {
+    id: string;
+    status: string;
+    service?: { price?: number };
+    customer?: { name?: string; email?: string };
+    bookingDate?: string;
+    paymentStatus?: string;
+  }[] = [];
 
   if (technicianId) {
-    const res = await getBookingsByTechnician(technicianId);
+    const res = await getBookingsByTechnician();
     bookings = res?.data ?? [];
   }
 
@@ -153,7 +160,9 @@ export default async function TechnicianDashboardPage() {
                       </p>
                     </TableCell>
                     <TableCell>
-                      {new Date(booking.bookingDate).toLocaleDateString()}
+                      {booking.bookingDate
+                        ? new Date(booking.bookingDate).toLocaleDateString()
+                        : '—'}
                     </TableCell>
                     <TableCell>
                       <Badge

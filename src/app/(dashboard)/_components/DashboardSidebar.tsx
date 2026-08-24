@@ -9,16 +9,14 @@ interface Props {
 }
 
 export default function DashboardSidebar({ user }: Props) {
-  const role = (user?.data?.role ?? 'CUSTOMER').toLowerCase() as
-    | 'customer'
-    | 'technician'
-    | 'admin';
+  const rawRole = user?.data?.role ?? 'CUSTOMER';
+  const role = rawRole.toLowerCase() as 'customer' | 'technician' | 'admin';
 
   return (
     <>
       {/* Desktop Sidebar */}
       <aside className="fixed left-0 top-0 hidden h-screen w-72 border-r bg-sidebar lg:flex">
-        <SidebarContent role={role} />
+        <SidebarContent role={role} user={user} />
       </aside>
 
       {/* Mobile Header */}

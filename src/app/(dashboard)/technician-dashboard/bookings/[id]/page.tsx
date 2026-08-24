@@ -1,15 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import {
-  ArrowLeft,
-  Calendar,
-  Clock,
-  CreditCard,
-  FileText,
-  User,
-  Wrench,
-} from 'lucide-react';
-import { getAdminBookingById } from '../../../_actions/getAdminBookingById';
+import { ArrowLeft, Calendar, Clock, User, Wrench } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,7 +12,6 @@ import {
 import UpdateBookingStatusByTechnician from '../../../_components/updateBookingStatusByTechnician';
 import { BookingSlot } from '../../../types/bookingSlotProps';
 
-// For technician we use the standard /api/bookings/:id endpoint
 import { getBookingById } from '../../../_actions/getBookingById';
 
 export default async function TechnicianBookingDetailPage({

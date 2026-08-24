@@ -13,11 +13,15 @@ export async function updateCategory(
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('accessToken')?.value;
 
+    if (!accessToken)
+      return { success: false, message: 'Not authorized. Missing token.' };
+
     const res = await fetch(`${API_URL}/api/admin/categories/${id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
+        Cookie: `accessToken=${accessToken}`,
       },
       body: JSON.stringify(payload),
     });
@@ -41,9 +45,15 @@ export async function deleteCategory(
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('accessToken')?.value;
 
+    if (!accessToken)
+      return { success: false, message: 'Not authorized. Missing token.' };
+
     const res = await fetch(`${API_URL}/api/admin/categories/${id}`, {
       method: 'DELETE',
-      headers: { Authorization: `Bearer ${accessToken}` },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Cookie: `accessToken=${accessToken}`,
+      },
     });
 
     const result = await res.json();
@@ -51,7 +61,7 @@ export async function deleteCategory(
       return { success: false, message: result?.message || 'Failed to delete' };
     }
 
-    updateTag('categories');
+    revalidateTag('categories');
     return { success: true, message: result.message || 'Category deleted' };
   } catch {
     return { success: false, message: 'Something went wrong' };

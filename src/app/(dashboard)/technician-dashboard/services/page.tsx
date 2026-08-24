@@ -61,7 +61,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
-import { Star, Clock, Plus, Pencil, CalendarDays, Trash2 } from 'lucide-react';
+import { Star, Clock, Plus, Pencil, CalendarDays } from 'lucide-react';
 import DeleteServiceButton from '../../_components/DeleteServiceButton';
 
 export interface Category {

@@ -1,6 +1,6 @@
 'use server';
 
-import { updateTag } from 'next/cache';
+import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 
 export interface UpdateProfilePayload {
@@ -39,8 +39,7 @@ export async function updateProfile(payload: UpdateProfilePayload) {
     };
   }
 
-  // Immediately expire the profile cache so next render shows fresh data
-  updateTag('my-profile');
+  revalidateTag('my-profile');
 
   return {
     success: true,

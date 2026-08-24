@@ -2,13 +2,16 @@ export interface IUserProfile {
   id: string;
   name: string;
   email: string;
-  phone: string;
+  phone?: string;
   role: 'CUSTOMER' | 'TECHNICIAN' | 'ADMIN';
-  activeStatus: 'ACTIVE' | 'INACTIVE';
-  userStatus: string | null;
-  isVerified: boolean;
+  /** API returns `status` field */
+  status?: 'ACTIVE' | 'INACTIVE' | 'BANNED' | string;
+  /** Some older responses use activeStatus */
+  activeStatus?: 'ACTIVE' | 'INACTIVE' | string;
+  userStatus?: string | null;
+  isVerified?: boolean;
   profilePhoto?: string | null;
-  lastLoginAt: string;
+  lastLoginAt?: string;
   createdAt: string;
   updatedAt: string;
   technicianProfile?: null;

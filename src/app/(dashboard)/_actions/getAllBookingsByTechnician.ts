@@ -41,7 +41,7 @@
 
 import { cookies } from 'next/headers';
 
-export const getBookingsByTechnician = async (_technicianId: string) => {
+export const getBookingsByTechnician = async () => {
   try {
     const token = (await cookies()).get('accessToken')?.value;
 

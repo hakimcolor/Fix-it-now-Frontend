@@ -16,10 +16,9 @@ import {
   Fingerprint,
   Clock3,
   User,
-  Phone,
 } from 'lucide-react';
 
-export default async function TechnicianProfilePage() {
+export default async function AdminProfilePage() {
   const result = await getMe();
 
   if (!result?.success || !result?.data) {
@@ -45,11 +44,6 @@ export default async function TechnicianProfilePage() {
     },
     { icon: <Shield className="h-5 w-5" />, label: 'Role', value: u.role },
     {
-      icon: <Phone className="h-5 w-5" />,
-      label: 'Phone',
-      value: u.phone ?? 'Not provided',
-    },
-    {
       icon: <CalendarDays className="h-5 w-5" />,
       label: 'Member Since',
       value: new Date(u.createdAt).toLocaleDateString(),
@@ -71,17 +65,19 @@ export default async function TechnicianProfilePage() {
       {/* Header card */}
       <Card>
         <CardHeader className="items-center text-center">
-          <Avatar className="h-24 w-24">
-            <AvatarFallback className="bg-linear-to-br from-violet-500 to-blue-500 text-3xl font-bold text-white">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+          <div className="relative">
+            <Avatar className="h-24 w-24">
+              <AvatarFallback className="bg-linear-to-br from-rose-500 to-orange-400 text-3xl font-bold text-white">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+          </div>
 
           <CardTitle className="mt-4 text-2xl">{u.name}</CardTitle>
           <CardDescription>{u.email}</CardDescription>
 
           <div className="mt-3 flex flex-wrap justify-center gap-2">
-            <Badge className="bg-violet-100 text-violet-700 border-violet-200 hover:bg-violet-100">
+            <Badge className="bg-rose-100 text-rose-700 border-rose-200 hover:bg-rose-100">
               {u.role}
             </Badge>
             <Badge
@@ -103,7 +99,7 @@ export default async function TechnicianProfilePage() {
         <CardHeader>
           <CardTitle>Account Details</CardTitle>
           <CardDescription>
-            Your technician account information.
+            Your administrator account information.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">

@@ -43,7 +43,7 @@ export default function FinalCTA() {
           </h2>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-white/75">
-            Whether you need a trusted technician or you're a skilled
+            Whether you need a trusted technician or you&apos;re a skilled
             professional looking for more clients, FixItNow connects the right
             people at the right time.
           </p>

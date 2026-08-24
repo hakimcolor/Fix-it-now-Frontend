@@ -54,5 +54,6 @@ export const navigation = {
       icon: LayoutGrid,
     },
     { name: 'Payments', href: '/admin-dashboard/payments', icon: CreditCard },
+    { name: 'Profile', href: '/admin-dashboard/profile', icon: User },
   ],
 } as const;

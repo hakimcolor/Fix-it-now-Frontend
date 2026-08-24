@@ -41,7 +41,7 @@ export default function FAQSection() {
 
           <h2 className="mt-5 text-4xl font-bold tracking-tight md:text-5xl">
             Have Questions?
-            <span className="text-primary"> We've Got Answers.</span>
+            <span className="text-primary"> We&apos;ve Got Answers.</span>
           </h2>
 
           <p className="mt-5 text-lg text-muted-foreground">

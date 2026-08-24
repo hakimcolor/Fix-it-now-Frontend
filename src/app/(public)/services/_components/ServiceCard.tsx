@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,10 +15,12 @@ export default function ServiceCard({ service }: { service: IService }) {
       {/* Thumbnail or gradient fallback */}
       <div className="relative h-48 w-full overflow-hidden bg-linear-to-br from-primary/10 to-muted">
         {service.thumbnail ? (
-          <img
+          <Image
             src={service.thumbnail}
             alt={service.title}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, 400px"
           />
         ) : (
           <div className="flex h-full items-center justify-center">

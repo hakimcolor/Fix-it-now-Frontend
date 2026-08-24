@@ -1,8 +1,6 @@
 'use server';
 
-import { cookies } from 'next/headers';
 import { createBooking } from '@/app/(dashboard)/_actions/createBooking';
 
-// Public-facing booking — uses the same createBooking action
-// Payload: { serviceId, scheduledDate, timeSlot, contactNumber }
+// Public-facing booking — re-exports the same createBooking action
 export { createBooking as serviceBooking };

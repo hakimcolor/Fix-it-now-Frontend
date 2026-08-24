@@ -15,41 +15,27 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-interface TechnicianProfile {
-  id: string;
-  userId: string;
-  profilePhoto?: string;
-  profession?: string;
-  averageRating?: number;
-  totalReviews?: number;
-  yearsOfExperience?: number;
-  hourlyRate?: number;
-  location?: string;
-  city?: string;
-  isVerified?: boolean;
-  isAvailable?: boolean;
-  skills?: string[];
-  experience?: number;
-  availability?: Record<string, string[]>;
-}
+import { Technician as ApiTechnician } from '@/app/(dashboard)/_actions/getAllTechnicians';
 
-interface Technician {
-  id: string;
+type Technician = ApiTechnician & {
   name?: string;
-  technicianProfile?: TechnicianProfile;
-  // backend /api/technicians returns flat profile + user nested
-  userId?: string;
-  bio?: string;
-  skills?: string[];
-  experience?: number;
-  hourlyRate?: number;
-  location?: string;
-  averageRating?: number;
-  totalReviews?: number;
-  isVerified?: boolean;
-  availability?: Record<string, string[]>;
-  user?: { name: string; email: string; status: string };
-}
+  technicianProfile?: {
+    id?: string;
+    userId?: string;
+    profilePhoto?: string;
+    profession?: string;
+    averageRating?: number;
+    totalReviews?: number;
+    yearsOfExperience?: number;
+    hourlyRate?: number;
+    location?: string;
+    city?: string;
+    isVerified?: boolean;
+    isAvailable?: boolean;
+    skills?: string[];
+    experience?: number;
+  };
+};
 
 export default function TopRatedTechnicians({
   technicians,

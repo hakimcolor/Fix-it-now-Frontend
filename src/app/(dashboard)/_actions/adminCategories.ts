@@ -45,11 +45,15 @@ export async function createCategory(payload: {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('accessToken')?.value;
 
+    if (!accessToken)
+      return { success: false, message: 'Not authorized. Missing token.' };
+
     const res = await fetch(`${API_URL}/api/admin/categories`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
+        Cookie: `accessToken=${accessToken}`,
       },
       body: JSON.stringify(payload),
     });

@@ -61,7 +61,7 @@ export default async function TechnicianBookingsPage() {
     );
   }
 
-  const response = await getBookingsByTechnician(technicianId);
+  const response = await getBookingsByTechnician();
   const bookings: Booking[] = response?.data ?? [];
 
   const counts = {

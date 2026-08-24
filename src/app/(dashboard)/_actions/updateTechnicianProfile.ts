@@ -1,6 +1,6 @@
 'use server';
 
-import { updateTag } from 'next/cache';
+import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 
 export interface UpdateTechnicianProfilePayload {
@@ -43,7 +43,7 @@ export async function updateTechnicianProfile(
     };
   }
 
-  updateTag('my-profile');
+  revalidateTag('my-profile');
 
   return {
     success: true,

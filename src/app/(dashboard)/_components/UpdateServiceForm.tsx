@@ -1,9 +1,6 @@
-
-
 // import { Category } from "../types/cetegoryProps";
 // import { IServiceDetails } from "../_actions/getServiceById";
 // import { updateService, UpdateServicePayload } from "../_actions/updateService";
-
 
 // export interface UpdateServiceFormProps {
 //   serviceId: string;
@@ -30,18 +27,11 @@
 
 //   // console.log("Services____________________ form updateServiceFROM", service, );
 //   console.log("categories____________________ form updateServiceFROM", categories, );
-  
+
 //   const technicianId= service?.technicianId as string;
-  
+
 //   const updatedService = await updateService(technicianId, payload as UpdateServicePayload);
 //   console.log("updatedService____________________ form updateServiceFROM", updatedService, );
-  
-
- 
-
-
-
-
 
 //   return (
 //     <div>
@@ -61,20 +51,6 @@
 //     </div>
 //   );
 // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // "use client";
 
@@ -306,76 +282,23 @@
 //   );
 // }
 
+'use client';
 
+import { useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { toast } from 'sonner';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"use client";
-
-import { useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { toast } from "sonner";
-
-import { Category } from "../types/cetegoryProps";
-import { IServiceDetails } from "../_actions/getServiceById";
-import {
-  updateService,
-  UpdateServicePayload,
-} from "../_actions/updateService";
+import { Category } from '../types/cetegoryProps';
+import { IServiceDetails } from '../_actions/getServiceById';
+import { updateService, UpdateServicePayload } from '../_actions/updateService';
 
 type FormValues = {
   categoryId: string;
   title: string;
   description: string;
   price: number;
-  priceType: "FIXED" | "HOURLY";
+  priceType: 'FIXED' | 'HOURLY';
   estimatedDuration: number;
   thumbnail: string;
   isAvailable: boolean;
@@ -401,13 +324,13 @@ export default function UpdateServiceForm({
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: {
-      categoryId: service?.categoryId ?? "",
-      title: service?.title ?? "",
-      description: service?.description ?? "",
+      categoryId: service?.categoryId ?? '',
+      title: service?.title ?? '',
+      description: service?.description ?? '',
       price: Number(service?.price) ?? 0,
-      priceType: service?.priceType ?? "FIXED",
+      priceType: service?.priceType ?? 'FIXED',
       estimatedDuration: Number(service?.estimatedDuration) ?? 0,
-      thumbnail: service?.thumbnail ?? "",
+      thumbnail: service?.thumbnail ?? '',
       isAvailable: service?.isAvailable ?? true,
     },
   });
@@ -420,19 +343,14 @@ export default function UpdateServiceForm({
           serviceId,
         };
 
-        const result = await updateService(
-          service!.technicianId,
-          payload
-        );
+        await updateService(service!.technicianId, payload);
 
-        // console.log(result);
-
-        toast.success("Service updated successfully");
+        toast.success('Service updated successfully');
 
         router.refresh();
       } catch (error) {
         console.error(error);
-        toast.error("Failed to update service");
+        toast.error('Failed to update service');
       }
     });
   };
@@ -449,7 +367,7 @@ export default function UpdateServiceForm({
         <label className="mb-2 block font-medium">Category</label>
 
         <select
-          {...register("categoryId")}
+          {...register('categoryId')}
           className="w-full rounded-md border p-3"
         >
           <option value="">Select Category</option>
@@ -461,9 +379,7 @@ export default function UpdateServiceForm({
           ))}
         </select>
 
-        <p className="text-sm text-red-500">
-          {errors.categoryId?.message}
-        </p>
+        <p className="text-sm text-red-500">{errors.categoryId?.message}</p>
       </div>
 
       {/* Title */}
@@ -471,30 +387,24 @@ export default function UpdateServiceForm({
         <label className="mb-2 block font-medium">Title</label>
 
         <input
-          {...register("title")}
+          {...register('title')}
           className="w-full rounded-md border p-3"
         />
 
-        <p className="text-sm text-red-500">
-          {errors.title?.message}
-        </p>
+        <p className="text-sm text-red-500">{errors.title?.message}</p>
       </div>
 
       {/* Description */}
       <div>
-        <label className="mb-2 block font-medium">
-          Description
-        </label>
+        <label className="mb-2 block font-medium">Description</label>
 
         <textarea
           rows={5}
-          {...register("description")}
+          {...register('description')}
           className="w-full rounded-md border p-3"
         />
 
-        <p className="text-sm text-red-500">
-          {errors.description?.message}
-        </p>
+        <p className="text-sm text-red-500">{errors.description?.message}</p>
       </div>
 
       {/* Price */}
@@ -503,23 +413,19 @@ export default function UpdateServiceForm({
 
         <input
           type="number"
-          {...register("price", { valueAsNumber: true })}
+          {...register('price', { valueAsNumber: true })}
           className="w-full rounded-md border p-3"
         />
 
-        <p className="text-sm text-red-500">
-          {errors.price?.message}
-        </p>
+        <p className="text-sm text-red-500">{errors.price?.message}</p>
       </div>
 
       {/* Price Type */}
       <div>
-        <label className="mb-2 block font-medium">
-          Price Type
-        </label>
+        <label className="mb-2 block font-medium">Price Type</label>
 
         <select
-          {...register("priceType")}
+          {...register('priceType')}
           className="w-full rounded-md border p-3"
         >
           <option value="FIXED">Fixed</option>
@@ -535,7 +441,7 @@ export default function UpdateServiceForm({
 
         <input
           type="number"
-          {...register("estimatedDuration", { valueAsNumber: true })}
+          {...register('estimatedDuration', { valueAsNumber: true })}
           className="w-full rounded-md border p-3"
         />
 
@@ -546,26 +452,19 @@ export default function UpdateServiceForm({
 
       {/* Thumbnail */}
       <div>
-        <label className="mb-2 block font-medium">
-          Thumbnail URL
-        </label>
+        <label className="mb-2 block font-medium">Thumbnail URL</label>
 
         <input
-          {...register("thumbnail")}
+          {...register('thumbnail')}
           className="w-full rounded-md border p-3"
         />
 
-        <p className="text-sm text-red-500">
-          {errors.thumbnail?.message}
-        </p>
+        <p className="text-sm text-red-500">{errors.thumbnail?.message}</p>
       </div>
 
       {/* Available */}
       <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          {...register("isAvailable")}
-        />
+        <input type="checkbox" {...register('isAvailable')} />
 
         <label>Available</label>
       </div>
@@ -575,7 +474,7 @@ export default function UpdateServiceForm({
         disabled={isPending}
         className="rounded bg-orange-500 px-5 py-3 font-medium text-white disabled:opacity-50"
       >
-        {isPending ? "Updating..." : "Update Service"}
+        {isPending ? 'Updating...' : 'Update Service'}
       </button>
     </form>
   );

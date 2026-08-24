@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 
 export async function updateUserStatusByAdmin(
   userId: string,
-  status: 'ACTIVE' | 'BANNED'
+  status: 'ACTIVE' | 'BANNED' | 'BLOCKED' | 'BAN' | 'UNBAN'
 ) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get('accessToken')?.value;

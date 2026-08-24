@@ -18,6 +18,7 @@ export const getMe = async () => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
+        Cookie: `accessToken=${accessToken}`,
       },
       cache: 'no-store',
     });
