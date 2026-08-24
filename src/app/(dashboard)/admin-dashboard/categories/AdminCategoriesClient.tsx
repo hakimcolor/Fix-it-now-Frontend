@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { PlusCircle, Tag, Pencil, Trash2, MoreHorizontal } from 'lucide-react';
 
@@ -56,6 +57,7 @@ interface Props {
 }
 
 export default function AdminCategoriesClient({ categories: initial }: Props) {
+  const router = useRouter();
   const [cats, setCats] = useState<Category[]>(initial);
   const [isPending, startTransition] = useTransition();
 
@@ -95,7 +97,7 @@ export default function AdminCategoriesClient({ categories: initial }: Props) {
         setNewName('');
         setNewDesc('');
         setCreateOpen(false);
-        // optimistic: reload by adding placeholder; server will revalidate
+        router.refresh();
       } else {
         toast.error(res.message);
       }
@@ -122,6 +124,7 @@ export default function AdminCategoriesClient({ categories: initial }: Props) {
           )
         );
         setEditOpen(false);
+        router.refresh();
       } else {
         toast.error(res.message);
       }
@@ -135,6 +138,7 @@ export default function AdminCategoriesClient({ categories: initial }: Props) {
       if (res.success) {
         toast.success(res.message);
         setCats((prev) => prev.filter((c) => c.id !== deleteTarget.id));
+        router.refresh();
       } else {
         toast.error(res.message);
       }
