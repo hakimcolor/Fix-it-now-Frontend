@@ -36,8 +36,6 @@ export default function RegisterForm({ role, onBack }: RegisterFormProps) {
     defaultValues: {
       name: '',
       email: '',
-      phone: '',
-      profilePhoto: '',
       password: '',
       role,
     },
@@ -92,39 +90,6 @@ export default function RegisterForm({ role, onBack }: RegisterFormProps) {
             />
             {errors.email && (
               <p className="text-xs text-destructive">{errors.email.message}</p>
-            )}
-          </div>
-
-          {/* Phone */}
-          <div className="space-y-1.5">
-            <Label htmlFor="phone">Phone number</Label>
-            <Input
-              id="phone"
-              placeholder="+8801700000000"
-              {...register('phone')}
-              className={errors.phone ? 'border-destructive' : ''}
-            />
-            {errors.phone && (
-              <p className="text-xs text-destructive">{errors.phone.message}</p>
-            )}
-          </div>
-
-          {/* Profile photo */}
-          <div className="space-y-1.5">
-            <Label htmlFor="profilePhoto">
-              Profile photo URL{' '}
-              <span className="text-muted-foreground">(optional)</span>
-            </Label>
-            <Input
-              id="profilePhoto"
-              placeholder="https://example.com/avatar.jpg"
-              {...register('profilePhoto')}
-              className={errors.profilePhoto ? 'border-destructive' : ''}
-            />
-            {errors.profilePhoto && (
-              <p className="text-xs text-destructive">
-                {errors.profilePhoto.message}
-              </p>
             )}
           </div>
 
