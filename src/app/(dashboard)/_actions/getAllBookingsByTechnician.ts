@@ -46,7 +46,7 @@ export const getBookingsByTechnician = async (technicianId: string) => {
     const token = (await cookies()).get('accessToken')?.value;
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/technician/bookings`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/technician/${technicianId}`,
       {
         method: 'GET',
         headers: {

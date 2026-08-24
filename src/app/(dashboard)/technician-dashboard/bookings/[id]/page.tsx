@@ -17,13 +17,12 @@ import { Separator } from '@/components/ui/separator';
 import {
   bookingStatusConfig,
   paymentStatusConfig,
-} from '../../dashboard/my-bookings/config/bookingStatusConfig';
-import UpdateBookingStatusByTechnician from '../../_components/updateBookingStatusByTechnician';
-import { BookingSlot } from '../../types/bookingSlotProps';
+} from '../../../dashboard/my-bookings/config/bookingStatusConfig';
+import UpdateBookingStatusByTechnician from '../../../_components/updateBookingStatusByTechnician';
+import { BookingSlot } from '../../../types/bookingSlotProps';
 
-// Reuse the admin booking-by-id action (hits /api/admin/bookings/:id)
 // For technician we use the standard /api/bookings/:id endpoint
-import { getBookingById } from '../../_actions/getBookingById';
+import { getBookingById } from '../../../_actions/getBookingById';
 
 export default async function TechnicianBookingDetailPage({
   params,

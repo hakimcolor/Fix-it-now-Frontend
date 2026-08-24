@@ -17,7 +17,7 @@ import { Separator } from '@/components/ui/separator';
 import {
   bookingStatusConfig,
   paymentStatusConfig,
-} from '../../dashboard/my-bookings/config/bookingStatusConfig';
+} from '../../../dashboard/my-bookings/config/bookingStatusConfig';
 
 export default async function AdminBookingDetailPage({
   params,

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { IBookingSlot } from '@/types/types.service';
 import BookingModal from '../_components/BookingModal';
+import { getMe } from '@/services/getMe';
 
 const SingleServiceByIdPage = async ({
   params,
@@ -26,14 +27,15 @@ const SingleServiceByIdPage = async ({
 }) => {
   const { id } = await params;
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/services/${id}`,
-    {
+  const [res, meRes] = await Promise.all([
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/services/${id}`, {
       cache: 'no-store',
-    }
-  );
+    }),
+    getMe(),
+  ]);
 
   const { data } = await res.json();
+  const isAuthenticated = meRes?.success === true;
 
   return (
     <div className="container mx-auto py-10">
@@ -41,7 +43,7 @@ const SingleServiceByIdPage = async ({
         {/* Left */}
         <div className="space-y-8 lg:col-span-2">
           <Card className="overflow-hidden">
-            <div className="relative h-[420px] w-full">
+            <div className="relative h-105 w-full">
               <Image
                 src={data.thumbnail || '/placeholder-service.png'}
                 alt={data.title}
@@ -211,6 +213,7 @@ const SingleServiceByIdPage = async ({
                 slots={data.bookingSlots.filter(
                   (slot: IBookingSlot) => slot.isAvailable
                 )}
+                isAuthenticated={isAuthenticated}
               />
             </CardContent>
           </Card>

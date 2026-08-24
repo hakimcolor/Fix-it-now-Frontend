@@ -1,6 +1,5 @@
 // "use server";
 
-
 // export const getAllCategories = async () => {
 //   try {
 //     const res = await fetch(
@@ -32,29 +31,9 @@
 //   }
 // };
 
+'use server';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"use server";
+import { cacheLife, cacheTag } from 'next/cache';
 
 export interface Category {
   id: string;
@@ -75,14 +54,13 @@ export interface GetAllCategoriesResponse {
 }
 
 export async function getAllCategories(): Promise<GetAllCategoriesResponse> {
+  'use cache';
+  cacheLife('hours');
+  cacheTag('categories');
+
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/categories`,
-      {
-        next: {
-          tags: ["categories"],
-        },
-      }
+      `${process.env.NEXT_PUBLIC_API_URL}/api/categories`
     );
 
     const result: GetAllCategoriesResponse = await res.json();
@@ -93,12 +71,12 @@ export async function getAllCategories(): Promise<GetAllCategoriesResponse> {
 
     return result;
   } catch (error) {
-    console.error("Get Categories Error:", error);
+    console.error('Get Categories Error:', error);
 
     return {
       success: false,
       statusCode: 500,
-      message: "Failed to fetch categories",
+      message: 'Failed to fetch categories',
       data: [],
     };
   }

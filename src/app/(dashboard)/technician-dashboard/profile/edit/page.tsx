@@ -22,8 +22,8 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 
-import { updateTechnicianProfile } from '../../_actions/updateTechnicianProfile';
-import { updateProfile } from '../../_actions/updateProfile';
+import { updateTechnicianProfile } from '../../../_actions/updateTechnicianProfile';
+import { updateProfile } from '../../../_actions/updateProfile';
 
 const schema = z.object({
   // base profile
@@ -39,10 +39,10 @@ const schema = z.object({
   description: z.string().optional(),
   profession: z.string().optional(),
   skills: z.string().optional(),
-  yearsOfExperience: z.coerce.number().min(0).optional(),
-  hourlyRate: z.coerce.number().min(0).optional(),
+  yearsOfExperience: z.number().min(0).optional(),
+  hourlyRate: z.number().min(0).optional(),
   isAvailable: z.boolean().optional(),
-  responseTime: z.coerce.number().min(0).optional(),
+  responseTime: z.number().min(0).optional(),
   address: z.string().optional(),
   city: z.string().optional(),
   district: z.string().optional(),
@@ -201,7 +201,7 @@ export default function EditTechnicianProfilePage() {
                 id="yearsOfExperience"
                 type="number"
                 min={0}
-                {...register('yearsOfExperience')}
+                {...register('yearsOfExperience', { valueAsNumber: true })}
               />
             </div>
             <div className="space-y-1.5">
@@ -210,7 +210,7 @@ export default function EditTechnicianProfilePage() {
                 id="hourlyRate"
                 type="number"
                 min={0}
-                {...register('hourlyRate')}
+                {...register('hourlyRate', { valueAsNumber: true })}
               />
             </div>
             <div className="space-y-1.5">
@@ -219,7 +219,7 @@ export default function EditTechnicianProfilePage() {
                 id="responseTime"
                 type="number"
                 min={0}
-                {...register('responseTime')}
+                {...register('responseTime', { valueAsNumber: true })}
               />
             </div>
             <div className="flex items-center justify-between rounded-lg border p-4">

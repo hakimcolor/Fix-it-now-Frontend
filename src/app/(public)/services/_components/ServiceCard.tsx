@@ -130,7 +130,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
         {/* Price & Button */}
         <div className="flex items-end justify-between pt-2">
           <div>
-            <h4 className="text-2xl font-bold">${service.price}</h4>
+            <h4 className="text-2xl font-bold">৳{service.price}</h4>
 
             <p className="text-xs text-muted-foreground">
               {service.priceType === 'FIXED' ? 'Fixed Price' : 'Per Hour'}

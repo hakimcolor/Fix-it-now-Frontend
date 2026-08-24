@@ -99,9 +99,7 @@ export async function getAllTechnicians(
       `${process.env.NEXT_PUBLIC_API_URL}/api/technicians?${params.toString()}`,
       {
         method: 'GET',
-        next: {
-          tags: ['technicians'],
-        },
+        cache: 'no-store',
       }
     );
 
