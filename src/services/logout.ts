@@ -9,6 +9,5 @@ export const logout = async () => {
   cookieStore.delete('accessToken');
   cookieStore.delete('refreshToken');
 
-  // two-arg form is required in this Next.js version; single-arg is deprecated
-  revalidateTag('my-profile', 'max');
+  revalidateTag('my-profile');
 };

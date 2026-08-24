@@ -1,7 +1,7 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import { updateTag } from 'next/cache';
+import { revalidateTag } from 'next/cache';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -27,7 +27,7 @@ export async function updateCategory(
       return { success: false, message: result?.message || 'Failed to update' };
     }
 
-    updateTag('categories');
+    revalidateTag('categories');
     return { success: true, message: result.message || 'Category updated' };
   } catch {
     return { success: false, message: 'Something went wrong' };
