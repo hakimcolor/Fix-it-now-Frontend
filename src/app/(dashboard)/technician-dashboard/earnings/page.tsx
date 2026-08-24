@@ -1,5 +1,5 @@
 import { DollarSign, TrendingUp, CheckCircle2, Clock3 } from 'lucide-react';
-import { getMe } from '@/services/getMe';
+import { getMyTechnicianProfile } from '../../_actions/getMyTechnicianProfile';
 import { getBookingsByTechnician } from '../../_actions/getAllBookingsByTechnician';
 import {
   Card,
@@ -20,8 +20,8 @@ import {
 import { bookingStatusConfig } from '../../dashboard/my-bookings/config/bookingStatusConfig';
 
 export default async function TechnicianEarningsPage() {
-  const me = await getMe();
-  const technicianId = me.data?.profile?.technicianProfile?.id;
+  const techProfile = await getMyTechnicianProfile();
+  const technicianId = techProfile?.id;
 
   let bookings: {
     id: string;

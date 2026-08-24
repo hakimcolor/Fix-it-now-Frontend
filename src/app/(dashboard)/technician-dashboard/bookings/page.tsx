@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { CalendarDays, Clock3, Eye, User } from 'lucide-react';
 
-import { getMe } from '@/services/getMe';
+import { getMyTechnicianProfile } from '../../_actions/getMyTechnicianProfile';
 import { getBookingsByTechnician } from '../../_actions/getAllBookingsByTechnician';
 import {
   Card,
@@ -50,8 +50,8 @@ interface Booking {
 }
 
 export default async function TechnicianBookingsPage() {
-  const me = await getMe();
-  const technicianId = me.data?.profile?.technicianProfile?.id;
+  const techProfile = await getMyTechnicianProfile();
+  const technicianId = techProfile?.id;
 
   if (!technicianId) {
     return (

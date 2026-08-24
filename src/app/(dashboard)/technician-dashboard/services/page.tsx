@@ -37,7 +37,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { getMe } from '@/services/getMe';
+import { getMyTechnicianProfile } from '../../_actions/getMyTechnicianProfile';
 import { getTechnicianById } from '../../_actions/getTechnicianById';
 import { getTechnicianServices } from '../../_actions/getTechnicianServices';
 
@@ -112,9 +112,8 @@ export interface TechnicianService {
 }
 
 export default async function TechnicianServicesPage() {
-  const me = await getMe();
-
-  const technicianId = me.data?.profile?.technicianProfile?.id;
+  const techProfile = await getMyTechnicianProfile();
+  const technicianId = techProfile?.id;
 
   if (!technicianId) {
     return (

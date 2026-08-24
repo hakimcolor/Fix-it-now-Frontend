@@ -25,16 +25,15 @@ import {
 } from '@/components/ui/table';
 
 import { Badge } from '@/components/ui/badge';
-import { getMe } from '@/services/getMe';
+import { getMyTechnicianProfile } from '../_actions/getMyTechnicianProfile';
 import { getBookingsByTechnician } from '../_actions/getAllBookingsByTechnician';
 import { bookingStatusConfig } from '../dashboard/my-bookings/config/bookingStatusConfig';
 
 export default async function TechnicianDashboardPage() {
-  const me = await getMe();
-  const technicianId = me.data?.profile?.technicianProfile?.id;
+  const techProfile = await getMyTechnicianProfile();
+  const technicianId = techProfile?.id;
 
   let bookings: any[] = [];
-  let profile = me.data?.profile?.technicianProfile;
 
   if (technicianId) {
     const res = await getBookingsByTechnician(technicianId);
@@ -72,13 +71,13 @@ export default async function TechnicianDashboardPage() {
     },
     {
       title: 'Average Rating',
-      value: profile?.averageRating?.toFixed(1) ?? '0.0',
+      value: techProfile?.averageRating?.toFixed(1) ?? '0.0',
       icon: Star,
-      description: `Based on ${profile?.totalReviews ?? 0} reviews`,
+      description: `Based on ${techProfile?.totalReviews ?? 0} reviews`,
     },
     {
       title: 'Total Earnings',
-      value: `$${totalEarnings.toLocaleString()}`,
+      value: `${totalEarnings.toLocaleString()}`,
       icon: DollarSign,
       description: 'From completed jobs',
     },

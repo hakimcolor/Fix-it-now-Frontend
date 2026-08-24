@@ -1,4 +1,4 @@
-import { getMe } from '@/services/getMe';
+import { getMyTechnicianProfile } from '../../_actions/getMyTechnicianProfile';
 import { getTechnicianServices } from '../../_actions/getTechnicianServices';
 import AvailabilityScheduler from '../../_components/AvailabilityScheduler';
 import AvailabilityRules from '../../_components/AvailabilityRules';
@@ -31,8 +31,8 @@ interface TechnicianService {
 }
 
 export default async function AvailabilityPage() {
-  const me = await getMe();
-  const technicianId = me.data?.profile?.technicianProfile?.id;
+  const techProfile = await getMyTechnicianProfile();
+  const technicianId = techProfile?.id;
 
   let services: TechnicianService[] = [];
 
