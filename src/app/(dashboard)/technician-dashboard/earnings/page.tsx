@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { bookingStatusConfig } from '../dashboard/my-bookings/config/bookingStatusConfig';
+import { bookingStatusConfig } from '../../dashboard/my-bookings/config/bookingStatusConfig';
 
 export default async function TechnicianEarningsPage() {
   const me = await getMe();
