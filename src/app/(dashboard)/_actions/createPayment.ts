@@ -14,6 +14,10 @@ export async function createPayment(bookingId: string) {
     };
   }
 
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    'https://fix-it-now-frontend-rosy.vercel.app';
+
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/payments/create`,
     {
@@ -23,7 +27,11 @@ export async function createPayment(bookingId: string) {
         Authorization: `Bearer ${accessToken}`,
         Cookie: `accessToken=${accessToken}`,
       },
-      body: JSON.stringify({ bookingId }),
+      body: JSON.stringify({
+        bookingId,
+        successUrl: `${baseUrl}/payment/success?bookingId=${bookingId}`,
+        cancelUrl: `${baseUrl}/payment/cancel?bookingId=${bookingId}`,
+      }),
       cache: 'no-store',
     }
   );
