@@ -23,6 +23,7 @@ export async function createBooking(payload: CreateBookingPayload) {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
+      Cookie: `accessToken=${accessToken}`,
     },
     body: JSON.stringify(payload),
     cache: 'no-store',

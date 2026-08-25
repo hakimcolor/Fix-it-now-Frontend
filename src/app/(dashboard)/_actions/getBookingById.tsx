@@ -1,40 +1,30 @@
-"use server";
+'use server';
 
-import { cookies } from "next/headers";
+import { cookies } from 'next/headers';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const getBookingById = async (bookingId: string) => {
   try {
     const cookieStore = await cookies();
-    const accessToken = cookieStore.get("accessToken")?.value;
+    const accessToken = cookieStore.get('accessToken')?.value;
 
     const res = await fetch(`${API_URL}/api/bookings/${bookingId}`, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         ...(accessToken && {
           Authorization: `Bearer ${accessToken}`,
+          Cookie: `accessToken=${accessToken}`,
         }),
       },
-      next: {
-        tags: ["booking"],
-      },
-      cache: "no-store",
+      cache: 'no-store',
     });
 
     const result = await res.json();
-
-    // revalidateTag("booking", "max");
-
     return result;
   } catch (error) {
-    console.error("Failed to fetch booking:", error);
-
-    return {
-      success: false,
-      message: "Failed to fetch booking.",
-      data: null,
-    };
+    console.error('Failed to fetch booking:', error);
+    return { success: false, message: 'Failed to fetch booking.', data: null };
   }
 };
