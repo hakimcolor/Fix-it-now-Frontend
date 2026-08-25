@@ -2,38 +2,41 @@
 
 import { useTransition } from 'react';
 import { toast } from 'sonner';
+import { CreditCard, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPayment } from '@/app/(dashboard)/_actions/createPayment';
 
-interface Props {
-  bookingId: string;
-}
-
-export default function StripeButton({ bookingId }: Props) {
+export default function StripeButton({ bookingId }: { bookingId: string }) {
   const [isPending, startTransition] = useTransition();
 
-  const handlePayment = () => {
+  const handle = () => {
     startTransition(async () => {
       const result = await createPayment(bookingId);
-
       if (!result.success) {
         toast.error(result.message);
         return;
       }
-
-      // If backend returns a payment/checkout URL, redirect there
       if (result.data?.paymentUrl) {
         window.location.href = result.data.paymentUrl;
         return;
       }
-
-      toast.success(result.message || 'Payment initiated successfully.');
+      toast.success(result.message || 'Payment record created.');
     });
   };
 
   return (
-    <Button className="w-full" disabled={isPending} onClick={handlePayment}>
-      {isPending ? 'Processing…' : 'Pay Now'}
+    <Button className="w-full" disabled={isPending} onClick={handle}>
+      {isPending ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Processing…
+        </>
+      ) : (
+        <>
+          <CreditCard className="mr-2 h-4 w-4" />
+          Pay with Card
+        </>
+      )}
     </Button>
   );
 }

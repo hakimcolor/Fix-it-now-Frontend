@@ -2,31 +2,25 @@
 
 import { useTransition } from 'react';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPayment } from '@/app/(dashboard)/_actions/createPayment';
 
-interface Props {
-  bookingId: string;
-}
-
-export default function SSLCommerzButton({ bookingId }: Props) {
+export default function SSLCommerzButton({ bookingId }: { bookingId: string }) {
   const [isPending, startTransition] = useTransition();
 
-  const handlePayment = () => {
+  const handle = () => {
     startTransition(async () => {
       const result = await createPayment(bookingId);
-
       if (!result.success) {
         toast.error(result.message);
         return;
       }
-
       if (result.data?.paymentUrl) {
         window.location.href = result.data.paymentUrl;
         return;
       }
-
-      toast.success(result.message || 'Payment initiated successfully.');
+      toast.success(result.message || 'Payment record created.');
     });
   };
 
@@ -35,9 +29,16 @@ export default function SSLCommerzButton({ bookingId }: Props) {
       variant="outline"
       className="w-full"
       disabled={isPending}
-      onClick={handlePayment}
+      onClick={handle}
     >
-      {isPending ? 'Processing…' : 'Pay with SSLCommerz'}
+      {isPending ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Processing…
+        </>
+      ) : (
+        'Pay with SSLCommerz'
+      )}
     </Button>
   );
 }

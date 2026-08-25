@@ -7,7 +7,11 @@ export async function createPayment(bookingId: string) {
   const accessToken = cookieStore.get('accessToken')?.value;
 
   if (!accessToken) {
-    return { success: false, message: 'Unauthorized', data: null };
+    return {
+      success: false,
+      message: 'Not authorized. Please log in.',
+      data: null,
+    };
   }
 
   const res = await fetch(
@@ -17,6 +21,7 @@ export async function createPayment(bookingId: string) {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
+        Cookie: `accessToken=${accessToken}`,
       },
       body: JSON.stringify({ bookingId }),
       cache: 'no-store',
@@ -28,14 +33,21 @@ export async function createPayment(bookingId: string) {
   if (!res.ok) {
     return {
       success: false,
-      message: result?.message || 'Failed to create payment',
+      message: result?.message || 'Failed to initiate payment.',
       data: null,
     };
   }
 
+  // Backend may return paymentUrl or url
+  const paymentUrl =
+    result?.data?.paymentUrl ??
+    result?.data?.url ??
+    result?.data?.checkoutUrl ??
+    null;
+
   return {
     success: true,
-    message: result?.message || 'Payment created successfully',
-    data: result?.data,
+    message: result?.message || 'Payment initiated.',
+    data: { ...result?.data, paymentUrl },
   };
 }
