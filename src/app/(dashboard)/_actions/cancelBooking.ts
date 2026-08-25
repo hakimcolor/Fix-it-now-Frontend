@@ -12,6 +12,7 @@ export async function cancelBooking(bookingId: string, reason?: string) {
       method: 'PATCH',
       headers: {
         Authorization: `Bearer ${token}`,
+        Cookie: `accessToken=${token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ reason: reason || '' }),

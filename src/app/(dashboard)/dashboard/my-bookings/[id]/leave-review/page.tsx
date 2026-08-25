@@ -66,12 +66,7 @@ export default async function LeaveReview({
 
   return (
     <div className="container mx-auto max-w-3xl py-10">
-      <LeaveReviewForm
-        customerId={booking.customerId}
-        technicianProfileId={booking.technicianProfileId}
-        bookingId={booking.id}
-        serviceId={booking.serviceId}
-      />
+      <LeaveReviewForm bookingId={booking.id} />
     </div>
   );
 }

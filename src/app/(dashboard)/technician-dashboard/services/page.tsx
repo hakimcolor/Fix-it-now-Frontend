@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Plus, Pencil, Trash2, Tag, LayoutGrid } from 'lucide-react';
+import { Plus, Pencil, Tag, LayoutGrid } from 'lucide-react';
 
 import { getMyServices } from '../../_actions/getMyServices';
 import { Badge } from '@/components/ui/badge';

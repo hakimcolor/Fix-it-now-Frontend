@@ -18,6 +18,7 @@ export const createCheckoutSession = async (payload: CheckoutPayload) => {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
+        Cookie: `accessToken=${accessToken}`,
       },
       body: JSON.stringify(payload),
       cache: 'no-store',

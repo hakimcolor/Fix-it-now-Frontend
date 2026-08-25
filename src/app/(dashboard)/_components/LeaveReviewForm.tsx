@@ -5,38 +5,28 @@ import { Star, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 
 import {
+  Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
-import { toast } from 'sonner';
-
 import { ReviewFormValues, reviewSchema } from '@/schemas/reviewSchema';
 import { leaveReview } from '../_actions/LeaveReview';
 
-interface LeaveReviewFormProps {
-  customerId: string;
-  technicianProfileId: string;
+interface Props {
   bookingId: string;
-  serviceId: string;
 }
 
-export default function LeaveReviewForm({
-  customerId,
-  technicianProfileId,
-  bookingId,
-  serviceId,
-}: LeaveReviewFormProps) {
+export default function LeaveReviewForm({ bookingId }: Props) {
   const router = useRouter();
-
   const [hoveredStar, setHoveredStar] = useState(0);
 
   const {
@@ -47,43 +37,26 @@ export default function LeaveReviewForm({
     formState: { errors, isSubmitting },
   } = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewSchema),
-    defaultValues: {
-      customerId,
-      technicianProfileId,
-      bookingId,
-      serviceId,
-      rating: 5,
-      comment: '',
-    },
+    defaultValues: { bookingId, rating: 5, comment: '' },
   });
 
   const rating = watch('rating');
 
   const onSubmit = async (data: ReviewFormValues) => {
-    try {
-      const result = await leaveReview(data);
-
-      if (!result.success) {
-        toast.error(result.message);
-        return;
-      }
-
-      toast.success('Review submitted successfully!');
-
-      router.push('/dashboard/my-bookings');
-      router.refresh();
-    } catch (error) {
-      console.error(error);
-
-      toast.error('Something went wrong.');
+    const result = await leaveReview(data);
+    if (!result.success) {
+      toast.error(result.message);
+      return;
     }
+    toast.success('Review submitted!');
+    router.push('/dashboard/reviews');
+    router.refresh();
   };
 
   return (
-    <>
+    <Card className="mx-auto max-w-xl">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">Leave a Review</CardTitle>
-
         <CardDescription>
           Share your experience with the technician.
         </CardDescription>
@@ -91,56 +64,55 @@ export default function LeaveReviewForm({
 
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Hidden Fields */}
-          <input type="hidden" {...register('customerId')} />
-
-          <input type="hidden" {...register('technicianProfileId')} />
-
           <input type="hidden" {...register('bookingId')} />
 
-          <input type="hidden" {...register('serviceId')} />
-
-          {/* Rating */}
+          {/* Star rating */}
           <div className="space-y-2">
             <Label>Rating</Label>
-
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
                   type="button"
                   onMouseEnter={() => setHoveredStar(star)}
                   onMouseLeave={() => setHoveredStar(0)}
-                  onClick={() => setValue('rating', star)}
+                  onClick={() =>
+                    setValue('rating', star, { shouldValidate: true })
+                  }
                 >
                   <Star
-                    className={`h-8 w-8 transition ${
+                    className={`h-9 w-9 transition-colors ${
                       star <= (hoveredStar || rating)
                         ? 'fill-yellow-400 text-yellow-400'
-                        : 'text-gray-300'
+                        : 'text-muted-foreground/30'
                     }`}
                   />
                 </button>
               ))}
+              <span className="ml-2 text-sm text-muted-foreground">
+                {rating}/5
+              </span>
             </div>
-
             {errors.rating && (
-              <p className="text-sm text-red-500">{errors.rating.message}</p>
+              <p className="text-xs text-destructive">
+                {errors.rating.message}
+              </p>
             )}
           </div>
 
           {/* Comment */}
           <div className="space-y-2">
-            <Label>Comment</Label>
-
+            <Label htmlFor="comment">Comment</Label>
             <Textarea
-              rows={6}
+              id="comment"
+              rows={5}
               placeholder="Tell us about your experience..."
               {...register('comment')}
             />
-
             {errors.comment && (
-              <p className="text-sm text-red-500">{errors.comment.message}</p>
+              <p className="text-xs text-destructive">
+                {errors.comment.message}
+              </p>
             )}
           </div>
 
@@ -153,12 +125,11 @@ export default function LeaveReviewForm({
             >
               Cancel
             </Button>
-
             <Button type="submit" className="flex-1" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting...
+                  Submitting…
                 </>
               ) : (
                 <>
@@ -170,6 +141,6 @@ export default function LeaveReviewForm({
           </div>
         </form>
       </CardContent>
-    </>
+    </Card>
   );
 }

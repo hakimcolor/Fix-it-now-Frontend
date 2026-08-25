@@ -39,6 +39,7 @@ export async function getMyPayments(): Promise<ApiResponse> {
     method: 'GET',
     headers: {
       Authorization: token ? `Bearer ${token}` : '',
+      Cookie: token ? `accessToken=${token}` : '',
     },
     cache: 'no-store',
   });
